@@ -44,9 +44,12 @@ void Interrupt(){
 
  if (TMR2IF_bit){
 
+ RD1_bit = ~RD1_bit;
+
  if (contw<=43){
  BS = ~BS;
  RD0_bit = BS;
+
  if (contw==25){
  TMR1ON_bit=1;
  TMR1L=0X00;

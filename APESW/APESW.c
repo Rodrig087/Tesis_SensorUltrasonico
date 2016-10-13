@@ -55,9 +55,12 @@ void Interrupt(){
 
     if (TMR2IF_bit){                             //Verifica si ocurrio una interrupcion por desbordamiento del TMR2.
 
+       RD1_bit = ~RD1_bit;                    //Genera un tren de pulsos de 40KHz en el pin RD1
+       
        if (contw<=43){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. 43
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
+
           if (contw==25){                        //Se empieza a contar el tiempo desde el primer pulso en alto despues del cambio de fase. 25
              TMR1ON_bit=1;                       //Enciende el TMR1.
              TMR1L=0X00;                         //Limpia los bits menos significativos del TMR1.
