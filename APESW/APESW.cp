@@ -42,6 +42,7 @@ sbit LCD_D7_Direction at TRISD7_bit;
 
 void Interrupt(){
 
+
  if (TMR2IF_bit){
 
  RD1_bit = ~RD1_bit;
@@ -71,12 +72,14 @@ void Interrupt(){
  TMR2IF_bit = 0;
  }
 
+
+
  if (INTCON.INT0IF == 1){
  *(punT1) = TMR1L;
  *(punT1+1) = TMR1H;
  T2 = contw;
  DT = T2-T1;
- if ((DT>2)&&(DT<10)){
+ if ((T2>43)&&(DT!=T2)&&(DT!=2)){
  contT1 = contT;
  TMR1ON_bit=0;
  contT = 0;

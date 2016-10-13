@@ -52,7 +52,8 @@ sbit LCD_D7_Direction at TRISD7_bit;
 
 
 void Interrupt(){
-
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//Interrupcion TIMER 2:
     if (TMR2IF_bit){                             //Verifica si ocurrio una interrupcion por desbordamiento del TMR2.
 
        RD1_bit = ~RD1_bit;                       //Genera un tren de pulsos de 40KHz en el pin RD1
@@ -81,13 +82,15 @@ void Interrupt(){
        contw++;                                  //Aumenta el contador en una unidad.
        TMR2IF_bit = 0;                           //Limpia la bandera de interrupcion de Timer2
     }
-
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//Interrupcion INT0:
     if (INTCON.INT0IF == 1){                     //Verifica si ocurrio una interrupcion externa en INT0.
        *(punT1) = TMR1L;                         //Carga el valor actual de TMR1L en los 8 bits menos significativos de la variable contT de tipo entero.
        *(punT1+1) = TMR1H;                       //Carga el valor actual de TMR1H en los 8 bits mas significativos de la variable  contT de tipo entero.
        T2 = contw;                               //Carga el valor actual del contador contw en la variable T2.
        DT = T2-T1;                               //Halla la diferencia entre los valores actual y anterior del contador contw.
-       if ((DT>2)&&(DT<10)){                     //Verifica si ocurrio el cambio de fase segun el resultado de la diferencia.
+       if ((T2>43)&&(DT!=T2)&&(DT!=2)){          //Detecta el cambio de fase segun el resultado de la diferencia.
           contT1 = contT;                        //Carga el contenido de la variable contT en la variable contT1.
           TMR1ON_bit=0;                          //Apaga el TMR1.
           contT = 0;                             //Limpia el contenido de la variable contT.
@@ -100,7 +103,7 @@ void Interrupt(){
        TMR1IF_bit=0;                             //Limpia la bandera de interrupcion de Timer1.
     }
 }
-
+//--------------------------------------------------------------------------------------------------------------------------------------------
 
 
 void main() {
