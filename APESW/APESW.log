@@ -1,12 +1,12 @@
 0	1	mikroCPIC1618.exe -MSF -DBG -pP18F4550 -DL -O11111114 -fo8 -N"E:\Milton\Github\Tesis\SensorUltrasonico\APESW\APESW.mcppi" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\" -SP"E:\Milton\Github\Tesis\SensorUltrasonico\APESW\" -SP"E:\Google Drive\Tesis\Programas\MikroC\Sensor Ultrasonico\Version 5\Sensor Ultrasonico\APESW\" "APESW.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CString.mcl" "__Lib_Conversions.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl"	 
 hint: 0	1139	Available RAM: 2027 [bytes], Available ROM: 32768 [bytes]	 
 diagnostics: 0	122	Compilation Started	APESW.c
-warning: 137	1505	Suspicious pointer conversion	APESW.c
-diagnostics: 161	123	Compiled Successfully	APESW.c
+warning: 140	1505	Suspicious pointer conversion	APESW.c
+diagnostics: 165	123	Compiled Successfully	APESW.c
 diagnostics: 0	127	All files Compiled in 62 ms	 
-hint: 0	1144	Used RAM (bytes): 64 (3%)  Free RAM (bytes): 1963 (97%)	Used RAM (bytes): 64 (3%)  Free RAM (bytes): 1963 (97%)
-hint: 0	1144	Used ROM (bytes): 4522 (14%)  Free ROM (bytes): 28246 (86%)	Used ROM (bytes): 4522 (14%)  Free ROM (bytes): 28246 (86%)
+hint: 0	1144	Used RAM (bytes): 65 (3%)  Free RAM (bytes): 1962 (97%)	Used RAM (bytes): 65 (3%)  Free RAM (bytes): 1962 (97%)
+hint: 0	1144	Used ROM (bytes): 4536 (14%)  Free ROM (bytes): 28232 (86%)	Used ROM (bytes): 4536 (14%)  Free ROM (bytes): 28232 (86%)
 diagnostics: 0	125	Project Linked Successfully	APESW.mcppi
-diagnostics: 0	128	Linked in 63 ms	 
-diagnostics: 0	129	Project 'APESW.mcppi' completed: 172 ms	 
-diagnostics: 0	103	Finished successfully: 13 oct. 2016, 17:17:13	APESW.mcppi
+diagnostics: 0	128	Linked in 78 ms	 
+diagnostics: 0	129	Project 'APESW.mcppi' completed: 187 ms	 
+diagnostics: 0	103	Finished successfully: 13 oct. 2016, 17:45:15	APESW.mcppi

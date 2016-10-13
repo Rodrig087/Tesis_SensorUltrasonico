@@ -25,7 +25,8 @@ unsigned int T1;
 unsigned int T2;
 unsigned int DT;
 
-unsigned short BS;
+unsigned short BS;                             //Variable auxiliar para establecer el cambio de estado en el bit RD0.
+unsigned short FP;                             //Bandera de deteccion de cambio de fase
 
 float TOFT;
 
@@ -73,7 +74,8 @@ void Interrupt(){
 
        } else {
           RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
-       }
+          FP = 1;                                //Habilita la bandera de deteccion de fase para permitir la deteccion una vez que se hayan
+       }                                         //terminado de enviar todos los pulsos de exitacion
 
        if (contw>=800){                          //Limpia el contador cada 800 interrupciones (10ms) para el reenvio de los pulsos
           contw = 0;                             //de exitacion del transductor ultrasonico.
@@ -90,10 +92,11 @@ void Interrupt(){
        *(punT1+1) = TMR1H;                       //Carga el valor actual de TMR1H en los 8 bits mas significativos de la variable  contT de tipo entero.
        T2 = contw;                               //Carga el valor actual del contador contw en la variable T2.
        DT = T2-T1;                               //Halla la diferencia entre los valores actual y anterior del contador contw.
-       if ((T2>43)&&(DT!=T2)&&(DT!=2)){          //Detecta el cambio de fase segun el resultado de la diferencia.
+       if ((FP==1)&&(T2>43)&&(DT!=T2)&&(DT!=2)){ //Detecta el cambio de fase segun el resultado de la diferencia.
           contT1 = contT;                        //Carga el contenido de la variable contT en la variable contT1.
           TMR1ON_bit=0;                          //Apaga el TMR1.
           contT = 0;                             //Limpia el contenido de la variable contT.
+          FP = 0;                                //Limpia la bandera de deteccion de fase para evitar detectar 2 cambios seguidos.
        }
        T1 = contw;                               //Actualiza T1 con el valor actual del contador contw.
        INTCON.INT0IF = 0;                        //Limpia la bandera de interrupcion de INT0.
@@ -139,6 +142,7 @@ void main() {
      contw = 0;                                  //Limpia todas las variables
      contT1 = 0;
      BS = 0;
+     FP = 0;
      T1 = 0;
      T2 = 0;
      TOFT = 0;

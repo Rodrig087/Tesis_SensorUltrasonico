@@ -15,6 +15,7 @@ unsigned int T2;
 unsigned int DT;
 
 unsigned short BS;
+unsigned short FP;
 
 float TOFT;
 
@@ -62,6 +63,7 @@ void Interrupt(){
 
  } else {
  RD0_bit = 0;
+ FP = 1;
  }
 
  if (contw>=800){
@@ -79,10 +81,11 @@ void Interrupt(){
  *(punT1+1) = TMR1H;
  T2 = contw;
  DT = T2-T1;
- if ((T2>43)&&(DT!=T2)&&(DT!=2)){
+ if ((FP==1)&&(T2>43)&&(DT!=T2)&&(DT!=2)){
  contT1 = contT;
  TMR1ON_bit=0;
  contT = 0;
+ FP = 0;
  }
  T1 = contw;
  INTCON.INT0IF = 0;
@@ -128,6 +131,7 @@ void main() {
  contw = 0;
  contT1 = 0;
  BS = 0;
+ FP = 0;
  T1 = 0;
  T2 = 0;
  TOFT = 0;

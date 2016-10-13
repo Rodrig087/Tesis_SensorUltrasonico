@@ -466,6 +466,7 @@ fixsign32
 floattostr
 flts
 flts_bit
+fp
 free
 free_bit
 frm0
