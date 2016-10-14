@@ -137,12 +137,13 @@ void main() {
  TOFT = 0;
 
  Lcd_init();
+ Lcd_Out(1,1,"INICIANDO...");
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
 
  while (1){
 
- TOFT = (contT1 * 0.1) - 2.49;
+ TOFT = (contT1 * 0.1666);
 
  FloatToStr(TOFT, txt1);
  Lcd_Out(1,1,"TOF: ");

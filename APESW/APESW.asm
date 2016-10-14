@@ -7,7 +7,7 @@ _Interrupt:
 	GOTO        L_Interrupt0
 ;APESW.c,60 :: 		RD1_bit = ~RD1_bit;                       //Genera un tren de pulsos de 40KHz en el pin RD1
 	BTG         RD1_bit+0, BitPos(RD1_bit+0) 
-;APESW.c,62 :: 		if (contw<=43){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. 43
+;APESW.c,62 :: 		if (contw<=43){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
 	MOVLW       0
 	MOVWF       R0 
 	MOVF        _contw+1, 0 
@@ -50,7 +50,7 @@ L__Interrupt20:
 	CLRF        TMR1H+0 
 ;APESW.c,70 :: 		}
 L_Interrupt2:
-;APESW.c,71 :: 		if (contw==22){                        //Cambia el valor de la variable auxiliar para producir  22
+;APESW.c,71 :: 		if (contw==22){                        //Cambia el valor de la variable auxiliar para producir  (22)
 	MOVLW       0
 	XORWF       _contw+1, 0 
 	BTFSS       STATUS+0, 2 
@@ -268,40 +268,41 @@ _main:
 	CLRF        _TOFT+3 
 ;APESW.c,150 :: 		Lcd_init();                                 //Inicializa el LCD
 	CALL        _Lcd_Init+0, 0
-;APESW.c,151 :: 		Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
+;APESW.c,151 :: 		Lcd_Out(1,1,"INICIANDO...");
+	MOVLW       1
+	MOVWF       FARG_Lcd_Out_row+0 
+	MOVLW       1
+	MOVWF       FARG_Lcd_Out_column+0 
+	MOVLW       ?lstr1_APESW+0
+	MOVWF       FARG_Lcd_Out_text+0 
+	MOVLW       hi_addr(?lstr1_APESW+0)
+	MOVWF       FARG_Lcd_Out_text+1 
+	CALL        _Lcd_Out+0, 0
+;APESW.c,152 :: 		Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
 	CALL        _Lcd_Cmd+0, 0
-;APESW.c,152 :: 		Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
+;APESW.c,153 :: 		Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
 	MOVLW       12
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
 	CALL        _Lcd_Cmd+0, 0
-;APESW.c,154 :: 		while (1){
+;APESW.c,155 :: 		while (1){
 L_main11:
-;APESW.c,156 :: 		TOFT = (contT1 * 0.1) - 2.49;         //Calcula el valor de TOF considerando el error de retraso de la senal AM = 2.49
+;APESW.c,157 :: 		TOFT = (contT1 * 0.1666);          //Calcula el valor de TOF
 	MOVF        _contT1+0, 0 
 	MOVWF       R0 
 	MOVF        _contT1+1, 0 
 	MOVWF       R1 
 	CALL        _word2double+0, 0
-	MOVLW       205
+	MOVLW       49
 	MOVWF       R4 
-	MOVLW       204
+	MOVLW       153
 	MOVWF       R5 
-	MOVLW       76
+	MOVLW       42
 	MOVWF       R6 
-	MOVLW       123
+	MOVLW       124
 	MOVWF       R7 
 	CALL        _Mul_32x32_FP+0, 0
-	MOVLW       41
-	MOVWF       R4 
-	MOVLW       92
-	MOVWF       R5 
-	MOVLW       31
-	MOVWF       R6 
-	MOVLW       128
-	MOVWF       R7 
-	CALL        _Sub_32x32_FP+0, 0
 	MOVF        R0, 0 
 	MOVWF       _TOFT+0 
 	MOVF        R1, 0 
@@ -310,7 +311,7 @@ L_main11:
 	MOVWF       _TOFT+2 
 	MOVF        R3, 0 
 	MOVWF       _TOFT+3 
-;APESW.c,158 :: 		FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
+;APESW.c,159 :: 		FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
 	MOVF        R0, 0 
 	MOVWF       FARG_FloatToStr_fnum+0 
 	MOVF        R1, 0 
@@ -324,23 +325,23 @@ L_main11:
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_FloatToStr_str+1 
 	CALL        _FloatToStr+0, 0
-;APESW.c,159 :: 		Lcd_Out(1,1,"TOF: ");
+;APESW.c,160 :: 		Lcd_Out(1,1,"TOF: ");
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_column+0 
-	MOVLW       ?lstr1_APESW+0
+	MOVLW       ?lstr2_APESW+0
 	MOVWF       FARG_Lcd_Out_text+0 
-	MOVLW       hi_addr(?lstr1_APESW+0)
+	MOVLW       hi_addr(?lstr2_APESW+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;APESW.c,160 :: 		Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD
+;APESW.c,161 :: 		Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD
 	MOVLW       _txt1+0
 	MOVWF       FARG_Lcd_Out_CP_text+0 
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_Lcd_Out_CP_text+1 
 	CALL        _Lcd_Out_CP+0, 0
-;APESW.c,162 :: 		delay_ms(1);
+;APESW.c,163 :: 		delay_ms(1);
 	MOVLW       3
 	MOVWF       R12, 0
 	MOVLW       151
@@ -352,9 +353,9 @@ L_main13:
 	BRA         L_main13
 	NOP
 	NOP
-;APESW.c,164 :: 		}
-	GOTO        L_main11
 ;APESW.c,165 :: 		}
+	GOTO        L_main11
+;APESW.c,166 :: 		}
 L_end_main:
 	GOTO        $+0
 ; end of _main

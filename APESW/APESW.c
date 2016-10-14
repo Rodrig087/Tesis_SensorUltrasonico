@@ -59,7 +59,7 @@ void Interrupt(){
 
        RD1_bit = ~RD1_bit;                       //Genera un tren de pulsos de 40KHz en el pin RD1
        
-       if (contw<=43){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. 43
+       if (contw<=43){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
 
@@ -68,7 +68,7 @@ void Interrupt(){
              TMR1L=0X00;                         //Limpia los bits menos significativos del TMR1.
              TMR1H=0X00;                         //Limpia los bits mas significativos del TMR1.
           }
-          if (contw==22){                        //Cambia el valor de la variable auxiliar para producir  22
+          if (contw==22){                        //Cambia el valor de la variable auxiliar para producir  (22)
                 BS = 0;                          //el cambio de fase en la siguiente iteracion.
           }
 
@@ -148,17 +148,18 @@ void main() {
      TOFT = 0;
      
      Lcd_init();                                 //Inicializa el LCD
+     Lcd_Out(1,1,"INICIANDO...");
      Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
      Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
 
      while (1){
 
-           TOFT = (contT1 * 0.1) - 2.49;         //Calcula el valor de TOF considerando el error de retraso de la senal AM = 2.49
+           TOFT = (contT1 * 0.1666);          //Calcula el valor de TOF
            
            FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
            Lcd_Out(1,1,"TOF: ");
            Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD
-           
+
            delay_ms(1);
 
      }
