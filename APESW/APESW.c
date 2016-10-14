@@ -63,10 +63,11 @@ void Interrupt(){
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
 
-
-          TMR1ON_bit=1;                          //Enciende el TMR1.
-          TMR1L=0X00;                            //Limpia los bits menos significativos del TMR1.
-          TMR1H=0X00;                            //Limpia los bits mas significativos del TMR1.
+          if (contw==1){
+             TMR1ON_bit=1;                          //Enciende el TMR1.
+             TMR1L=0X00;                            //Limpia los bits menos significativos del TMR1.
+             TMR1H=0X00;                            //Limpia los bits mas significativos del TMR1.
+          }
 
           if (contw==22){                        //Cambia el valor de la variable auxiliar para producir  (22)
                 BS = 0;                          //el cambio de fase en la siguiente iteracion.
@@ -139,7 +140,7 @@ void main() {
 
      while (1){
 
-           TOFT = (contT1 * 0.0833333);          //Calcula el valor de TOF
+           TOFT = (contT1) * (4./48);          //Calcula el valor de TOF
            
            FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
            Lcd_Out(1,1,"Duracion: ");

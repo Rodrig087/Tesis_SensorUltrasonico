@@ -52,10 +52,11 @@ void Interrupt(){
  BS = ~BS;
  RD0_bit = BS;
 
-
+ if (contw==1){
  TMR1ON_bit=1;
  TMR1L=0X00;
  TMR1H=0X00;
+ }
 
  if (contw==22){
  BS = 0;
@@ -128,7 +129,7 @@ void main() {
 
  while (1){
 
- TOFT = (contT1 * 0.0833333);
+ TOFT = (contT1) * (4./48);
 
  FloatToStr(TOFT, txt1);
  Lcd_Out(1,1,"Duracion: ");
