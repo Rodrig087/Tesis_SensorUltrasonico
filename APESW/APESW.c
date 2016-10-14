@@ -63,19 +63,24 @@ void Interrupt(){
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
 
-          if (contw==25){                        //Se empieza a contar el tiempo desde el primer pulso en alto despues del cambio de fase. 25
-             TMR1ON_bit=1;                       //Enciende el TMR1.
-             TMR1L=0X00;                         //Limpia los bits menos significativos del TMR1.
-             TMR1H=0X00;                         //Limpia los bits mas significativos del TMR1.
-          }
+
+          TMR1ON_bit=1;                          //Enciende el TMR1.
+          TMR1L=0X00;                            //Limpia los bits menos significativos del TMR1.
+          TMR1H=0X00;                            //Limpia los bits mas significativos del TMR1.
+
           if (contw==22){                        //Cambia el valor de la variable auxiliar para producir  (22)
                 BS = 0;                          //el cambio de fase en la siguiente iteracion.
           }
 
        } else {
           RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
-          FP = 1;                                //Habilita la bandera de deteccion de fase para permitir la deteccion una vez que se hayan
-       }                                         //terminado de enviar todos los pulsos de exitacion
+          *(punT1) = TMR1L;                      //Carga el valor actual de TMR1L en los 8 bits menos significativos de la variable contT de tipo entero.
+          *(punT1+1) = TMR1H;                    //Carga el valor actual de TMR1H en los 8 bits mas significativos de la variable  contT de tipo entero.
+          contT1 = contT;                        //Carga el contenido de la variable contT en la variable contT1.
+          TMR1ON_bit=0;                          //Apaga el TMR1.
+          contT = 0;                             //Limpia el contenido de la variable contT.
+          INTCON.INT0IF = 0;                     //Limpia la bandera de interrupcion de INT0.
+       }
 
        if (contw>=800){                          //Limpia el contador cada 800 interrupciones (10ms) para el reenvio de los pulsos
           contw = 0;                             //de exitacion del transductor ultrasonico.
@@ -84,27 +89,7 @@ void Interrupt(){
        contw++;                                  //Aumenta el contador en una unidad.
        TMR2IF_bit = 0;                           //Limpia la bandera de interrupcion de Timer2
     }
-//--------------------------------------------------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------------------------------------
-//Interrupcion INT0:
-    if (INTCON.INT0IF == 1){                     //Verifica si ocurrio una interrupcion externa en INT0.
-       *(punT1) = TMR1L;                         //Carga el valor actual de TMR1L en los 8 bits menos significativos de la variable contT de tipo entero.
-       *(punT1+1) = TMR1H;                       //Carga el valor actual de TMR1H en los 8 bits mas significativos de la variable  contT de tipo entero.
-       T2 = contw;                               //Carga el valor actual del contador contw en la variable T2.
-       DT = T2-T1;                               //Halla la diferencia entre los valores actual y anterior del contador contw.
-       if ((FP==1)&&(T2>43)&&(DT!=T2)&&(DT!=2)){ //Detecta el cambio de fase segun el resultado de la diferencia.
-          contT1 = contT;                        //Carga el contenido de la variable contT en la variable contT1.
-          TMR1ON_bit=0;                          //Apaga el TMR1.
-          contT = 0;                             //Limpia el contenido de la variable contT.
-          FP = 0;                                //Limpia la bandera de deteccion de fase para evitar detectar 2 cambios seguidos.
-       }
-       T1 = contw;                               //Actualiza T1 con el valor actual del contador contw.
-       INTCON.INT0IF = 0;                        //Limpia la bandera de interrupcion de INT0.
-    }
-    
-    if (TMR1IF_bit){
-       TMR1IF_bit=0;                             //Limpia la bandera de interrupcion de Timer1.
-    }
+
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -154,10 +139,10 @@ void main() {
 
      while (1){
 
-           TOFT = (contT1 * 0.1666);          //Calcula el valor de TOF
+           TOFT = (contT1 * 0.0833333);          //Calcula el valor de TOF
            
            FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
-           Lcd_Out(1,1,"TOF: ");
+           Lcd_Out(1,1,"Duracion: ");
            Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD
 
            delay_ms(1);

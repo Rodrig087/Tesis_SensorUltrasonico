@@ -52,18 +52,23 @@ void Interrupt(){
  BS = ~BS;
  RD0_bit = BS;
 
- if (contw==25){
+
  TMR1ON_bit=1;
  TMR1L=0X00;
  TMR1H=0X00;
- }
+
  if (contw==22){
  BS = 0;
  }
 
  } else {
  RD0_bit = 0;
- FP = 1;
+ *(punT1) = TMR1L;
+ *(punT1+1) = TMR1H;
+ contT1 = contT;
+ TMR1ON_bit=0;
+ contT = 0;
+ INTCON.INT0IF = 0;
  }
 
  if (contw>=800){
@@ -74,26 +79,6 @@ void Interrupt(){
  TMR2IF_bit = 0;
  }
 
-
-
- if (INTCON.INT0IF == 1){
- *(punT1) = TMR1L;
- *(punT1+1) = TMR1H;
- T2 = contw;
- DT = T2-T1;
- if ((FP==1)&&(T2>43)&&(DT!=T2)&&(DT!=2)){
- contT1 = contT;
- TMR1ON_bit=0;
- contT = 0;
- FP = 0;
- }
- T1 = contw;
- INTCON.INT0IF = 0;
- }
-
- if (TMR1IF_bit){
- TMR1IF_bit=0;
- }
 }
 
 
@@ -143,10 +128,10 @@ void main() {
 
  while (1){
 
- TOFT = (contT1 * 0.1666);
+ TOFT = (contT1 * 0.0833333);
 
  FloatToStr(TOFT, txt1);
- Lcd_Out(1,1,"TOF: ");
+ Lcd_Out(1,1,"Duracion: ");
  Lcd_Out_Cp(txt1);
 
  delay_ms(1);
