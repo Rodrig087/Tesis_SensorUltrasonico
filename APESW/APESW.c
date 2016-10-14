@@ -27,6 +27,7 @@ unsigned int DT;
 
 unsigned short BS;                             //Variable auxiliar para establecer el cambio de estado en el bit RD0.
 unsigned short FP;                             //Bandera de deteccion de cambio de fase
+unsigned short FIE;                            //Bandera de interrupcion externa
 
 float TOFT;
 
@@ -74,11 +75,14 @@ void Interrupt(){
 
        } else {
           RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
-          FP = 1;                                //Habilita la bandera de deteccion de fase para permitir la deteccion una vez que se hayan
-       }                                         //terminado de enviar todos los pulsos de exitacion
+          FP = 1;                                //Habilita la bandera de deteccion de fase para permitir la deteccion una vez que se hayan terminado de enviar todos los pulsos de exitacion
+       }
 
        if (contw>=800){                          //Limpia el contador cada 800 interrupciones (10ms) para el reenvio de los pulsos
           contw = 0;                             //de exitacion del transductor ultrasonico.
+          T1=0;
+          T2=0;
+          DT=0;
        }
 
        contw++;                                  //Aumenta el contador en una unidad.
@@ -92,12 +96,13 @@ void Interrupt(){
        *(punT1+1) = TMR1H;                       //Carga el valor actual de TMR1H en los 8 bits mas significativos de la variable  contT de tipo entero.
        T2 = contw;                               //Carga el valor actual del contador contw en la variable T2.
        DT = T2-T1;                               //Halla la diferencia entre los valores actual y anterior del contador contw.
-       if ((FP==1)&&(T2>43)&&(DT!=T2)&&(DT!=2)){ //Detecta el cambio de fase segun el resultado de la diferencia.
+       
+       if ((T2>43)&&(DT!=T2)&&(DT!=2)){          //Detecta el cambio de fase segun el resultado de la diferencia.
           contT1 = contT;                        //Carga el contenido de la variable contT en la variable contT1.
           TMR1ON_bit=0;                          //Apaga el TMR1.
           contT = 0;                             //Limpia el contenido de la variable contT.
-          FP = 0;                                //Limpia la bandera de deteccion de fase para evitar detectar 2 cambios seguidos.
        }
+       
        T1 = contw;                               //Actualiza T1 con el valor actual del contador contw.
        INTCON.INT0IF = 0;                        //Limpia la bandera de interrupcion de INT0.
     }
@@ -154,7 +159,7 @@ void main() {
 
      while (1){
 
-           TOFT = (contT1 * 0.1666);          //Calcula el valor de TOF
+           TOFT = (contT1)*(4./48);          //Calcula el valor de TOF
            
            FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
            Lcd_Out(1,1,"TOF: ");

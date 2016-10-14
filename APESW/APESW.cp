@@ -16,6 +16,7 @@ unsigned int DT;
 
 unsigned short BS;
 unsigned short FP;
+unsigned short FIE;
 
 float TOFT;
 
@@ -68,6 +69,9 @@ void Interrupt(){
 
  if (contw>=800){
  contw = 0;
+ T1=0;
+ T2=0;
+ DT=0;
  }
 
  contw++;
@@ -81,12 +85,13 @@ void Interrupt(){
  *(punT1+1) = TMR1H;
  T2 = contw;
  DT = T2-T1;
- if ((FP==1)&&(T2>43)&&(DT!=T2)&&(DT!=2)){
+
+ if ((T2>43)&&(DT!=T2)&&(DT!=2)){
  contT1 = contT;
  TMR1ON_bit=0;
  contT = 0;
- FP = 0;
  }
+
  T1 = contw;
  INTCON.INT0IF = 0;
  }
@@ -143,7 +148,7 @@ void main() {
 
  while (1){
 
- TOFT = (contT1 * 0.1666);
+ TOFT = (contT1)*(4./48);
 
  FloatToStr(TOFT, txt1);
  Lcd_Out(1,1,"TOF: ");
