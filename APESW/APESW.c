@@ -60,16 +60,16 @@ void Interrupt(){
 
        RD1_bit = ~RD1_bit;                       //Genera un tren de pulsos de 40KHz en el pin RD1
        
-       if (contw<=64){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
+       if (contw<=67){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
 
-          if (contw==25){                        //Se empieza a contar el tiempo desde el primer pulso en alto despues del cambio de fase. 25
+          if (contw==90){                        //Se empieza a contar el tiempo desde el primer pulso en alto despues del cambio de fase. 25
              TMR1ON_bit=1;                       //Enciende el TMR1.
              TMR1L=0X00;                         //Limpia los bits menos significativos del TMR1.
              TMR1H=0X00;                         //Limpia los bits mas significativos del TMR1.
           }
-          if ((contw==15)||(contw==32)||(contw==49)){                        //Cambia el valor de la variable auxiliar para producir  (22)
+          if ((contw==22)||(contw==45)){                        //Cambia el valor de la variable auxiliar para producir  (22)
                 BS = ~BS;                          //el cambio de fase en la siguiente iteracion.
           }
 

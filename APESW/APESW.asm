@@ -7,7 +7,7 @@ _Interrupt:
 	GOTO        L_Interrupt0
 ;APESW.c,61 :: 		RD1_bit = ~RD1_bit;                       //Genera un tren de pulsos de 40KHz en el pin RD1
 	BTG         RD1_bit+0, BitPos(RD1_bit+0) 
-;APESW.c,63 :: 		if (contw<=64){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
+;APESW.c,63 :: 		if (contw<=67){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
 	MOVLW       0
 	MOVWF       R0 
 	MOVF        _contw+1, 0 
@@ -15,7 +15,7 @@ _Interrupt:
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt20
 	MOVF        _contw+0, 0 
-	SUBLW       64
+	SUBLW       67
 L__Interrupt20:
 	BTFSS       STATUS+0, 0 
 	GOTO        L_Interrupt1
@@ -32,12 +32,12 @@ L__Interrupt20:
 L__Interrupt21:
 	BSF         RD0_bit+0, BitPos(RD0_bit+0) 
 L__Interrupt22:
-;APESW.c,67 :: 		if (contw==25){                        //Se empieza a contar el tiempo desde el primer pulso en alto despues del cambio de fase. 25
+;APESW.c,67 :: 		if (contw==90){                        //Se empieza a contar el tiempo desde el primer pulso en alto despues del cambio de fase. 25
 	MOVLW       0
 	XORWF       _contw+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt23
-	MOVLW       25
+	MOVLW       90
 	XORWF       _contw+0, 0 
 L__Interrupt23:
 	BTFSS       STATUS+0, 2 
@@ -50,12 +50,12 @@ L__Interrupt23:
 	CLRF        TMR1H+0 
 ;APESW.c,71 :: 		}
 L_Interrupt2:
-;APESW.c,72 :: 		if ((contw==15)||(contw==32)||(contw==49)){                        //Cambia el valor de la variable auxiliar para producir  (22)
+;APESW.c,72 :: 		if ((contw==22)||(contw==45)){                        //Cambia el valor de la variable auxiliar para producir  (22)
 	MOVLW       0
 	XORWF       _contw+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt24
-	MOVLW       15
+	MOVLW       22
 	XORWF       _contw+0, 0 
 L__Interrupt24:
 	BTFSC       STATUS+0, 2 
@@ -64,18 +64,9 @@ L__Interrupt24:
 	XORWF       _contw+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt25
-	MOVLW       32
+	MOVLW       45
 	XORWF       _contw+0, 0 
 L__Interrupt25:
-	BTFSC       STATUS+0, 2 
-	GOTO        L__Interrupt17
-	MOVLW       0
-	XORWF       _contw+1, 0 
-	BTFSS       STATUS+0, 2 
-	GOTO        L__Interrupt26
-	MOVLW       49
-	XORWF       _contw+0, 0 
-L__Interrupt26:
 	BTFSC       STATUS+0, 2 
 	GOTO        L__Interrupt17
 	GOTO        L_Interrupt5
@@ -98,10 +89,10 @@ L_Interrupt6:
 	MOVLW       3
 	SUBWF       _contw+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__Interrupt27
+	GOTO        L__Interrupt26
 	MOVLW       32
 	SUBWF       _contw+0, 0 
-L__Interrupt27:
+L__Interrupt26:
 	BTFSS       STATUS+0, 0 
 	GOTO        L_Interrupt7
 ;APESW.c,82 :: 		contw = 0;                             //de exitacion del transductor ultrasonico.
@@ -164,28 +155,28 @@ L_Interrupt0:
 	MOVF        _T2+1, 0 
 	SUBWF       R0, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__Interrupt28
+	GOTO        L__Interrupt27
 	MOVF        _T2+0, 0 
 	SUBLW       43
-L__Interrupt28:
+L__Interrupt27:
 	BTFSC       STATUS+0, 0 
 	GOTO        L_Interrupt11
 	MOVF        _DT+1, 0 
 	XORWF       _T2+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__Interrupt29
+	GOTO        L__Interrupt28
 	MOVF        _T2+0, 0 
 	XORWF       _DT+0, 0 
-L__Interrupt29:
+L__Interrupt28:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_Interrupt11
 	MOVLW       0
 	XORWF       _DT+1, 0 
 	BTFSS       STATUS+0, 2 
-	GOTO        L__Interrupt30
+	GOTO        L__Interrupt29
 	MOVLW       2
 	XORWF       _DT+0, 0 
-L__Interrupt30:
+L__Interrupt29:
 	BTFSC       STATUS+0, 2 
 	GOTO        L_Interrupt11
 L__Interrupt16:
