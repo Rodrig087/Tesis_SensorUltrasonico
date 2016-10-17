@@ -60,7 +60,7 @@ void Interrupt(){
 
        RD1_bit = ~RD1_bit;                       //Genera un tren de pulsos de 40KHz en el pin RD1
        
-       if (contw<=43){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
+       if (contw<=65){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
 
@@ -69,7 +69,7 @@ void Interrupt(){
              TMR1L=0X00;                         //Limpia los bits menos significativos del TMR1.
              TMR1H=0X00;                         //Limpia los bits mas significativos del TMR1.
           }
-          if (contw==22){                        //Cambia el valor de la variable auxiliar para producir  (22)
+          if ((contw==22)||(contw==44)||(contw==66)){                        //Cambia el valor de la variable auxiliar para producir  (22)
                 BS = 0;                          //el cambio de fase en la siguiente iteracion.
           }
 
@@ -97,10 +97,11 @@ void Interrupt(){
        T2 = contw;                               //Carga el valor actual del contador contw en la variable T2.
        DT = T2-T1;                               //Halla la diferencia entre los valores actual y anterior del contador contw.
        
-       if ((T2>43)&&(DT!=T2)&&(DT!=2)){          //Detecta el cambio de fase segun el resultado de la diferencia.
+       if ((FP==1)&&(T2>43)&&(DT!=T2)&&(DT!=2)){          //Detecta el cambio de fase segun el resultado de la diferencia.
           contT1 = contT;                        //Carga el contenido de la variable contT en la variable contT1.
           TMR1ON_bit=0;                          //Apaga el TMR1.
-          contT = 0;                             //Limpia el contenido de la variable contT.
+          contT = 0;
+          FP = 0;                             //Limpia el contenido de la variable contT.
        }
        
        T1 = contw;                               //Actualiza T1 con el valor actual del contador contw.
