@@ -7,7 +7,7 @@ _Interrupt:
 	GOTO        L_Interrupt0
 ;APESW.c,61 :: 		RD1_bit = ~RD1_bit;                       //Genera un tren de pulsos de 40KHz en el pin RD1
 	BTG         RD1_bit+0, BitPos(RD1_bit+0) 
-;APESW.c,63 :: 		if (contw<=65){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
+;APESW.c,63 :: 		if (contw<=49){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
 	MOVLW       0
 	MOVWF       R0 
 	MOVF        _contw+1, 0 
@@ -15,7 +15,7 @@ _Interrupt:
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt20
 	MOVF        _contw+0, 0 
-	SUBLW       65
+	SUBLW       49
 L__Interrupt20:
 	BTFSS       STATUS+0, 0 
 	GOTO        L_Interrupt1
@@ -50,12 +50,12 @@ L__Interrupt23:
 	CLRF        TMR1H+0 
 ;APESW.c,71 :: 		}
 L_Interrupt2:
-;APESW.c,72 :: 		if ((contw==22)||(contw==44)||(contw==66)){                        //Cambia el valor de la variable auxiliar para producir  (22)
+;APESW.c,72 :: 		if ((contw==12)||(contw==25)||(contw==38)){                        //Cambia el valor de la variable auxiliar para producir  (22)
 	MOVLW       0
 	XORWF       _contw+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt24
-	MOVLW       22
+	MOVLW       12
 	XORWF       _contw+0, 0 
 L__Interrupt24:
 	BTFSC       STATUS+0, 2 
@@ -64,7 +64,7 @@ L__Interrupt24:
 	XORWF       _contw+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt25
-	MOVLW       44
+	MOVLW       25
 	XORWF       _contw+0, 0 
 L__Interrupt25:
 	BTFSC       STATUS+0, 2 
@@ -73,15 +73,15 @@ L__Interrupt25:
 	XORWF       _contw+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt26
-	MOVLW       66
+	MOVLW       38
 	XORWF       _contw+0, 0 
 L__Interrupt26:
 	BTFSC       STATUS+0, 2 
 	GOTO        L__Interrupt17
 	GOTO        L_Interrupt5
 L__Interrupt17:
-;APESW.c,73 :: 		BS = 0;                          //el cambio de fase en la siguiente iteracion.
-	CLRF        _BS+0 
+;APESW.c,73 :: 		BS = ~BS;                          //el cambio de fase en la siguiente iteracion.
+	COMF        _BS+0, 1 
 ;APESW.c,74 :: 		}
 L_Interrupt5:
 ;APESW.c,76 :: 		} else {
