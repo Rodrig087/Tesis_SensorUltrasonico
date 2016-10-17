@@ -49,7 +49,7 @@ void Interrupt(){
 
  RD1_bit = ~RD1_bit;
 
- if (contw<=49){
+ if (contw<=63){
  BS = ~BS;
  RD0_bit = BS;
 
@@ -58,7 +58,7 @@ void Interrupt(){
  TMR1L=0X00;
  TMR1H=0X00;
  }
- if ((contw==12)||(contw==25)||(contw==38)){
+ if ((contw==14)||(contw==31)||(contw==48)){
  BS = ~BS;
  }
 

@@ -7,6 +7,6 @@ diagnostics: 0	127	All files Compiled in 63 ms
 hint: 0	1144	Used RAM (bytes): 78 (4%)  Free RAM (bytes): 1949 (96%)	Used RAM (bytes): 78 (4%)  Free RAM (bytes): 1949 (96%)
 hint: 0	1144	Used ROM (bytes): 2983 (9%)  Free ROM (bytes): 29785 (91%)	Used ROM (bytes): 2983 (9%)  Free ROM (bytes): 29785 (91%)
 diagnostics: 0	125	Project Linked Successfully	APESW.mcppi
-diagnostics: 0	128	Linked in 62 ms	 
-diagnostics: 0	129	Project 'APESW.mcppi' completed: 156 ms	 
-diagnostics: 0	103	Finished successfully: 17 oct. 2016, 11:01:05	APESW.mcppi
+diagnostics: 0	128	Linked in 78 ms	 
+diagnostics: 0	129	Project 'APESW.mcppi' completed: 172 ms	 
+diagnostics: 0	103	Finished successfully: 17 oct. 2016, 15:47:18	APESW.mcppi
