@@ -339,6 +339,7 @@ double2int
 double2longint
 double2longword
 double2word
+dst
 dt
 eccp1as
 eccp1con

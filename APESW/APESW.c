@@ -29,11 +29,11 @@ unsigned short BS;                             //Variable auxiliar para establec
 unsigned short FP;                             //Bandera de deteccion de cambio de fase
 unsigned short FIE;                            //Bandera de interrupcion externa
 
-float TOFT;
+float TOFT , Dst;
 
 char *punT1;                                   //Variable tipo puntero
 
-char txt1[10], txt2[10];
+char txt1[8], txt2[8];
 unsigned char Ptcn[Psize];
 
 
@@ -159,11 +159,17 @@ void main() {
 
      while (1){
 
-           TOFT = (contT1)*(4./48);          //Calcula el valor de TOF
+           TOFT = (contT1)*(4./48);              //Calcula el valor de TOF
+           Dst = (343. * TOFT * 0.001) / 2;      //Calcula la distancia en funcion del TOF
            
            FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
+           FloatToStr(Dst, txt2);                //Convierte el valor de la distancia en string
+           
            Lcd_Out(1,1,"TOF: ");
            Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD
+           
+           Lcd_Out(2,1,"Dst: ");
+           Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD
 
            delay_ms(1);
 

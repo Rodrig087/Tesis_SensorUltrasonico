@@ -18,11 +18,11 @@ unsigned short BS;
 unsigned short FP;
 unsigned short FIE;
 
-float TOFT;
+float TOFT , Dst;
 
 char *punT1;
 
-char txt1[10], txt2[10];
+char txt1[8], txt2[8];
 unsigned char Ptcn[Psize];
 
 
@@ -149,10 +149,16 @@ void main() {
  while (1){
 
  TOFT = (contT1)*(4./48);
+ Dst = (343. * TOFT * 0.001) / 2;
 
  FloatToStr(TOFT, txt1);
+ FloatToStr(Dst, txt2);
+
  Lcd_Out(1,1,"TOF: ");
  Lcd_Out_Cp(txt1);
+
+ Lcd_Out(2,1,"Dst: ");
+ Lcd_Out_Cp(txt2);
 
  delay_ms(1);
 

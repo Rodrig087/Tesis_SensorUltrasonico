@@ -26,6 +26,11 @@ main
 		RES032
 		SETFOV32
 		SETFUN32
+	Div_32x32_FP
+		SETFDZ32
+		RES032
+		SETFOV32
+		SETFUN32
 	FloatToStr
 		strcpy
 		Compare_Double

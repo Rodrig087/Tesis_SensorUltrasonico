@@ -291,7 +291,7 @@ _main:
 	CALL        _Lcd_Cmd+0, 0
 ;APESW.c,160 :: 		while (1){
 L_main11:
-;APESW.c,162 :: 		TOFT = (contT1)*(4./48);          //Calcula el valor de TOF
+;APESW.c,162 :: 		TOFT = (contT1)*(4./48);              //Calcula el valor de TOF
 	MOVF        _contT1+0, 0 
 	MOVWF       R0 
 	MOVF        _contT1+1, 0 
@@ -307,28 +307,94 @@ L_main11:
 	MOVWF       R7 
 	CALL        _Mul_32x32_FP+0, 0
 	MOVF        R0, 0 
+	MOVWF       FLOC__main+0 
+	MOVF        R1, 0 
+	MOVWF       FLOC__main+1 
+	MOVF        R2, 0 
+	MOVWF       FLOC__main+2 
+	MOVF        R3, 0 
+	MOVWF       FLOC__main+3 
+	MOVF        FLOC__main+0, 0 
 	MOVWF       _TOFT+0 
-	MOVF        R1, 0 
+	MOVF        FLOC__main+1, 0 
 	MOVWF       _TOFT+1 
-	MOVF        R2, 0 
+	MOVF        FLOC__main+2, 0 
 	MOVWF       _TOFT+2 
-	MOVF        R3, 0 
+	MOVF        FLOC__main+3, 0 
 	MOVWF       _TOFT+3 
-;APESW.c,164 :: 		FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
+;APESW.c,163 :: 		Dst = (343. * TOFT * 0.001) / 2;      //Calcula la distancia en funcion del TOF
+	MOVLW       0
+	MOVWF       R0 
+	MOVLW       128
+	MOVWF       R1 
+	MOVLW       43
+	MOVWF       R2 
+	MOVLW       135
+	MOVWF       R3 
+	MOVF        FLOC__main+0, 0 
+	MOVWF       R4 
+	MOVF        FLOC__main+1, 0 
+	MOVWF       R5 
+	MOVF        FLOC__main+2, 0 
+	MOVWF       R6 
+	MOVF        FLOC__main+3, 0 
+	MOVWF       R7 
+	CALL        _Mul_32x32_FP+0, 0
+	MOVLW       111
+	MOVWF       R4 
+	MOVLW       18
+	MOVWF       R5 
+	MOVLW       3
+	MOVWF       R6 
+	MOVLW       117
+	MOVWF       R7 
+	CALL        _Mul_32x32_FP+0, 0
+	MOVLW       0
+	MOVWF       R4 
+	MOVLW       0
+	MOVWF       R5 
+	MOVLW       0
+	MOVWF       R6 
+	MOVLW       128
+	MOVWF       R7 
+	CALL        _Div_32x32_FP+0, 0
 	MOVF        R0, 0 
-	MOVWF       FARG_FloatToStr_fnum+0 
+	MOVWF       _Dst+0 
 	MOVF        R1, 0 
-	MOVWF       FARG_FloatToStr_fnum+1 
+	MOVWF       _Dst+1 
 	MOVF        R2, 0 
-	MOVWF       FARG_FloatToStr_fnum+2 
+	MOVWF       _Dst+2 
 	MOVF        R3, 0 
+	MOVWF       _Dst+3 
+;APESW.c,165 :: 		FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
+	MOVF        FLOC__main+0, 0 
+	MOVWF       FARG_FloatToStr_fnum+0 
+	MOVF        FLOC__main+1, 0 
+	MOVWF       FARG_FloatToStr_fnum+1 
+	MOVF        FLOC__main+2, 0 
+	MOVWF       FARG_FloatToStr_fnum+2 
+	MOVF        FLOC__main+3, 0 
 	MOVWF       FARG_FloatToStr_fnum+3 
 	MOVLW       _txt1+0
 	MOVWF       FARG_FloatToStr_str+0 
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_FloatToStr_str+1 
 	CALL        _FloatToStr+0, 0
-;APESW.c,165 :: 		Lcd_Out(1,1,"TOF: ");
+;APESW.c,166 :: 		FloatToStr(Dst, txt2);                //Convierte el valor de la distancia en string
+	MOVF        _Dst+0, 0 
+	MOVWF       FARG_FloatToStr_fnum+0 
+	MOVF        _Dst+1, 0 
+	MOVWF       FARG_FloatToStr_fnum+1 
+	MOVF        _Dst+2, 0 
+	MOVWF       FARG_FloatToStr_fnum+2 
+	MOVF        _Dst+3, 0 
+	MOVWF       FARG_FloatToStr_fnum+3 
+	MOVLW       _txt2+0
+	MOVWF       FARG_FloatToStr_str+0 
+	MOVLW       hi_addr(_txt2+0)
+	MOVWF       FARG_FloatToStr_str+1 
+	CALL        _FloatToStr+0, 0
+;APESW.c,168 :: 		Lcd_Out(1,1,"TOF: ");
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -338,13 +404,29 @@ L_main11:
 	MOVLW       hi_addr(?lstr2_APESW+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;APESW.c,166 :: 		Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD
+;APESW.c,169 :: 		Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD
 	MOVLW       _txt1+0
 	MOVWF       FARG_Lcd_Out_CP_text+0 
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_Lcd_Out_CP_text+1 
 	CALL        _Lcd_Out_CP+0, 0
-;APESW.c,168 :: 		delay_ms(1);
+;APESW.c,171 :: 		Lcd_Out(2,1,"Dst: ");
+	MOVLW       2
+	MOVWF       FARG_Lcd_Out_row+0 
+	MOVLW       1
+	MOVWF       FARG_Lcd_Out_column+0 
+	MOVLW       ?lstr3_APESW+0
+	MOVWF       FARG_Lcd_Out_text+0 
+	MOVLW       hi_addr(?lstr3_APESW+0)
+	MOVWF       FARG_Lcd_Out_text+1 
+	CALL        _Lcd_Out+0, 0
+;APESW.c,172 :: 		Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD
+	MOVLW       _txt2+0
+	MOVWF       FARG_Lcd_Out_CP_text+0 
+	MOVLW       hi_addr(_txt2+0)
+	MOVWF       FARG_Lcd_Out_CP_text+1 
+	CALL        _Lcd_Out_CP+0, 0
+;APESW.c,174 :: 		delay_ms(1);
 	MOVLW       3
 	MOVWF       R12, 0
 	MOVLW       151
@@ -356,9 +438,9 @@ L_main13:
 	BRA         L_main13
 	NOP
 	NOP
-;APESW.c,170 :: 		}
+;APESW.c,176 :: 		}
 	GOTO        L_main11
-;APESW.c,171 :: 		}
+;APESW.c,177 :: 		}
 L_end_main:
 	GOTO        $+0
 ; end of _main
