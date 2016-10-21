@@ -153,11 +153,11 @@ void main() {
  Rspt[4] = End;
 
  Lcd_init();
- Lcd_Out(1,1,"INICIANDO...");
+
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
 
- UART1_Init(19200);
+ UART1_Init(9600);
  Delay_ms(100);
 
  while (1){
@@ -165,6 +165,7 @@ void main() {
  TOF = (contT1)*(4./48);
  Df = (343. * TOF ) / 2000;
  Di = Df*10;
+
 
  for (i=2;i<4;i++){
  Rspt[i]=(*punDt++);

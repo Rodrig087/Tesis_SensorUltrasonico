@@ -166,18 +166,19 @@ void main() {
      Rspt[4] = End;
 
      Lcd_init();                                 //Inicializa el LCD
-     Lcd_Out(1,1,"INICIANDO...");
+     //Lcd_Out(1,1,"INICIANDO...");
      Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
      Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
      
-     UART1_Init(19200);                     // Inicializa el UART a 9600 bps
-     Delay_ms(100);                        // Wait for UART module to stabilize
+     UART1_Init(9600);                           // Inicializa el UART a 9600 bps
+     Delay_ms(100);                              // Wait for UART module to stabilize
 
      while (1){
 
            TOF = (contT1)*(4./48);               //Calcula el valor de TOF
            Df = (343. * TOF ) / 2000;            //Calcula la distancia en funcion del TOF
            Di = Df*10;
+           //Di = 1876;
            
            for (i=2;i<4;i++){                    //Rellena la trama de cuerpo de datos de 4 bytes
                Rspt[i]=(*punDt++);               //El operador * permite acceder al valor de la direccion del puntero,

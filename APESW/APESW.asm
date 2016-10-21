@@ -288,16 +288,6 @@ _main:
 	MOVWF       _Rspt+4 
 ;APESW.c,168 :: 		Lcd_init();                                 //Inicializa el LCD
 	CALL        _Lcd_Init+0, 0
-;APESW.c,169 :: 		Lcd_Out(1,1,"INICIANDO...");
-	MOVLW       1
-	MOVWF       FARG_Lcd_Out_row+0 
-	MOVLW       1
-	MOVWF       FARG_Lcd_Out_column+0 
-	MOVLW       ?lstr1_APESW+0
-	MOVWF       FARG_Lcd_Out_text+0 
-	MOVLW       hi_addr(?lstr1_APESW+0)
-	MOVWF       FARG_Lcd_Out_text+1 
-	CALL        _Lcd_Out+0, 0
 ;APESW.c,170 :: 		Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
@@ -306,19 +296,20 @@ _main:
 	MOVLW       12
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
 	CALL        _Lcd_Cmd+0, 0
-;APESW.c,173 :: 		UART1_Init(19200);                     // Inicializa el UART a 9600 bps
+;APESW.c,173 :: 		UART1_Init(9600);                           // Inicializa el UART a 9600 bps
 	BSF         BAUDCON+0, 3, 0
-	CLRF        SPBRGH+0 
-	MOVLW       103
+	MOVLW       4
+	MOVWF       SPBRGH+0 
+	MOVLW       225
 	MOVWF       SPBRG+0 
 	BSF         TXSTA+0, 2, 0
 	CALL        _UART1_Init+0, 0
-;APESW.c,174 :: 		Delay_ms(100);                        // Wait for UART module to stabilize
-	MOVLW       2
+;APESW.c,174 :: 		Delay_ms(100);                              // Wait for UART module to stabilize
+	MOVLW       7
 	MOVWF       R11, 0
-	MOVLW       4
+	MOVLW       23
 	MOVWF       R12, 0
-	MOVLW       186
+	MOVLW       106
 	MOVWF       R13, 0
 L_main11:
 	DECFSZ      R13, 1, 1
@@ -395,7 +386,7 @@ L_main12:
 	MOVWF       _Di+0 
 	MOVF        R1, 0 
 	MOVWF       _Di+1 
-;APESW.c,182 :: 		for (i=2;i<4;i++){                    //Rellena la trama de cuerpo de datos de 4 bytes
+;APESW.c,183 :: 		for (i=2;i<4;i++){                    //Rellena la trama de cuerpo de datos de 4 bytes
 	MOVLW       2
 	MOVWF       _i+0 
 L_main14:
@@ -403,7 +394,7 @@ L_main14:
 	SUBWF       _i+0, 0 
 	BTFSC       STATUS+0, 0 
 	GOTO        L_main15
-;APESW.c,183 :: 		Rspt[i]=(*punDt++);               //El operador * permite acceder al valor de la direccion del puntero,
+;APESW.c,184 :: 		Rspt[i]=(*punDt++);               //El operador * permite acceder al valor de la direccion del puntero,
 	MOVLW       _Rspt+0
 	MOVWF       FSR1 
 	MOVLW       hi_addr(_Rspt+0)
@@ -418,12 +409,12 @@ L_main14:
 	MOVWF       POSTINC1+0 
 	INFSNZ      _punDt+0, 1 
 	INCF        _punDt+1, 1 
-;APESW.c,182 :: 		for (i=2;i<4;i++){                    //Rellena la trama de cuerpo de datos de 4 bytes
+;APESW.c,183 :: 		for (i=2;i<4;i++){                    //Rellena la trama de cuerpo de datos de 4 bytes
 	INCF        _i+0, 1 
-;APESW.c,184 :: 		}
+;APESW.c,185 :: 		}
 	GOTO        L_main14
 L_main15:
-;APESW.c,186 :: 		FloatToStr(Df, txt1);
+;APESW.c,187 :: 		FloatToStr(Df, txt1);
 	MOVF        _Df+0, 0 
 	MOVWF       FARG_FloatToStr_fnum+0 
 	MOVF        _Df+1, 0 
@@ -437,7 +428,7 @@ L_main15:
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_FloatToStr_str+1 
 	CALL        _FloatToStr+0, 0
-;APESW.c,187 :: 		IntToStr(Di, txt2);                   //Convierte el valor de la distancia en string
+;APESW.c,188 :: 		IntToStr(Di, txt2);                   //Convierte el valor de la distancia en string
 	MOVF        _Di+0, 0 
 	MOVWF       FARG_IntToStr_input+0 
 	MOVF        _Di+1, 0 
@@ -447,8 +438,24 @@ L_main15:
 	MOVLW       hi_addr(_txt2+0)
 	MOVWF       FARG_IntToStr_output+1 
 	CALL        _IntToStr+0, 0
-;APESW.c,189 :: 		Lcd_Out(1,1,"Df: ");
+;APESW.c,190 :: 		Lcd_Out(1,1,"Df: ");
 	MOVLW       1
+	MOVWF       FARG_Lcd_Out_row+0 
+	MOVLW       1
+	MOVWF       FARG_Lcd_Out_column+0 
+	MOVLW       ?lstr1_APESW+0
+	MOVWF       FARG_Lcd_Out_text+0 
+	MOVLW       hi_addr(?lstr1_APESW+0)
+	MOVWF       FARG_Lcd_Out_text+1 
+	CALL        _Lcd_Out+0, 0
+;APESW.c,191 :: 		Lcd_Out_Cp(txt1);
+	MOVLW       _txt1+0
+	MOVWF       FARG_Lcd_Out_CP_text+0 
+	MOVLW       hi_addr(_txt1+0)
+	MOVWF       FARG_Lcd_Out_CP_text+1 
+	CALL        _Lcd_Out_CP+0, 0
+;APESW.c,192 :: 		Lcd_Out(2,1,"Di: ");
+	MOVLW       2
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_column+0 
@@ -457,36 +464,20 @@ L_main15:
 	MOVLW       hi_addr(?lstr2_APESW+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;APESW.c,190 :: 		Lcd_Out_Cp(txt1);
-	MOVLW       _txt1+0
-	MOVWF       FARG_Lcd_Out_CP_text+0 
-	MOVLW       hi_addr(_txt1+0)
-	MOVWF       FARG_Lcd_Out_CP_text+1 
-	CALL        _Lcd_Out_CP+0, 0
-;APESW.c,191 :: 		Lcd_Out(2,1,"Di: ");
-	MOVLW       2
-	MOVWF       FARG_Lcd_Out_row+0 
-	MOVLW       1
-	MOVWF       FARG_Lcd_Out_column+0 
-	MOVLW       ?lstr3_APESW+0
-	MOVWF       FARG_Lcd_Out_text+0 
-	MOVLW       hi_addr(?lstr3_APESW+0)
-	MOVWF       FARG_Lcd_Out_text+1 
-	CALL        _Lcd_Out+0, 0
-;APESW.c,192 :: 		Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/
+;APESW.c,193 :: 		Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/
 	MOVLW       _txt2+0
 	MOVWF       FARG_Lcd_Out_CP_text+0 
 	MOVLW       hi_addr(_txt2+0)
 	MOVWF       FARG_Lcd_Out_CP_text+1 
 	CALL        _Lcd_Out_CP+0, 0
-;APESW.c,194 :: 		for (j=0;j<=4;j++){
+;APESW.c,195 :: 		for (j=0;j<=4;j++){
 	CLRF        _j+0 
 L_main17:
 	MOVF        _j+0, 0 
 	SUBLW       4
 	BTFSS       STATUS+0, 0 
 	GOTO        L_main18
-;APESW.c,195 :: 		UART1_Write(Rspt[j]);                   //Visualiza la trama recibida en el LCD
+;APESW.c,196 :: 		UART1_Write(Rspt[j]);             //Visualiza la trama recibida en el LCD
 	MOVLW       _Rspt+0
 	MOVWF       FSR0 
 	MOVLW       hi_addr(_Rspt+0)
@@ -498,15 +489,15 @@ L_main17:
 	MOVF        POSTINC0+0, 0 
 	MOVWF       FARG_UART1_Write_data_+0 
 	CALL        _UART1_Write+0, 0
-;APESW.c,194 :: 		for (j=0;j<=4;j++){
+;APESW.c,195 :: 		for (j=0;j<=4;j++){
 	INCF        _j+0, 1 
-;APESW.c,196 :: 		}
+;APESW.c,197 :: 		}
 	GOTO        L_main17
 L_main18:
-;APESW.c,198 :: 		delay_ms(1);
-	MOVLW       3
+;APESW.c,199 :: 		delay_ms(1);
+	MOVLW       16
 	MOVWF       R12, 0
-	MOVLW       151
+	MOVLW       148
 	MOVWF       R13, 0
 L_main20:
 	DECFSZ      R13, 1, 1
@@ -514,10 +505,9 @@ L_main20:
 	DECFSZ      R12, 1, 1
 	BRA         L_main20
 	NOP
-	NOP
-;APESW.c,200 :: 		}
-	GOTO        L_main12
 ;APESW.c,201 :: 		}
+	GOTO        L_main12
+;APESW.c,202 :: 		}
 L_end_main:
 	GOTO        $+0
 ; end of _main
