@@ -8,14 +8,18 @@ Descripcion:
 3.Recibe los pulsos de eco por medio de la interrupcion externa INT0, e identifica el cambio de fase.
 4.Calcula el tiempo trasnscurrido entre los cambios de fase de la senal emitida y la senal recibida por medio del TMR1.
 5.Visualiza el dato de TOF en un LCD 16x2.
+6.Arma una trama de datos de 5 bytes de respuesta con el siguiente formato:
+  |Header|Id_Slave|Dato+significativo|Dato-significativo|End|
 6.Envia los datos mediante RS-485
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Declaracion de constantes
+//Declaracion de constantes y variables para la trama de datos
 const short idSlv = 0x31;                      //Id del Esclavo
 const short Psize = 4;                         //Constante de longitud de trama de Peticion
 const short Rsize = 5;                         //Constante de longitud de trama de Respuesta
 const short Hdr = 0x20;                        //Constante de delimitador de inicio de trama
 const short End = 0x0D;                        //Constante de delimitador de final de trama
+unsigned short Dms;                             //Constante para almacenar la parte mas significativa del dato de respuesta
+unsigned short Dmn;                             //Constante para almacenar la parte menos significativa del dato de respuesta
 
 //Declaracion de variables.
 unsigned int contw;                            //Contador para controlar los pulsos de exitacion del transductor ultrasonico.
@@ -28,14 +32,17 @@ unsigned int DT;
 unsigned short BS;                             //Variable auxiliar para establecer el cambio de estado en el bit RD0.
 unsigned short FP;                             //Bandera de deteccion de cambio de fase
 unsigned short FIE;                            //Bandera de interrupcion externa
+unsigned short i,j,k;
 
-float TOFT , Dst;
+float TOF, Df;
+unsigned int Di;
 
-char *punT1;                                   //Variable tipo puntero
+char *punT1;                                   //Variable tipo puntero para calcular el numero de pulsos del TMR1
+char *punDt;                                   //Variable tipo puntero para preparar la trama de datos de respuesta
 
 char txt1[8], txt2[8];
 unsigned char Ptcn[Psize];
-
+unsigned char Rspt[Rsize];
 
 // Conexiones del modulo LCD
 sbit LCD_RS at RD2_bit;
@@ -52,7 +59,7 @@ sbit LCD_D5_Direction at TRISD5_bit;
 sbit LCD_D6_Direction at TRISD6_bit;
 sbit LCD_D7_Direction at TRISD7_bit;
 
-
+//Inicio de interrupciones
 void Interrupt(){
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //Interrupcion TIMER 2:
@@ -143,6 +150,7 @@ void main() {
      PORTB = 0;                                  //Limpia el puerto B
      
      punT1 = &contT;                             //Asocia el puntero punT1 con la direccion de memoria de la variable contT de tipo entero
+     punDt = &Di;                                //Asocia el puntero punDt con la direccion de memoria de la variable Di de tipo entero
      
      contw = 0;                                  //Limpia todas las variables
      contT1 = 0;
@@ -150,26 +158,42 @@ void main() {
      FP = 0;
      T1 = 0;
      T2 = 0;
-     TOFT = 0;
+     TOF = 0;
+     Di = 0;
      
+     Rspt[0] = Hdr;
+     Rspt[1] = idSlv;
+     Rspt[4] = End;
+
      Lcd_init();                                 //Inicializa el LCD
      Lcd_Out(1,1,"INICIANDO...");
      Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
      Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
+     
+     UART1_Init(19200);                     // Inicializa el UART a 9600 bps
+     Delay_ms(100);                        // Wait for UART module to stabilize
 
      while (1){
 
-           TOFT = (contT1)*(4./48);              //Calcula el valor de TOF
-           Dst = (343. * TOFT * 0.001) / 2;      //Calcula la distancia en funcion del TOF
+           TOF = (contT1)*(4./48);               //Calcula el valor de TOF
+           Df = (343. * TOF ) / 2000;            //Calcula la distancia en funcion del TOF
+           Di = Df*10;
            
-           FloatToStr(TOFT, txt1);               //Convierte el valor del TOF en string
-           FloatToStr(Dst, txt2);                //Convierte el valor de la distancia en string
+           for (i=2;i<4;i++){                    //Rellena la trama de cuerpo de datos de 4 bytes
+               Rspt[i]=(*punDt++);               //El operador * permite acceder al valor de la direccion del puntero,
+           }
            
-           Lcd_Out(1,1,"TOF: ");
-           Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD
+           FloatToStr(Df, txt1);
+           IntToStr(Di, txt2);                   //Convierte el valor de la distancia en string
            
-           Lcd_Out(2,1,"Dst: ");
-           Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD
+           Lcd_Out(1,1,"Df: ");
+           Lcd_Out_Cp(txt1);
+           Lcd_Out(2,1,"Di: ");
+           Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/
+
+           for (j=0;j<=4;j++){
+               UART1_Write(Rspt[j]);             //Visualiza la trama recibida en el LCD
+           }
 
            delay_ms(1);
 

@@ -318,10 +318,12 @@ delay_5ms
 delay_80us
 delay_8ms
 delay_cyc
+df
 dfn8ee
 dfn8ee_bit
 dfn8ef
 dfn8ef_bit
+di
 dir_
 dir__bit
 div_16x16_s
@@ -332,6 +334,8 @@ div_32x32_s
 div_32x32_u
 div_8x8_s
 div_8x8_u
+dmn
+dms
 done
 done_bit
 double2byte
@@ -339,7 +343,6 @@ double2int
 double2longint
 double2longword
 double2word
-dst
 dt
 eccp1as
 eccp1con
@@ -544,6 +547,7 @@ hlvdl2
 hlvdl2_bit
 hlvdl3
 hlvdl3_bit
+i
 i2c_dat
 i2c_dat_bit
 i2c_read
@@ -634,6 +638,8 @@ irvst
 irvst_bit
 ivrst
 ivrst_bit
+j
+k
 lata
 lata0
 lata0_bit
@@ -931,6 +937,7 @@ pssbd0_bit
 pssbd1
 pssbd1_bit
 ptcn
+pundt
 punt1
 r
 r_bit
@@ -1070,6 +1077,7 @@ ri_bit
 rsen
 rsen_bit
 rsize
+rspt
 rtrim
 rx_
 rx__bit
@@ -1332,7 +1340,7 @@ tmr3on
 tmr3on_bit
 to_
 to__bit
-toft
+tof
 tosh
 tosl
 tosu
@@ -1450,6 +1458,24 @@ txt2
 ua
 ua_bit
 uaddr
+uart_data_ready
+uart_rd_ptr
+uart_rdy_ptr
+uart_read
+uart_read_text
+uart_set_active
+uart_tx_idle
+uart_tx_idle_ptr
+uart_wr_ptr
+uart_write
+uart_write_text
+uart1_data_ready
+uart1_init
+uart1_read
+uart1_read_text
+uart1_tx_idle
+uart1_write
+uart1_write_text
 ucfg
 ucon
 ueie

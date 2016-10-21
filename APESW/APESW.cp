@@ -1,10 +1,12 @@
 #line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
-#line 14 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
+#line 16 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
 const short idSlv = 0x31;
 const short Psize = 4;
 const short Rsize = 5;
 const short Hdr = 0x20;
 const short End = 0x0D;
+unsigned short Dms;
+unsigned short Dmn;
 
 
 unsigned int contw;
@@ -17,14 +19,17 @@ unsigned int DT;
 unsigned short BS;
 unsigned short FP;
 unsigned short FIE;
+unsigned short i,j,k;
 
-float TOFT , Dst;
+float TOF, Df;
+unsigned int Di;
 
 char *punT1;
+char *punDt;
 
 char txt1[8], txt2[8];
 unsigned char Ptcn[Psize];
-
+unsigned char Rspt[Rsize];
 
 
 sbit LCD_RS at RD2_bit;
@@ -132,6 +137,7 @@ void main() {
  PORTB = 0;
 
  punT1 = &contT;
+ punDt = &Di;
 
  contw = 0;
  contT1 = 0;
@@ -139,26 +145,42 @@ void main() {
  FP = 0;
  T1 = 0;
  T2 = 0;
- TOFT = 0;
+ TOF = 0;
+ Di = 0;
+
+ Rspt[0] = Hdr;
+ Rspt[1] = idSlv;
+ Rspt[4] = End;
 
  Lcd_init();
  Lcd_Out(1,1,"INICIANDO...");
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
 
+ UART1_Init(19200);
+ Delay_ms(100);
+
  while (1){
 
- TOFT = (contT1)*(4./48);
- Dst = (343. * TOFT * 0.001) / 2;
+ TOF = (contT1)*(4./48);
+ Df = (343. * TOF ) / 2000;
+ Di = Df*10;
 
- FloatToStr(TOFT, txt1);
- FloatToStr(Dst, txt2);
+ for (i=2;i<4;i++){
+ Rspt[i]=(*punDt++);
+ }
 
- Lcd_Out(1,1,"TOF: ");
+ FloatToStr(Df, txt1);
+ IntToStr(Di, txt2);
+
+ Lcd_Out(1,1,"Df: ");
  Lcd_Out_Cp(txt1);
-
- Lcd_Out(2,1,"Dst: ");
+ Lcd_Out(2,1,"Di: ");
  Lcd_Out_Cp(txt2);
+
+ for (j=0;j<=4;j++){
+ UART1_Write(Rspt[j]);
+ }
 
  delay_ms(1);
 

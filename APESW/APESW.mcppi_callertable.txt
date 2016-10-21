@@ -17,6 +17,7 @@ main
 		Delay_1us
 		Delay_5500us
 		Delay_50us
+	UART1_Init
 	word2double
 		NRM3232
 			RES032
@@ -31,6 +32,8 @@ main
 		RES032
 		SETFOV32
 		SETFUN32
+	double2word
+		SETIOV3224
 	FloatToStr
 		strcpy
 		Compare_Double
@@ -39,10 +42,14 @@ main
 			SETFOV32
 			SETFUN32
 		Div_8X8_U
+	IntToStr
+		WordToStr
+			Div_16X16_U
 	Lcd_Out_CP
 		Lcd_Chr_CP
 			Lcd_Cmd
 				Delay_1us
 				Delay_5500us
 				Delay_50us
+	UART1_Write
 Interrupt
