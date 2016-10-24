@@ -52,7 +52,7 @@ void Interrupt(){
 
  if (TMR2IF_bit){
 
- RD1_bit = ~RD1_bit;
+
 
  if (contw<=43){
  BS = ~BS;
@@ -65,6 +65,7 @@ void Interrupt(){
  }
  if (contw==22){
  BS = 0;
+ RD1_bit = 1;
  }
 
  } else {
@@ -95,6 +96,7 @@ void Interrupt(){
  contT1 = contT;
  TMR1ON_bit=0;
  contT = 0;
+ RD1_bit = 0;
  }
 
  T1 = contw;

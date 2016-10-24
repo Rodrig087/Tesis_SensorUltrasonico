@@ -65,7 +65,7 @@ void Interrupt(){
 //Interrupcion TIMER 2:
     if (TMR2IF_bit){                             //Verifica si ocurrio una interrupcion por desbordamiento del TMR2.
 
-       RD1_bit = ~RD1_bit;                       //Genera un tren de pulsos de 40KHz en el pin RD1
+       //RD1_bit = ~RD1_bit;                       //Genera un tren de pulsos de 40KHz en el pin RD1
        
        if (contw<=43){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
@@ -78,6 +78,7 @@ void Interrupt(){
           }
           if (contw==22){                        //Cambia el valor de la variable auxiliar para producir  (22)
                 BS = 0;                          //el cambio de fase en la siguiente iteracion.
+                RD1_bit = 1;                     //Inicio del pulso de indicacion del TOF
           }
 
        } else {
@@ -108,6 +109,7 @@ void Interrupt(){
           contT1 = contT;                        //Carga el contenido de la variable contT en la variable contT1.
           TMR1ON_bit=0;                          //Apaga el TMR1.
           contT = 0;                             //Limpia el contenido de la variable contT.
+          RD1_bit = 0;
        }
        
        T1 = contw;                               //Actualiza T1 con el valor actual del contador contw.
