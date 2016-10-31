@@ -15,14 +15,17 @@ unsigned int contT1;
 unsigned int T1;
 unsigned int T2;
 unsigned int DT;
+unsigned int Di;
 
 unsigned short BS;
 unsigned short FP;
 unsigned short FIE;
 unsigned short i,j,k;
 
-float TOF, Df;
-unsigned int Di;
+float TOF, Df, VSnd;
+float Temp, Rh;
+
+unsigned long DHTvalue;
 
 char *punT1;
 char *punDt;
@@ -32,19 +35,25 @@ unsigned char Ptcn[Psize];
 unsigned char Rspt[Rsize];
 
 
+
 sbit LCD_RS at RD2_bit;
 sbit LCD_EN at RD3_bit;
 sbit LCD_D4 at RD4_bit;
 sbit LCD_D5 at RD5_bit;
 sbit LCD_D6 at RD6_bit;
 sbit LCD_D7 at RD7_bit;
-
 sbit LCD_RS_Direction at TRISD2_bit;
 sbit LCD_EN_Direction at TRISD3_bit;
 sbit LCD_D4_Direction at TRISD4_bit;
 sbit LCD_D5_Direction at TRISD5_bit;
 sbit LCD_D6_Direction at TRISD6_bit;
 sbit LCD_D7_Direction at TRISD7_bit;
+
+
+
+sbit DHT22_Pin at RC2_bit;
+sbit DHT22_Pin_Direction at TRISC2_bit;
+
 
 
 void Interrupt(){
@@ -85,7 +94,6 @@ void Interrupt(){
  }
 
 
-
  if (INTCON.INT0IF == 1){
  *(punT1) = TMR1L;
  *(punT1+1) = TMR1H;
@@ -108,6 +116,17 @@ void Interrupt(){
  }
 }
 
+
+
+void Velocidad(){
+ DHTvalue = DHT22_readData();
+ if ((DHTvalue != 0x63636363) && (DHTvalue != 0x58585858)) {
+ Temp = (DHTvalue & 0xFFFF) / 10.;
+ DHTvalue = DHTvalue >> 16;
+ RH = (DHTvalue & 0xFFFF) / 10.;
+ VSnd = 331.45 * sqrt(1+(Temp/273));
+ }
+}
 
 
 void main() {
@@ -155,7 +174,6 @@ void main() {
  Rspt[4] = End;
 
  Lcd_init();
-
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
 
@@ -164,21 +182,22 @@ void main() {
 
  while (1){
 
- TOF = (contT1)*(4./48);
- Df = (343. * TOF ) / 2000;
- Di = Df*10;
+ Velocidad();
 
+ TOF = (contT1)*(4./48);
+ Df = (VSnd * TOF ) / 2000;
+ Di = Df*10;
 
  for (i=2;i<4;i++){
  Rspt[i]=(*punDt++);
  }
 
- FloatToStr(Df, txt1);
- IntToStr(Di, txt2);
+ FloatToStr(VSnd, txt1);
+ FloatToStr(Df, txt2);
 
- Lcd_Out(1,1,"Df: ");
+ Lcd_Out(1,1,"Vel: ");
  Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"Di: ");
+ Lcd_Out(2,1,"Dis: ");
  Lcd_Out_Cp(txt2);
 
  for (j=0;j<=4;j++){

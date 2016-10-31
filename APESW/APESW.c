@@ -12,7 +12,7 @@ Descripcion:
   |Header|Id_Slave|Dato+significativo|Dato-significativo|End|
 6.Envia los datos mediante RS-485
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Declaracion de constantes y variables para la trama de datos
+//Declaracion de constantes y variables para la trama de datos ////////////////////////////////////////////////////////////////////////////
 const short idSlv = 0x31;                      //Id del Esclavo
 const short Psize = 4;                         //Constante de longitud de trama de Peticion
 const short Rsize = 5;                         //Constante de longitud de trama de Respuesta
@@ -21,21 +21,24 @@ const short End = 0x0D;                        //Constante de delimitador de fin
 unsigned short Dms;                             //Constante para almacenar la parte mas significativa del dato de respuesta
 unsigned short Dmn;                             //Constante para almacenar la parte menos significativa del dato de respuesta
 
-//Declaracion de variables.
+//Declaracion de variables para el calculo de la distancia
 unsigned int contw;                            //Contador para controlar los pulsos de exitacion del transductor ultrasonico.
 unsigned int contT;                            //Variable asociada a los punteros.
 unsigned int contT1;                           //Variable para almacenar la cuenta del TMR1.
 unsigned int T1;
 unsigned int T2;
 unsigned int DT;
+unsigned int Di;
 
 unsigned short BS;                             //Variable auxiliar para establecer el cambio de estado en el bit RD0.
 unsigned short FP;                             //Bandera de deteccion de cambio de fase
 unsigned short FIE;                            //Bandera de interrupcion externa
 unsigned short i,j,k;
 
-float TOF, Df;
-unsigned int Di;
+float TOF, Df, VSnd;
+float Temp, Rh;
+
+unsigned long DHTvalue;
 
 char *punT1;                                   //Variable tipo puntero para calcular el numero de pulsos del TMR1
 char *punDt;                                   //Variable tipo puntero para preparar la trama de datos de respuesta
@@ -43,23 +46,29 @@ char *punDt;                                   //Variable tipo puntero para prep
 char txt1[8], txt2[8];
 unsigned char Ptcn[Psize];
 unsigned char Rspt[Rsize];
+// Fin de declaracion de variables //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Conexiones del modulo LCD
+// Conexiones del modulo LCD ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 sbit LCD_RS at RD2_bit;
 sbit LCD_EN at RD3_bit;
 sbit LCD_D4 at RD4_bit;
 sbit LCD_D5 at RD5_bit;
 sbit LCD_D6 at RD6_bit;
 sbit LCD_D7 at RD7_bit;
-
 sbit LCD_RS_Direction at TRISD2_bit;
 sbit LCD_EN_Direction at TRISD3_bit;
 sbit LCD_D4_Direction at TRISD4_bit;
 sbit LCD_D5_Direction at TRISD5_bit;
 sbit LCD_D6_Direction at TRISD6_bit;
 sbit LCD_D7_Direction at TRISD7_bit;
+// Fin conexiones del modulo LCD /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//Inicio de interrupciones
+// Conexiones del sensor DHT22 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+sbit DHT22_Pin at RC2_bit;
+sbit DHT22_Pin_Direction at TRISC2_bit;
+// Fin conexiones sensor DHT22 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Inicio de interrupciones ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Interrupt(){
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //Interrupcion TIMER 2:
@@ -97,7 +106,6 @@ void Interrupt(){
        TMR2IF_bit = 0;                           //Limpia la bandera de interrupcion de Timer2
     }
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------------------------------------
 //Interrupcion INT0:
     if (INTCON.INT0IF == 1){                     //Verifica si ocurrio una interrupcion externa en INT0.
        *(punT1) = TMR1L;                         //Carga el valor actual de TMR1L en los 8 bits menos significativos de la variable contT de tipo entero.
@@ -120,8 +128,19 @@ void Interrupt(){
        TMR1IF_bit=0;                             //Limpia la bandera de interrupcion de Timer1.
     }
 }
-//--------------------------------------------------------------------------------------------------------------------------------------------
+// Fin de interrupciones ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura ////////////////////////////////////////////////////////
+void Velocidad(){
+    DHTvalue = DHT22_readData();
+    if ((DHTvalue != 0x63636363) && (DHTvalue != 0x58585858)) {
+       Temp = (DHTvalue & 0xFFFF) / 10.;
+       DHTvalue = DHTvalue >> 16;
+       RH = (DHTvalue & 0xFFFF) / 10.;
+       VSnd = 331.45 * sqrt(1+(Temp/273));
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void main() {
 
@@ -168,7 +187,6 @@ void main() {
      Rspt[4] = End;
 
      Lcd_init();                                 //Inicializa el LCD
-     //Lcd_Out(1,1,"INICIANDO...");
      Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
      Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
      
@@ -177,21 +195,22 @@ void main() {
 
      while (1){
 
+           Velocidad();                          //Invoca la funcion para calcular la Velocidad del sonido
+
            TOF = (contT1)*(4./48);               //Calcula el valor de TOF
-           Df = (343. * TOF ) / 2000;            //Calcula la distancia en funcion del TOF
-           Di = Df*10;
-           //Di = 1876;
-           
+           Df = (VSnd * TOF ) / 2000;            //Calcula la distancia en funcion del TOF
+           Di = Df*10;                           //Almacena la distancia en una variable de tipo entero
+
            for (i=2;i<4;i++){                    //Rellena la trama de cuerpo de datos de 4 bytes
                Rspt[i]=(*punDt++);               //El operador * permite acceder al valor de la direccion del puntero,
            }
            
-           FloatToStr(Df, txt1);
-           IntToStr(Di, txt2);                   //Convierte el valor de la distancia en string
+           FloatToStr(VSnd, txt1);
+           FloatToStr(Df, txt2);                   //Convierte el valor de la distancia en string
            
-           Lcd_Out(1,1,"Df: ");
+           Lcd_Out(1,1,"Vel: ");
            Lcd_Out_Cp(txt1);
-           Lcd_Out(2,1,"Di: ");
+           Lcd_Out(2,1,"Dis: ");
            Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/
 
            for (j=0;j<=4;j++){

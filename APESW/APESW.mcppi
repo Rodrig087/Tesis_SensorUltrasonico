@@ -24,8 +24,9 @@ Count=0
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=1
+Count=2
 File0=APESW.c
+File1=..\..\Test\DHTxx\DHTxx.c
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -33,11 +34,12 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=4
+Count=5
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
 Path2=E:\Milton\Github\Tesis\SensorUltrasonico\APESW\
 Path3=E:\Google Drive\Tesis\Programas\MikroC\Sensor Ultrasonico\Version 5\Sensor Ultrasonico\APESW\
+Path4=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\DHT22\Uses\
 [HEADER_PATH]
 Count=0
 [HEADERS]
@@ -45,12 +47,14 @@ Count=0
 [PLDS]
 Count=0
 [Useses]
-Count=5
+Count=7
 File0=Lcd
 File1=Lcd_Constants
 File2=Conversions
 File3=C_String
 File4=UART
+File5=__Lib_DHT22
+File6=C_Math
 [EXPANDED_NODES]
 Node0=Sources
 Count=1
