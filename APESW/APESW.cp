@@ -24,6 +24,7 @@ unsigned short i,j,k;
 
 float TOF, Df, VSnd;
 float Temp, Rh;
+float DSTemp;
 
 unsigned long DHTvalue;
 
@@ -118,14 +119,39 @@ void Interrupt(){
 
 
 
-void Velocidad(){
- DHTvalue = DHT22_readData();
- if ((DHTvalue != 0x63636363) && (DHTvalue != 0x58585858)) {
- Temp = (DHTvalue & 0xFFFF) / 10.;
- DHTvalue = DHTvalue >> 16;
- RH = (DHTvalue & 0xFFFF) / 10.;
- VSnd = 331.45 * sqrt(1+(Temp/273));
+void DSRead(){
+ unsigned int Temp;
+ unsigned int Rint;
+ float Rfrac;
+
+ Ow_Reset(&PORTE, 2);
+ Ow_Write(&PORTE, 2, 0xCC);
+ Ow_Write(&PORTE, 2, 0x44);
+ Delay_us(120);
+
+ Ow_Reset(&PORTE, 2);
+ Ow_Write(&PORTE, 2, 0xCC);
+ Ow_Write(&PORTE, 2, 0xBE);
+
+ Temp = Ow_Read(&PORTE, 2);
+ Temp = (Ow_Read(&PORTE, 2) << 8) + Temp;
+
+ if (Temp & 0x8000) {
+ Temp = 0;
  }
+
+ Rint = Temp >> 4;
+ Rfrac = ((Temp & 0x000F) * 625) / 10000.;
+ DSTemp = Rint + Rfrac;
+}
+
+
+
+
+void Velocidad(){
+ DSRead();
+ Temp = DSTemp;
+ VSnd = 331.45 * sqrt(1+(Temp/273));
 }
 
 
@@ -138,7 +164,7 @@ void main() {
  INTCON2.RBPU = 1;
  INTCON2.INTEDG0 = 1;
 
- ADCON1 = 0b00010111;
+ ADCON1 = 0b00001111;
  CMCON = 0b00000111;
 
  T1CON=0x00;
@@ -192,12 +218,21 @@ void main() {
  Rspt[i]=(*punDt++);
  }
 
- FloatToStr(VSnd, txt1);
- FloatToStr(Df, txt2);
+ FloatToStr(Temp, txt1);
+ FloatToStr(Vsnd, txt2);
 
- Lcd_Out(1,1,"Vel: ");
+ if (DHTvalue == 0x63636363){
+ Lcd_Out(1, 1, "  No response   ");
+ }
+ if (DHTvalue == 0x58585858){
+ Lcd_Cmd(_LCD_CLEAR);
+ Lcd_Out(1, 1, "Check sum error ");
+ } else if ((DHTvalue != 0x63636363) && (DHTvalue != 0x58585858)){
+ Lcd_Out(1,1,"Tmp: ");
  Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"Dis: ");
+ }
+
+ Lcd_Out(2,1,"Vel: ");
  Lcd_Out_Cp(txt2);
 
  for (j=0;j<=4;j++){

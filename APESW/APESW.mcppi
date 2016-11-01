@@ -26,7 +26,7 @@ ActiveImageIndex=-1
 [OPENED_FILES]
 Count=2
 File0=APESW.c
-File1=..\..\Test\DHTxx\DHTxx.c
+File1=..\..\Test\Temperatura\DS18B20\DS18B20.c
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -53,8 +53,8 @@ File1=Lcd_Constants
 File2=Conversions
 File3=C_String
 File4=UART
-File5=__Lib_DHT22
-File6=C_Math
+File5=C_Math
+File6=One_Wire
 [EXPANDED_NODES]
 Node0=Sources
 Count=1

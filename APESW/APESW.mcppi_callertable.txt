@@ -9,13 +9,34 @@ main
 		Delay_50us
 	UART1_Init
 	Velocidad
-		DHT22_ReadData
-		longword2double
-			NRM4032
-				SETFUN32
-				FIXSIGN32
-				SETFOV32
+		DSRead
+			Ow_Reset
+				Delay_500us
+				Delay_80us
+			Ow_Write
+				Delay_80us
+				Delay_50us
+			Ow_Read
+				Delay_1us
+				Delay_50us
+			Mul_16X16_U
+			word2double
+				NRM3232
+					RES032
+					SETFUN32
+					FIXSIGN32
+			Div_32x32_FP
+				SETFDZ32
 				RES032
+				SETFOV32
+				SETFUN32
+			Add_32x32_FP
+				NRM4032
+					SETFUN32
+					FIXSIGN32
+					SETFOV32
+					RES032
+				SETFOV32
 		Div_32x32_FP
 			SETFDZ32
 			RES032

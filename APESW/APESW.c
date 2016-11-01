@@ -37,6 +37,7 @@ unsigned short i,j,k;
 
 float TOF, Df, VSnd;
 float Temp, Rh;
+float DSTemp;
 
 unsigned long DHTvalue;
 
@@ -128,17 +129,42 @@ void Interrupt(){
        TMR1IF_bit=0;                             //Limpia la bandera de interrupcion de Timer1.
     }
 }
-// Fin de interrupciones ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Fin de interrupciones //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Funcion para la lectura del sensor de temperatura DS18B20 //////////////////////////////////////////////////////////////////////////////
+void DSRead(){
+     unsigned int Temp;
+     unsigned int Rint;
+     float Rfrac;
+
+     Ow_Reset(&PORTE, 2);                                 // Onewire reset signal
+     Ow_Write(&PORTE, 2, 0xCC);                           // Issue command SKIP_ROM
+     Ow_Write(&PORTE, 2, 0x44);                           // Issue command CONVERT_T
+     Delay_us(120);
+
+     Ow_Reset(&PORTE, 2);
+     Ow_Write(&PORTE, 2, 0xCC);                           // Issue command SKIP_ROM
+     Ow_Write(&PORTE, 2, 0xBE);                           // Issue command READ_SCRATCHPAD
+
+     Temp =  Ow_Read(&PORTE, 2);
+     Temp = (Ow_Read(&PORTE, 2) << 8) + Temp;
+
+     if (Temp & 0x8000) {
+        Temp = 0;                                         // Si la temperatura es negativa la establece como cero.
+     }
+
+     Rint = Temp >> 4;                                    // Extrae la parte entera de la respuesta del sensor
+     Rfrac = ((Temp & 0x000F) * 625) / 10000.;            // Extrae la parte decimal de la respuesta del sensor
+     DSTemp = Rint + Rfrac;                               // Expresa la temperatura en punto flotante
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura ////////////////////////////////////////////////////////
 void Velocidad(){
-    DHTvalue = DHT22_readData();
-    if ((DHTvalue != 0x63636363) && (DHTvalue != 0x58585858)) {
-       Temp = (DHTvalue & 0xFFFF) / 10.;
-       DHTvalue = DHTvalue >> 16;
-       RH = (DHTvalue & 0xFFFF) / 10.;
-       VSnd = 331.45 * sqrt(1+(Temp/273));
-    }
+    DSRead();
+    Temp = DSTemp;
+    VSnd = 331.45 * sqrt(1+(Temp/273));
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -151,14 +177,14 @@ void main() {
      INTCON2.RBPU = 1;                           //PORTB pull-ups are enabled by individual port latch values
      INTCON2.INTEDG0 = 1;                        //Habilita la interrupcion por flanco de subida
      
-     ADCON1 = 0b00010111;                        //Configuracion ADCON1
+     ADCON1 = 0b00001111;                        //Configuracion ADCON1
      CMCON = 0b00000111;
 
      T1CON=0x00;                                 //Configuracion T1CON: 16 bits, Timer1 On, Pre-escalador 1:1
      TMR1IE_bit = 1;                             //Habilita la interrupcion por desborde de Timer1
 
      T2CON = 0x04;                               //Configuracion T2CON: Post-escalador 1:1, Timer2 On, Pre-escalador 1:1
-     PIE1.TMR2IE = 1;                            //Habilita la interrupcion por desborde de Timer2
+     PIE1.TMR2IE = 1;                            //Habilita la interrupcion por desborde de Timer2                        ====> La interrupcion del TMR2 interfiere con la conversion del DHT22
      PR2 = 149;                                  //Produce una interrupcion cada 12,5us
 
      TRISD0_bit = 0;                             //Establece el pin D0 como salida
@@ -205,12 +231,21 @@ void main() {
                Rspt[i]=(*punDt++);               //El operador * permite acceder al valor de la direccion del puntero,
            }
            
-           FloatToStr(VSnd, txt1);
-           FloatToStr(Df, txt2);                   //Convierte el valor de la distancia en string
+           FloatToStr(Temp, txt1);
+           FloatToStr(Vsnd, txt2);                   //Convierte el valor de la distancia en string
            
-           Lcd_Out(1,1,"Vel: ");
-           Lcd_Out_Cp(txt1);
-           Lcd_Out(2,1,"Dis: ");
+           if (DHTvalue == 0x63636363){
+              Lcd_Out(1, 1, "  No response   ");
+           }
+           if (DHTvalue == 0x58585858){
+              Lcd_Cmd(_LCD_CLEAR);
+              Lcd_Out(1, 1, "Check sum error ");
+           } else if ((DHTvalue != 0x63636363) && (DHTvalue != 0x58585858)){
+             Lcd_Out(1,1,"Tmp: ");
+             Lcd_Out_Cp(txt1);
+           }
+           
+           Lcd_Out(2,1,"Vel: ");
            Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/
 
            for (j=0;j<=4;j++){

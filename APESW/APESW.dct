@@ -330,12 +330,8 @@ dfn8ee
 dfn8ee_bit
 dfn8ef
 dfn8ef_bit
-dht22_full
 dht22_pin
 dht22_pin_direction
-dht22_readdata
-dht22check
-dht22sum
 dhtvalue
 di
 dir_
@@ -357,6 +353,8 @@ double2int
 double2longint
 double2longword
 double2word
+dsread
+dstemp
 dt
 eccp1as
 eccp1con
@@ -846,6 +844,9 @@ osts
 osts_bit
 ov
 ov_bit
+ow_read
+ow_reset
+ow_write
 p
 p_bit
 p1a
@@ -1096,8 +1097,6 @@ res032
 resume_
 resume__bit
 rh
-rh_byte1
-rh_byte2
 ri
 ri_bit
 rsen
@@ -1253,8 +1252,6 @@ swdten
 swdten_bit
 sync
 sync_bit
-t_byte1
-t_byte2
 t08bit
 t08bit_bit
 t0cki
