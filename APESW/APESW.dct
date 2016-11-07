@@ -253,9 +253,10 @@ cmip
 cmip_bit
 comfrem
 compare_double
+configuracion
+contp
 contt
 contt1
-contw
 cos
 cosh
 crc16ee
@@ -330,8 +331,6 @@ dfn8ee
 dfn8ee_bit
 dfn8ef
 dfn8ef_bit
-dht22_pin
-dht22_pin_direction
 dhtvalue
 di
 dir_
@@ -353,7 +352,6 @@ double2int
 double2longint
 double2longword
 double2word
-dsread
 dstemp
 dt
 eccp1as
@@ -478,6 +476,7 @@ exp
 f
 fabs
 fast
+fec
 ferr
 ferr_bit
 fie
@@ -1096,7 +1095,6 @@ read_write_bit
 res032
 resume_
 resume__bit
-rh
 ri
 ri_bit
 rsen
@@ -1325,7 +1323,6 @@ tblptr
 tblptrh
 tblptrl
 tblptru
-temp
 tmr0h
 tmr0ie
 tmr0ie_bit

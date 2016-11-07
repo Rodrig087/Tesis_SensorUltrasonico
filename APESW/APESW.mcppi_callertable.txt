@@ -1,5 +1,6 @@
 main
 	__CC2DW
+	Configuracion
 	Lcd_Init
 		Delay_5500us
 		Delay_1us
@@ -9,34 +10,21 @@ main
 		Delay_50us
 	UART1_Init
 	Velocidad
-		DSRead
-			Ow_Reset
-				Delay_500us
-				Delay_80us
-			Ow_Write
-				Delay_80us
-				Delay_50us
-			Ow_Read
-				Delay_1us
-				Delay_50us
-			Mul_16X16_U
-			word2double
-				NRM3232
-					RES032
-					SETFUN32
-					FIXSIGN32
-			Div_32x32_FP
-				SETFDZ32
+		Ow_Reset
+			Delay_500us
+			Delay_80us
+		Ow_Write
+			Delay_80us
+			Delay_50us
+		Ow_Read
+			Delay_1us
+			Delay_50us
+		Mul_16X16_U
+		word2double
+			NRM3232
 				RES032
-				SETFOV32
 				SETFUN32
-			Add_32x32_FP
-				NRM4032
-					SETFUN32
-					FIXSIGN32
-					SETFOV32
-					RES032
-				SETFOV32
+				FIXSIGN32
 		Div_32x32_FP
 			SETFDZ32
 			RES032
@@ -111,5 +99,4 @@ main
 				Delay_1us
 				Delay_5500us
 				Delay_50us
-	UART1_Write
 Interrupt
