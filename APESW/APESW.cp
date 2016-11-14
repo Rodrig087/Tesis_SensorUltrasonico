@@ -5,8 +5,10 @@ const short Psize = 4;
 const short Rsize = 5;
 const short Hdr = 0x20;
 const short End = 0x0D;
+unsigned short ThT = 200;
 unsigned short Dms;
 unsigned short Dmn;
+unsigned short F1, F2;
 
 
 unsigned int contp;
@@ -57,6 +59,8 @@ void Interrupt(){
 
  if (TMR2IF_bit){
 
+
+
  if (contp<=42){
  BS = ~BS;
  RD0_bit = BS;
@@ -68,13 +72,11 @@ void Interrupt(){
  }
  if (contp==20){
  BS = 0;
- RD1_bit = 1;
+
  }
 
  } else {
  RD0_bit = 0;
- FP = 1;
- FEC = 0;
  }
 
  contp++;
@@ -85,21 +87,22 @@ void Interrupt(){
 
  if (INTCON.INT0IF == 1){
 
+
  *(punT1) = TMR1L;
  *(punT1+1) = TMR1H;
- T2 = contp;
- DT = T2-T1;
 
- if ((T2>43)&&(DT!=T2)&&(DT!=2)){
- contT1 = contT;
- TMR1ON_bit=0;
- TMR2ON_bit=0;
- contT = 0;
- RD1_bit = 0;
- FEC = 1;
+ T2 = contT;
+ DT = (T2-T1);
+
+ if ((DT>(25000-Tht))||(DT<(25000+Tht))){
+ F1++;
+ if (F1==5) {
+ RD1_bit = ~RD1_bit;
+
  }
-
- T1 = contp;
+ }
+#line 131 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
+ T1 = contT;
  INTCON.INT0IF = 0;
 
  }
@@ -189,6 +192,8 @@ void main() {
  TOF = 0;
  Di = 0;
  FEC = 0;
+ F1 = 0;
+ F2 = 0;
 
  Rspt[0] = Hdr;
  Rspt[1] = idSlv;
@@ -203,7 +208,9 @@ void main() {
 
  while (1){
 
+
  Velocidad();
+
 
  BS = 0;
  contp = 0;
@@ -211,27 +218,29 @@ void main() {
  T2=0;
  DT=0;
 
+ F1 = 0;
+
  TMR2ON_bit=1;
 
 
  TOF = (contT1)*(4./48);
- Df = (VSnd * TOF ) / 2000;
+ Df = ((VSnd * TOF ) / 2000);
  Di = Df*10;
 
  for (i=2;i<4;i++){
  Rspt[i]=(*punDt++);
  }
 
- FloatToStr(DsTemp, txt1);
- FloatToStr(Vsnd, txt2);
+ FloatToStr(Vsnd, txt1);
+ FloatToStr(Df, txt2);
 
-
- Lcd_Out(1,1,"Tmp: ");
+ Lcd_Out(1,1,"Vel: ");
  Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"Vel: ");
+ Lcd_Out(2,1,"Dst: ");
  Lcd_Out_Cp(txt2);
 
  delay_ms(15);
+ TMR2ON_bit=0;
 
  }
 }

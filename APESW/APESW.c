@@ -18,8 +18,10 @@ const short Psize = 4;                         //Constante de longitud de trama 
 const short Rsize = 5;                         //Constante de longitud de trama de Respuesta
 const short Hdr = 0x20;                        //Constante de delimitador de inicio de trama
 const short End = 0x0D;                        //Constante de delimitador de final de trama
-unsigned short Dms;                            //Constante para almacenar la parte mas significativa del dato de respuesta
-unsigned short Dmn;                            //Constante para almacenar la parte menos significativa del dato de respuesta
+unsigned short ThT = 200;                      //Constante de umbral de tiempo (en nanosegundos)
+unsigned short Dms;                            //Variable para almacenar la parte mas significativa del dato de respuesta
+unsigned short Dmn;                            //Variable para almacenar la parte menos significativa del dato de respuesta
+unsigned short F1, F2;                         //Variables para almacenar los pulsos de cada fase
 
 //Declaracion de variables para el calculo de la distancia
 unsigned int contp;                            //Contador para controlar los pulsos de exitacion del transductor ultrasonico.
@@ -70,6 +72,8 @@ void Interrupt(){
 //Interrupcion TIMER 2:
     if (TMR2IF_bit){                             //Verifica si ocurrio una interrupcion por desbordamiento del TMR2.
        
+       //RD1_bit = ~RD1_bit;
+       
        if (contp<=42){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
@@ -81,13 +85,11 @@ void Interrupt(){
           }
           if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (22)
              BS = 0;                             //el cambio de fase en la siguiente iteracion.
-             RD1_bit = 1;                        //Inicio del pulso de indicacion del TOF
+             //RD1_bit = 1;                        //Inicio del pulso de indicacion del TOF
           }
 
        } else {
           RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
-          FP = 1;                                //Habilita la bandera de deteccion de fase para permitir la deteccion una vez que se hayan terminado de enviar todos los pulsos de exitacion
-          FEC = 0;
        }
 
        contp++;                                  //Aumenta el contador en una unidad.
@@ -98,21 +100,35 @@ void Interrupt(){
 //Interrupcion INT0:
     if (INTCON.INT0IF == 1){                     //Verifica si ocurrio una interrupcion externa en INT0.
     
+       //puntT1 = &contT                         //Recuerda que el puntero puntT1 apunta a la variable contT
        *(punT1) = TMR1L;                         //Carga el valor actual de TMR1L en los 8 bits menos significativos de la variable contT de tipo entero.
        *(punT1+1) = TMR1H;                       //Carga el valor actual de TMR1H en los 8 bits mas significativos de la variable  contT de tipo entero.
-       T2 = contp;                               //Carga el valor actual del contador contw en la variable T2.
-       DT = T2-T1;                               //Halla la diferencia entre los valores actual y anterior del contador contw.
        
+       T2 = contT;                               //Carga el contenido actual de la variable contT en la variable T2.
+       DT = (T2-T1);                             //Halla la diferencia entre los valores actual y anterior de la variable contT (en nanosegundos).
+       
+       if ((DT>(25000-Tht))||(DT<(25000+Tht))){    //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
+          F1++;
+          if (F1==5) {                           //Si 5 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
+             RD1_bit = ~RD1_bit;
+
+          }
+       }
+       
+       
+       /*T2 = contp;                               //Carga el valor actual del contador contw en la variable T2.
+       DT = T2-T1;                               //Halla la diferencia entre los valores actual y anterior del contador contw.
+
        if ((T2>43)&&(DT!=T2)&&(DT!=2)){          //Detecta el cambio de fase segun el resultado de la diferencia.
           contT1 = contT;                        //Carga el contenido de la variable contT en la variable contT1.
           TMR1ON_bit=0;                          //Apaga el TMR1.
-          TMR2ON_bit=0;                          //Apaga el TMR2.
+          //TMR2ON_bit=0;                          //Apaga el TMR2.
           contT = 0;                             //Limpia el contenido de la variable contT.
-          RD1_bit = 0;
+          RD1_bit = ~RD1_bit;
           FEC = 1;                               //Cambia el estado de la bandera de deteccion de eco
-       }
+       }*/
        
-       T1 = contp;                               //Actualiza T1 con el valor actual del contador contw.
+       T1 = contT;                               //Actualiza T1 con el valor actual del contador contT.
        INTCON.INT0IF = 0;                        //Limpia la bandera de interrupcion de INT0.
        
     }
@@ -202,6 +218,8 @@ void main() {
      TOF = 0;
      Di = 0;
      FEC = 0;
+     F1 = 0;
+     F2 = 0;
      
      Rspt[0] = Hdr;
      Rspt[1] = idSlv;
@@ -216,7 +234,9 @@ void main() {
 
      while (1){
      
+           //INT0IE_bit = 0;
            Velocidad();                       //Invoca la funcion para calcular la Velocidad del sonido
+           //INT0IE_bit = 1;
            
            BS = 0;
            contp = 0;                            //Limpia los contadores
@@ -224,27 +244,29 @@ void main() {
            T2=0;
            DT=0;
            
+           F1 = 0;
+           
            TMR2ON_bit=1;                         //Enciende el TMR2.
 
            
            TOF = (contT1)*(4./48);               //Calcula el valor de TOF
-           Df = (VSnd * TOF ) / 2000;            //Calcula la distancia en funcion del TOF
+           Df = ((VSnd * TOF ) / 2000);          //Calcula la distancia en funcion del TOF
            Di = Df*10;                           //Almacena la distancia en una variable de tipo entero
 
            for (i=2;i<4;i++){                    //Rellena la trama de cuerpo de datos de 4 bytes
                Rspt[i]=(*punDt++);               //El operador * permite acceder al valor de la direccion del puntero,
            }
            
-           FloatToStr(DsTemp, txt1);
-           FloatToStr(Vsnd, txt2);               //Convierte el valor de la distancia en string
+           FloatToStr(Vsnd, txt1);
+           FloatToStr(Df, txt2);
 
-
-           Lcd_Out(1,1,"Tmp: ");
+           Lcd_Out(1,1,"Vel: ");
            Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD*/
-           Lcd_Out(2,1,"Vel: ");
+           Lcd_Out(2,1,"Dst: ");
            Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/
-
+           
            delay_ms(15);
+           TMR2ON_bit=0;
 
      }
 }

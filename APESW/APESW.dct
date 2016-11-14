@@ -474,6 +474,8 @@ epstall_uep9_bit
 equals_double
 exp
 f
+f1
+f2
 fabs
 fast
 fec
@@ -1323,6 +1325,7 @@ tblptr
 tblptrh
 tblptrl
 tblptru
+tht
 tmr0h
 tmr0ie
 tmr0ie_bit
