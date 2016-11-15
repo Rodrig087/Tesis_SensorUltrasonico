@@ -18,15 +18,16 @@ const short Psize = 4;                         //Constante de longitud de trama 
 const short Rsize = 5;                         //Constante de longitud de trama de Respuesta
 const short Hdr = 0x20;                        //Constante de delimitador de inicio de trama
 const short End = 0x0D;                        //Constante de delimitador de final de trama
-unsigned short ThT = 200;                      //Constante de umbral de tiempo (en nanosegundos)
+unsigned short ThT = 5;                       //Constante de umbral de tiempo en pulsos de reloj del sistema (10 * 4/48MHz = 0.833us)
 unsigned short Dms;                            //Variable para almacenar la parte mas significativa del dato de respuesta
 unsigned short Dmn;                            //Variable para almacenar la parte menos significativa del dato de respuesta
 unsigned short F1, F2;                         //Variables para almacenar los pulsos de cada fase
+unsigned short DF1, DF2, DFT;                       //Variables para la detecccion de cambio de fase
 
 //Declaracion de variables para el calculo de la distancia
 unsigned int contp;                            //Contador para controlar los pulsos de exitacion del transductor ultrasonico.
 unsigned int contT;                            //Variable asociada a los punteros.
-unsigned int contT1;                           //Variable para almacenar la cuenta del TMR1.
+unsigned int contTOF;                           //Variable para almacenar la cuenta del TMR1.
 unsigned int T1;
 unsigned int T2;
 unsigned int DT;
@@ -107,11 +108,12 @@ void Interrupt(){
        T2 = contT;                               //Carga el contenido actual de la variable contT en la variable T2.
        DT = (T2-T1);                             //Halla la diferencia entre los valores actual y anterior de la variable contT (en nanosegundos).
        
-       if (F1<=5){
-           if ((DT>(25000-Tht))||(DT<(25000+Tht))){    //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
+       if (F1<=3){
+           if (DT>(300-Tht)&&DT<(300+Tht)){  //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
               F1++;
-              if (F1==5) {                             //Si 5 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
-                 RD1_bit = ~RD1_bit;
+              if (F1==3) {                       //Si 10 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
+                 DF1 = T2;                       //Almacena el valor actual de la variable T2 para la referencia de inicio de deteccion de fase
+                 RE0_bit = ~RE0_bit;
 
               }
            } else {
@@ -119,8 +121,22 @@ void Interrupt(){
            }
        }
        
-       T1 = contT;                               //Actualiza T1 con el valor actual del contador contT.
-       INTCON.INT0IF = 0;                        //Limpia la bandera de interrupcion de INT0.
+       if (DF1>0){                                     //Verifica si se habilito el inicio de deteccion de fase **
+          F2++;
+          DF2 = (T2-DF1);
+          DFT = ((F2*2)-1)*150;
+          if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
+              contTOF = T2;
+              RE1_bit = ~RE1_bit;
+              DF1 = 0;
+              TMR1ON_bit = 0;                          //Apaga el TMR1.
+              contT = 0;                             //Limpia el contenido de la variable contT.
+          }
+       }
+       
+       
+       T1 = contT;                                     //Actualiza T1 con el valor actual del contador contT.
+       INTCON.INT0IF = 0;                              //Limpia la bandera de interrupcion de INT0.
        
     }
     
@@ -183,6 +199,9 @@ void Configuracion() {
 
      TRISD0_bit = 0;                             //Establece el pin D0 como salida
      TRISD1_bit = 0;                             //Establece el pin D1 como salida
+     
+     TRISE0_bit = 0;
+     TRISE1_bit = 0;
 
      TRISB = 0x07;                               //Establece los pines B0, B1 y B2 como entradas
 
@@ -201,7 +220,7 @@ void main() {
      punDt = &Di;                                //Asocia el puntero punDt con la direccion de memoria de la variable Di de tipo entero
      
      contp = 0;                                  //Limpia todas las variables
-     contT1 = 0;
+     contTOF = 0;
      BS = 0;
      FP = 0;
      T1 = 0;
@@ -210,7 +229,8 @@ void main() {
      Di = 0;
      FEC = 0;
      F1 = 0;
-     F2 = 0;
+     F2 = 0;           
+     DFT = 0;
      
      Rspt[0] = Hdr;
      Rspt[1] = idSlv;
@@ -225,22 +245,26 @@ void main() {
 
      while (1){
      
-           //INT0IE_bit = 0;
-           Velocidad();                       //Invoca la funcion para calcular la Velocidad del sonido
-           //INT0IE_bit = 1;
+
+           Velocidad();                          //Invoca la funcion para calcular la Velocidad del sonido
            
            BS = 0;
            contp = 0;                            //Limpia los contadores
+           contT = 0;
            T1=0;
            T2=0;
            DT=0;
            
-           F1 = 0;
+           F1 = 0;                               //Limpia las variables utilizadas en la deteccion de cambio de fase
+           F2 = 0;
+           DF1 = 0;
+           DF2 = 0;
+           DFT = 0;
            
            TMR2ON_bit=1;                         //Enciende el TMR2.
 
            
-           TOF = (contT1)*(4./48);               //Calcula el valor de TOF
+           TOF = (contTOF)*(4./48);               //Calcula el valor de TOF (en microsegundos)
            Df = ((VSnd * TOF ) / 2000);          //Calcula la distancia en funcion del TOF
            Di = Df*10;                           //Almacena la distancia en una variable de tipo entero
 

@@ -256,7 +256,7 @@ compare_double
 configuracion
 contp
 contt
-contt1
+conttof
 cos
 cosh
 crc16ee
@@ -327,10 +327,13 @@ delay_80us
 delay_8ms
 delay_cyc
 df
+df1
+df2
 dfn8ee
 dfn8ee_bit
 dfn8ef
 dfn8ef_bit
+dft
 dhtvalue
 di
 dir_

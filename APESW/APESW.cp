@@ -5,15 +5,16 @@ const short Psize = 4;
 const short Rsize = 5;
 const short Hdr = 0x20;
 const short End = 0x0D;
-unsigned short ThT = 200;
+unsigned short ThT = 5;
 unsigned short Dms;
 unsigned short Dmn;
 unsigned short F1, F2;
+unsigned short DF1, DF2, DFT;
 
 
 unsigned int contp;
 unsigned int contT;
-unsigned int contT1;
+unsigned int contTOF;
 unsigned int T1;
 unsigned int T2;
 unsigned int DT;
@@ -94,17 +95,32 @@ void Interrupt(){
  T2 = contT;
  DT = (T2-T1);
 
- if (F1<=5){
- if ((DT>(25000-Tht))||(DT<(25000+Tht))){
+ if (F1<=3){
+ if (DT>(300-Tht)&&DT<(300+Tht)){
  F1++;
- if (F1==5) {
- RD1_bit = ~RD1_bit;
+ if (F1==3) {
+ DF1 = T2;
+ RE0_bit = ~RE0_bit;
 
  }
  } else {
  F1=0;
  }
  }
+
+ if (DF1>0){
+ F2++;
+ DF2 = (T2-DF1);
+ DFT = ((F2*2)-1)*150;
+ if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
+ contTOF = T2;
+ RE1_bit = ~RE1_bit;
+ DF1 = 0;
+ TMR1ON_bit = 0;
+ contT = 0;
+ }
+ }
+
 
  T1 = contT;
  INTCON.INT0IF = 0;
@@ -171,6 +187,9 @@ void Configuracion() {
  TRISD0_bit = 0;
  TRISD1_bit = 0;
 
+ TRISE0_bit = 0;
+ TRISE1_bit = 0;
+
  TRISB = 0x07;
 
 }
@@ -188,7 +207,7 @@ void main() {
  punDt = &Di;
 
  contp = 0;
- contT1 = 0;
+ contTOF = 0;
  BS = 0;
  FP = 0;
  T1 = 0;
@@ -198,6 +217,7 @@ void main() {
  FEC = 0;
  F1 = 0;
  F2 = 0;
+ DFT = 0;
 
  Rspt[0] = Hdr;
  Rspt[1] = idSlv;
@@ -215,19 +235,23 @@ void main() {
 
  Velocidad();
 
-
  BS = 0;
  contp = 0;
+ contT = 0;
  T1=0;
  T2=0;
  DT=0;
 
  F1 = 0;
+ F2 = 0;
+ DF1 = 0;
+ DF2 = 0;
+ DFT = 0;
 
  TMR2ON_bit=1;
 
 
- TOF = (contT1)*(4./48);
+ TOF = (contTOF)*(4./48);
  Df = ((VSnd * TOF ) / 2000);
  Di = Df*10;
 
