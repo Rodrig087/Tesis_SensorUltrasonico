@@ -94,14 +94,18 @@ void Interrupt(){
  T2 = contT;
  DT = (T2-T1);
 
+ if (F1<=5){
  if ((DT>(25000-Tht))||(DT<(25000+Tht))){
  F1++;
  if (F1==5) {
  RD1_bit = ~RD1_bit;
 
  }
+ } else {
+ F1=0;
  }
-#line 131 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
+ }
+
  T1 = contT;
  INTCON.INT0IF = 0;
 

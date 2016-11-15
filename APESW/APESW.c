@@ -107,26 +107,17 @@ void Interrupt(){
        T2 = contT;                               //Carga el contenido actual de la variable contT en la variable T2.
        DT = (T2-T1);                             //Halla la diferencia entre los valores actual y anterior de la variable contT (en nanosegundos).
        
-       if ((DT>(25000-Tht))||(DT<(25000+Tht))){    //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
-          F1++;
-          if (F1==5) {                           //Si 5 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
-             RD1_bit = ~RD1_bit;
+       if (F1<=5){
+           if ((DT>(25000-Tht))||(DT<(25000+Tht))){    //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
+              F1++;
+              if (F1==5) {                             //Si 5 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
+                 RD1_bit = ~RD1_bit;
 
-          }
+              }
+           } else {
+              F1=0;
+           }
        }
-       
-       
-       /*T2 = contp;                               //Carga el valor actual del contador contw en la variable T2.
-       DT = T2-T1;                               //Halla la diferencia entre los valores actual y anterior del contador contw.
-
-       if ((T2>43)&&(DT!=T2)&&(DT!=2)){          //Detecta el cambio de fase segun el resultado de la diferencia.
-          contT1 = contT;                        //Carga el contenido de la variable contT en la variable contT1.
-          TMR1ON_bit=0;                          //Apaga el TMR1.
-          //TMR2ON_bit=0;                          //Apaga el TMR2.
-          contT = 0;                             //Limpia el contenido de la variable contT.
-          RD1_bit = ~RD1_bit;
-          FEC = 1;                               //Cambia el estado de la bandera de deteccion de eco
-       }*/
        
        T1 = contT;                               //Actualiza T1 con el valor actual del contador contT.
        INTCON.INT0IF = 0;                        //Limpia la bandera de interrupcion de INT0.
