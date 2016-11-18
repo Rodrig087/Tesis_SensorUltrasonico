@@ -60,25 +60,20 @@ void Interrupt(){
 
  if (TMR2IF_bit){
 
-
-
  if (contp<=42){
  BS = ~BS;
  RD0_bit = BS;
 
- if (contp==24){
- TMR1ON_bit=1;
- TMR1L=0X00;
- TMR1H=0X00;
- }
  if (contp==20){
  BS = 0;
-
  }
 
  } else {
- RD0_bit = 0;
  TMR2ON_bit=0;
+ RD0_bit = 0;
+ TMR1ON_bit=1;
+ TMR1L=0X00;
+ TMR1H=0X00;
  }
 
  contp++;
@@ -269,7 +264,6 @@ void main() {
  Lcd_Out_Cp(txt2);
 
  delay_ms(15);
- TMR2ON_bit=0;
 
  }
 }

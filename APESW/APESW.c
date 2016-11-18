@@ -73,25 +73,20 @@ void Interrupt(){
 //Interrupcion TIMER 2:
     if (TMR2IF_bit){                             //Verifica si ocurrio una interrupcion por desbordamiento del TMR2.
        
-       //RD1_bit = ~RD1_bit;
-       
        if (contp<=42){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
-
-          if (contp==24){                        //Se empieza a contar el tiempo desde el primer pulso en alto despues del cambio de fase. 25
-             TMR1ON_bit=1;                       //Enciende el TMR1.
-             TMR1L=0X00;                         //Limpia los bits menos significativos del TMR1.
-             TMR1H=0X00;                         //Limpia los bits mas significativos del TMR1.
-          }
+          
           if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (22)
              BS = 0;                             //el cambio de fase en la siguiente iteracion.
-             //RD1_bit = 1;                        //Inicio del pulso de indicacion del TOF
           }
 
        } else {
+          TMR2ON_bit=0;                          //Apaga el TMR2
           RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
-          TMR2ON_bit=0;                          //!!!!!!
+          TMR1ON_bit=1;                          //Enciende el TMR1.
+          TMR1L=0X00;                            //Limpia los bits menos significativos del TMR1.
+          TMR1H=0X00;                            //Limpia los bits mas significativos del TMR1.
        }
 
        contp++;                                  //Aumenta el contador en una unidad.
@@ -282,7 +277,6 @@ void main() {
            Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/
            
            delay_ms(15);
-           TMR2ON_bit=0;
 
      }
 }
