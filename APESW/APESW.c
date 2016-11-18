@@ -18,7 +18,7 @@ const short Psize = 4;                         //Constante de longitud de trama 
 const short Rsize = 5;                         //Constante de longitud de trama de Respuesta
 const short Hdr = 0x20;                        //Constante de delimitador de inicio de trama
 const short End = 0x0D;                        //Constante de delimitador de final de trama
-unsigned short ThT = 5;                       //Constante de umbral de tiempo en pulsos de reloj del sistema (10 * 4/48MHz = 0.833us)
+unsigned short ThT = 8;                       //Constante de umbral de tiempo en pulsos de reloj del sistema (10 * 4/48MHz = 0.833us)
 unsigned short Dms;                            //Variable para almacenar la parte mas significativa del dato de respuesta
 unsigned short Dmn;                            //Variable para almacenar la parte menos significativa del dato de respuesta
 unsigned short F1, F2;                         //Variables para almacenar los pulsos de cada fase
@@ -91,6 +91,7 @@ void Interrupt(){
 
        } else {
           RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
+          TMR2ON_bit=0;                          //!!!!!!
        }
 
        contp++;                                  //Aumenta el contador en una unidad.
@@ -272,10 +273,10 @@ void main() {
                Rspt[i]=(*punDt++);               //El operador * permite acceder al valor de la direccion del puntero,
            }
            
-           FloatToStr(Vsnd, txt1);
+           FloatToStr(TOF, txt1);
            FloatToStr(Df, txt2);
 
-           Lcd_Out(1,1,"Vel: ");
+           Lcd_Out(1,1,"TOF: ");
            Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD*/
            Lcd_Out(2,1,"Dst: ");
            Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/

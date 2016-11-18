@@ -5,7 +5,7 @@ const short Psize = 4;
 const short Rsize = 5;
 const short Hdr = 0x20;
 const short End = 0x0D;
-unsigned short ThT = 5;
+unsigned short ThT = 8;
 unsigned short Dms;
 unsigned short Dmn;
 unsigned short F1, F2;
@@ -78,6 +78,7 @@ void Interrupt(){
 
  } else {
  RD0_bit = 0;
+ TMR2ON_bit=0;
  }
 
  contp++;
@@ -259,10 +260,10 @@ void main() {
  Rspt[i]=(*punDt++);
  }
 
- FloatToStr(Vsnd, txt1);
+ FloatToStr(TOF, txt1);
  FloatToStr(Df, txt2);
 
- Lcd_Out(1,1,"Vel: ");
+ Lcd_Out(1,1,"TOF: ");
  Lcd_Out_Cp(txt1);
  Lcd_Out(2,1,"Dst: ");
  Lcd_Out_Cp(txt2);
