@@ -1,15 +1,15 @@
 0	1	mikroCPIC1618.exe -MSF -DBG -pP18F4550 -DL -O11111114 -fo48 -N"E:\Milton\Github\Tesis\SensorUltrasonico\APESW\APESW.mcppi" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\" -SP"E:\Milton\Github\Tesis\SensorUltrasonico\APESW\" -SP"E:\Google Drive\Tesis\Programas\MikroC\Sensor Ultrasonico\Version 5\Sensor Ultrasonico\APESW\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Packages\DHT22\Uses\" "APESW.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CString.mcl" "__Lib_CMath.mcl" "__Lib_Conversions.mcl" "__Lib_OneWire.mcl" "__Lib_UART_c67.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl"	 
 hint: 0	1139	Available RAM: 2027 [bytes], Available ROM: 32768 [bytes]	 
 diagnostics: 0	122	Compilation Started	APESW.c
-warning: 215	1505	Suspicious pointer conversion	APESW.c
-warning: 216	1505	Suspicious pointer conversion	APESW.c
-diagnostics: 282	123	Compiled Successfully	APESW.c
-hint: 149	1164	Variable 'Rint' has been eliminated by optimizer	APESW.c
-hint: 150	1164	Variable 'Rfrac' has been eliminated by optimizer	APESW.c
-diagnostics: 0	127	All files Compiled in 157 ms	 
+warning: 220	1505	Suspicious pointer conversion	APESW.c
+warning: 221	1505	Suspicious pointer conversion	APESW.c
+diagnostics: 287	123	Compiled Successfully	APESW.c
+hint: 153	1164	Variable 'Rint' has been eliminated by optimizer	APESW.c
+hint: 154	1164	Variable 'Rfrac' has been eliminated by optimizer	APESW.c
+diagnostics: 0	127	All files Compiled in 125 ms	 
 hint: 0	1144	Used RAM (bytes): 140 (7%)  Free RAM (bytes): 1887 (93%)	Used RAM (bytes): 140 (7%)  Free RAM (bytes): 1887 (93%)
-hint: 0	1144	Used ROM (bytes): 7457 (23%)  Free ROM (bytes): 25311 (77%)	Used ROM (bytes): 7457 (23%)  Free ROM (bytes): 25311 (77%)
+hint: 0	1144	Used ROM (bytes): 7493 (23%)  Free ROM (bytes): 25275 (77%)	Used ROM (bytes): 7493 (23%)  Free ROM (bytes): 25275 (77%)
 diagnostics: 0	125	Project Linked Successfully	APESW.mcppi
-diagnostics: 0	128	Linked in 109 ms	 
-diagnostics: 0	129	Project 'APESW.mcppi' completed: 312 ms	 
-diagnostics: 0	103	Finished successfully: 18 nov. 2016, 15:15:21	APESW.mcppi
+diagnostics: 0	128	Linked in 156 ms	 
+diagnostics: 0	129	Project 'APESW.mcppi' completed: 359 ms	 
+diagnostics: 0	103	Finished successfully: 21 nov. 2016, 16:27:30	APESW.mcppi

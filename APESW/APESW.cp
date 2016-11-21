@@ -63,9 +63,13 @@ void Interrupt(){
  if (contp<=42){
  BS = ~BS;
  RD0_bit = BS;
-
  if (contp==20){
  BS = 0;
+ }
+ if ((contp>=19)&&(contp<=23)){
+ RD1_bit = 0;
+ } else {
+ RD1_bit = 1;
  }
 
  } else {
@@ -96,7 +100,7 @@ void Interrupt(){
  F1++;
  if (F1==3) {
  DF1 = T2;
- RE0_bit = ~RE0_bit;
+ RE1_bit = 1;
 
  }
  } else {
@@ -110,7 +114,7 @@ void Interrupt(){
  DFT = ((F2*2)-1)*150;
  if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
  contTOF = T2;
- RE1_bit = ~RE1_bit;
+ RE1_bit = 0;
  DF1 = 0;
  TMR1ON_bit = 0;
  contT = 0;
@@ -196,7 +200,8 @@ void main() {
  Configuracion();
 
  RD0_bit = 0;
- RD1_bit = 0;
+ RD1_bit = 1;
+ RE1_bit = 0;
  PORTB = 0;
 
  punT1 = &contT;
