@@ -18,11 +18,11 @@ const short Psize = 4;                         //Constante de longitud de trama 
 const short Rsize = 5;                         //Constante de longitud de trama de Respuesta
 const short Hdr = 0x20;                        //Constante de delimitador de inicio de trama
 const short End = 0x0D;                        //Constante de delimitador de final de trama
-unsigned short ThT = 8;                       //Constante de umbral de tiempo en pulsos de reloj del sistema (10 * 4/48MHz = 0.833us)
+unsigned short ThT = 8;                        //Constante de umbral de tiempo en pulsos de reloj del sistema (10 * 4/48MHz = 0.833us)
 unsigned short Dms;                            //Variable para almacenar la parte mas significativa del dato de respuesta
 unsigned short Dmn;                            //Variable para almacenar la parte menos significativa del dato de respuesta
 unsigned short F1, F2;                         //Variables para almacenar los pulsos de cada fase
-unsigned short DF1, DF2, DFT;                       //Variables para la detecccion de cambio de fase
+unsigned short DF1, DF2, DFT;                  //Variables para la detecccion de cambio de fase
 
 //Declaracion de variables para el calculo de la distancia
 unsigned int contp;                            //Contador para controlar los pulsos de exitacion del transductor ultrasonico.
@@ -73,16 +73,14 @@ void Interrupt(){
 //Interrupcion TIMER 2:
     if (TMR2IF_bit){                             //Verifica si ocurrio una interrupcion por desbordamiento del TMR2.
 
-       if (contp<=42){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
+       if (contp<=64){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (42)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
-          if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (22)
-             BS = 0;                             //el cambio de fase en la siguiente iteracion.
+          if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (20)
+             BS = 0;                             //el primer cambio de fase en la siguiente iteracion.
           }
-          if ((contp>=19)&&(contp<=23)){
-             RD1_bit = 0;
-          } else {
-             RD1_bit = 1;
+          if (contp==43){                        //Cambia el valor de la variable auxiliar para producir  (20)
+             BS = 0;                             //el segundo cambio de fase en la siguiente iteracion.
           }
 
        } else {
@@ -109,15 +107,14 @@ void Interrupt(){
        DT = (T2-T1);                             //Halla la diferencia entre los valores actual y anterior de la variable contT (en nanosegundos).
        
        if (F1<=3){
-           if (DT>(300-Tht)&&DT<(300+Tht)){  //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
+           if (DT>(300-Tht)&&DT<(300+Tht)){      //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
               F1++;
-              if (F1==3) {                       //Si 10 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
+              if (F1==3) {                       //Si 3 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
                  DF1 = T2;                       //Almacena el valor actual de la variable T2 para la referencia de inicio de deteccion de fase
-                 RE1_bit = 1;
-
+                 RE1_bit = 1;                    //Visualiza por el pin RE1 el inicio de la fase 1
               }
            } else {
-              F1=0;
+              F1=0;                              //Resetea el contador si no encuentra 3 intervalos iguales
            }
        }
        
@@ -125,12 +122,12 @@ void Interrupt(){
           F2++;
           DF2 = (T2-DF1);
           DFT = ((F2*2)-1)*150;
-          if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
+          if ((DFT>(DF2-Tht))&&(DFT<(DF2+Tht))){
               contTOF = T2;
               RE1_bit = 0;
               DF1 = 0;
               TMR1ON_bit = 0;                          //Apaga el TMR1.
-              contT = 0;                             //Limpia el contenido de la variable contT.
+              contT = 0;                               //Limpia el contenido de la variable contT.
           }
        }
        

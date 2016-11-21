@@ -60,16 +60,14 @@ void Interrupt(){
 
  if (TMR2IF_bit){
 
- if (contp<=42){
+ if (contp<=64){
  BS = ~BS;
  RD0_bit = BS;
  if (contp==20){
  BS = 0;
  }
- if ((contp>=19)&&(contp<=23)){
- RD1_bit = 0;
- } else {
- RD1_bit = 1;
+ if (contp==43){
+ BS = 0;
  }
 
  } else {
@@ -101,7 +99,6 @@ void Interrupt(){
  if (F1==3) {
  DF1 = T2;
  RE1_bit = 1;
-
  }
  } else {
  F1=0;
@@ -112,7 +109,7 @@ void Interrupt(){
  F2++;
  DF2 = (T2-DF1);
  DFT = ((F2*2)-1)*150;
- if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
+ if ((DFT>(DF2-Tht))&&(DFT<(DF2+Tht))){
  contTOF = T2;
  RE1_bit = 0;
  DF1 = 0;
