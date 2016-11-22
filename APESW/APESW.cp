@@ -91,7 +91,7 @@ void Interrupt(){
  DT = (T2-T1);
 
  if (F1<=3){
- if (DT>(300-Tht)&&DT<(300+Tht)){
+ if (DT>(298-Tht)&&DT<(298+Tht)){
  F1++;
  if (F1==3) {
  DF1 = T2;
@@ -106,7 +106,7 @@ void Interrupt(){
  if (DF1>0){
  F2++;
  DF2 = (T2-DF1);
- DFT = ((F2*2)-1)*150;
+ DFT = ((F2*2)-1)*149;
  if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
  contTOF = T2;
  RE1_bit = 0;

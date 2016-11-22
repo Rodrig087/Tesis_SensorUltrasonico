@@ -100,9 +100,9 @@ L_Interrupt0:
 	SUBLW       3
 	BTFSS       STATUS+0, 0 
 	GOTO        L_Interrupt5
-;APESW.c,107 :: 		if (DT>(300-Tht)&&DT<(300+Tht)){      //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
+;APESW.c,107 :: 		if (DT>(298-Tht)&&DT<(298+Tht)){      //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
 	MOVF        _ThT+0, 0 
-	SUBLW       44
+	SUBLW       42
 	MOVWF       R1 
 	MOVLW       0
 	MOVWF       R2 
@@ -117,7 +117,7 @@ L_Interrupt0:
 L__Interrupt33:
 	BTFSC       STATUS+0, 0 
 	GOTO        L_Interrupt8
-	MOVLW       44
+	MOVLW       42
 	MOVWF       R1 
 	MOVLW       1
 	MOVWF       R2 
@@ -171,13 +171,13 @@ L_Interrupt5:
 	MOVWF       R2 
 	MOVF        R2, 0 
 	MOVWF       _DF2+0 
-;APESW.c,122 :: 		DFT = ((F2*2)-1)*150;
+;APESW.c,122 :: 		DFT = ((F2*2)-1)*149;
 	MOVF        _F2+0, 0 
 	MOVWF       R0 
 	RLCF        R0, 1 
 	BCF         R0, 0 
 	DECF        R0, 1 
-	MOVLW       150
+	MOVLW       149
 	MULWF       R0 
 	MOVF        PRODL+0, 0 
 	MOVWF       R3 

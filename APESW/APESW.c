@@ -104,7 +104,7 @@ void Interrupt(){
        DT = (T2-T1);                             //Halla la diferencia entre los valores actual y anterior de la variable contT (en nanosegundos).
        
        if (F1<=3){
-           if (DT>(300-Tht)&&DT<(300+Tht)){      //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
+           if (DT>(298-Tht)&&DT<(298+Tht)){      //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
               F1++;
               if (F1==3) {                       //Si 10 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
                  DF1 = T2;                       //Almacena el valor actual de la variable T2 para la referencia de inicio de deteccion de fase
@@ -119,7 +119,7 @@ void Interrupt(){
        if (DF1>0){                                     //Verifica si se habilito el inicio de deteccion de fase **
           F2++;
           DF2 = (T2-DF1);
-          DFT = ((F2*2)-1)*150;
+          DFT = ((F2*2)-1)*149;
           if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
               contTOF = T2;
               RE1_bit = 0;
