@@ -357,6 +357,8 @@ double2longword
 double2word
 dstemp
 dt
+dta
+dtp
 eccp1as
 eccp1con
 eccp1del

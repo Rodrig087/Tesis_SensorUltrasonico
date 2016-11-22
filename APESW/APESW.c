@@ -30,7 +30,7 @@ unsigned int contT;                            //Variable asociada a los puntero
 unsigned int contTOF;                           //Variable para almacenar la cuenta del TMR1.
 unsigned int T1;
 unsigned int T2;
-unsigned int DT;
+unsigned int DTA, DTP, DT;
 unsigned int Di;
 
 unsigned short BS;                             //Variable auxiliar para establecer el cambio de estado en el bit RD0.
@@ -101,15 +101,15 @@ void Interrupt(){
        *(punT1+1) = TMR1H;                       //Carga el valor actual de TMR1H en los 8 bits mas significativos de la variable  contT de tipo entero.
        
        T2 = contT;                               //Carga el contenido actual de la variable contT en la variable T2.
-       DT = (T2-T1);                             //Halla la diferencia entre los valores actual y anterior de la variable contT (en nanosegundos).
+       DTA = (T2-T1);                            //Encuentra el tiempo transcurrido entre el flanco de subida actual y el anterior.
        
-       if (F1<=3){
-           if (DT>(300-Tht)&&DT<(300+Tht)){      //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
+       if (F1<=10){
+           if ((DTA>=(DTP-ThT))&&(DTA<=(DTP+ThT))){                        //Compara el periodo de dos flancos de subida continuos
               F1++;
-              if (F1==3) {                       //Si 10 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
+              if (F1==10) {                       //Si 3 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
                  DF1 = T2;                       //Almacena el valor actual de la variable T2 para la referencia de inicio de deteccion de fase
                  RE1_bit = 1;
-
+                 DT = DTA;
               }
            } else {
               F1=0;
@@ -119,8 +119,8 @@ void Interrupt(){
        if (DF1>0){                                     //Verifica si se habilito el inicio de deteccion de fase **
           F2++;
           DF2 = (T2-DF1);
-          DFT = ((F2*2)-1)*150;
-          if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
+          DFT = ((F2*2)-1)*(DT/2);
+          if ((DFT>=(DF2-ThT))&&(DFT<=(DF2+ThT))){
               contTOF = T2;
               RE1_bit = 0;
               DF1 = 0;
@@ -131,6 +131,7 @@ void Interrupt(){
        
        
        T1 = contT;                                     //Actualiza T1 con el valor actual del contador contT.
+       DTP = DTA;
        INTCON.INT0IF = 0;                              //Limpia la bandera de interrupcion de INT0.
        
     }
@@ -180,7 +181,7 @@ void Configuracion() {
 
      INTCON.INT0IE = 1;                          //Habilita la interrupcion externas en INT0  !!!
      INTCON2.RBPU = 1;                           //PORTB pull-ups are enabled by individual port latch values
-     INTCON2.INTEDG0 = 0;                        //Habilita la interrupcion por flanco de subida
+     INTCON2.INTEDG0 = 1;                        //Habilita la interrupcion por flanco de subida
 
      ADCON1 = 0b00001111;                        //Configuracion ADCON1
      CMCON = 0b00000111;
@@ -227,6 +228,9 @@ void main() {
      F1 = 0;
      F2 = 0;           
      DFT = 0;
+     DT=0;
+     DTA=0;
+     DTP=0;
      
      Rspt[0] = Hdr;
      Rspt[1] = idSlv;
@@ -242,20 +246,26 @@ void main() {
      while (1){
      
 
-           Velocidad();                          //Invoca la funcion para calcular la Velocidad del sonido
+
            
            BS = 0;
            contp = 0;                            //Limpia los contadores
            contT = 0;
            T1=0;
            T2=0;
-           DT=0;
+           //DT=0;
+           DTA=0;
+           DTP=0;
            
            F1 = 0;                               //Limpia las variables utilizadas en la deteccion de cambio de fase
            F2 = 0;
            DF1 = 0;
            DF2 = 0;
            DFT = 0;
+           
+           RE1_bit = 0;
+           
+           Velocidad();                          //Invoca la funcion para calcular la Velocidad del sonido
            
            TMR2ON_bit=1;                         //Enciende el TMR2.
 
@@ -268,10 +278,11 @@ void main() {
                Rspt[i]=(*punDt++);               //El operador * permite acceder al valor de la direccion del puntero,
            }
            
-           FloatToStr(TOF, txt1);
+           IntToStr(DT, txt1);
+           //FloatToStr(TOF, txt1);
            FloatToStr(Df, txt2);
 
-           Lcd_Out(1,1,"TOF: ");
+           Lcd_Out(1,1,"DT: ");
            Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD*/
            Lcd_Out(2,1,"Dst: ");
            Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/

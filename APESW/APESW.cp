@@ -17,7 +17,7 @@ unsigned int contT;
 unsigned int contTOF;
 unsigned int T1;
 unsigned int T2;
-unsigned int DT;
+unsigned int DTA, DTP, DT;
 unsigned int Di;
 
 unsigned short BS;
@@ -88,15 +88,15 @@ void Interrupt(){
  *(punT1+1) = TMR1H;
 
  T2 = contT;
- DT = (T2-T1);
+ DTA = (T2-T1);
 
- if (F1<=3){
- if (DT>(300-Tht)&&DT<(300+Tht)){
+ if (F1<=10){
+ if ((DTA>=(DTP-ThT))&&(DTA<=(DTP+ThT))){
  F1++;
- if (F1==3) {
+ if (F1==10) {
  DF1 = T2;
  RE1_bit = 1;
-
+ DT = DTA;
  }
  } else {
  F1=0;
@@ -106,8 +106,8 @@ void Interrupt(){
  if (DF1>0){
  F2++;
  DF2 = (T2-DF1);
- DFT = ((F2*2)-1)*150;
- if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
+ DFT = ((F2*2)-1)*(DT/2);
+ if ((DFT>=(DF2-ThT))&&(DFT<=(DF2+ThT))){
  contTOF = T2;
  RE1_bit = 0;
  DF1 = 0;
@@ -118,6 +118,7 @@ void Interrupt(){
 
 
  T1 = contT;
+ DTP = DTA;
  INTCON.INT0IF = 0;
 
  }
@@ -167,7 +168,7 @@ void Configuracion() {
 
  INTCON.INT0IE = 1;
  INTCON2.RBPU = 1;
- INTCON2.INTEDG0 = 0;
+ INTCON2.INTEDG0 = 1;
 
  ADCON1 = 0b00001111;
  CMCON = 0b00000111;
@@ -214,6 +215,9 @@ void main() {
  F1 = 0;
  F2 = 0;
  DFT = 0;
+ DT=0;
+ DTA=0;
+ DTP=0;
 
  Rspt[0] = Hdr;
  Rspt[1] = idSlv;
@@ -229,20 +233,26 @@ void main() {
  while (1){
 
 
- Velocidad();
+
 
  BS = 0;
  contp = 0;
  contT = 0;
  T1=0;
  T2=0;
- DT=0;
+
+ DTA=0;
+ DTP=0;
 
  F1 = 0;
  F2 = 0;
  DF1 = 0;
  DF2 = 0;
  DFT = 0;
+
+ RE1_bit = 0;
+
+ Velocidad();
 
  TMR2ON_bit=1;
 
@@ -255,10 +265,11 @@ void main() {
  Rspt[i]=(*punDt++);
  }
 
- FloatToStr(TOF, txt1);
+ IntToStr(DT, txt1);
+
  FloatToStr(Df, txt2);
 
- Lcd_Out(1,1,"TOF: ");
+ Lcd_Out(1,1,"DT: ");
  Lcd_Out_Cp(txt1);
  Lcd_Out(2,1,"Dst: ");
  Lcd_Out_Cp(txt2);

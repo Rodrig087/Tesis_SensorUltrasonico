@@ -75,6 +75,9 @@ main
 		SETFUN32
 	double2word
 		SETIOV3224
+	IntToStr
+		WordToStr
+			Div_16X16_U
 	FloatToStr
 		strcpy
 		Compare_Double
