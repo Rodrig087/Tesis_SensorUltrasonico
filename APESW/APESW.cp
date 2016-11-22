@@ -66,11 +66,6 @@ void Interrupt(){
  if (contp==20){
  BS = 0;
  }
- if ((contp>=19)&&(contp<=23)){
- RD1_bit = 0;
- } else {
- RD1_bit = 1;
- }
 
  } else {
  TMR2ON_bit=0;
@@ -172,7 +167,7 @@ void Configuracion() {
 
  INTCON.INT0IE = 1;
  INTCON2.RBPU = 1;
- INTCON2.INTEDG0 = 1;
+ INTCON2.INTEDG0 = 0;
 
  ADCON1 = 0b00001111;
  CMCON = 0b00000111;

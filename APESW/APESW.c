@@ -79,12 +79,7 @@ void Interrupt(){
           if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (22)
              BS = 0;                             //el cambio de fase en la siguiente iteracion.
           }
-          if ((contp>=19)&&(contp<=23)){
-             RD1_bit = 0;
-          } else {
-             RD1_bit = 1;
-          }
-
+          
        } else {
           TMR2ON_bit=0;                          //Apaga el TMR2
           RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
@@ -109,7 +104,7 @@ void Interrupt(){
        DT = (T2-T1);                             //Halla la diferencia entre los valores actual y anterior de la variable contT (en nanosegundos).
        
        if (F1<=3){
-           if (DT>(300-Tht)&&DT<(300+Tht)){  //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
+           if (DT>(300-Tht)&&DT<(300+Tht)){      //Realiza una comparacion para verificar cuando se estabilice la primera fase de la senal
               F1++;
               if (F1==3) {                       //Si 10 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
                  DF1 = T2;                       //Almacena el valor actual de la variable T2 para la referencia de inicio de deteccion de fase
@@ -130,7 +125,7 @@ void Interrupt(){
               RE1_bit = 0;
               DF1 = 0;
               TMR1ON_bit = 0;                          //Apaga el TMR1.
-              contT = 0;                             //Limpia el contenido de la variable contT.
+              contT = 0;                               //Limpia el contenido de la variable contT.
           }
        }
        
@@ -185,7 +180,7 @@ void Configuracion() {
 
      INTCON.INT0IE = 1;                          //Habilita la interrupcion externas en INT0  !!!
      INTCON2.RBPU = 1;                           //PORTB pull-ups are enabled by individual port latch values
-     INTCON2.INTEDG0 = 1;                        //Habilita la interrupcion por flanco de subida
+     INTCON2.INTEDG0 = 0;                        //Habilita la interrupcion por flanco de subida
 
      ADCON1 = 0b00001111;                        //Configuracion ADCON1
      CMCON = 0b00000111;
