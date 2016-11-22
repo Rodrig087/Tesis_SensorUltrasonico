@@ -8,8 +8,9 @@ const short End = 0x0D;
 unsigned short ThT = 8;
 unsigned short Dms;
 unsigned short Dmn;
-unsigned short F1, F2;
-unsigned short DF1, DF2, DFT;
+unsigned short BF1; BF2; BF3;
+unsigned short F1, F2, F3;
+unsigned short DF1, DF2, DF3, DFT1, DFT2;
 
 
 unsigned int contp;
@@ -98,26 +99,37 @@ void Interrupt(){
  F1++;
  if (F1==3) {
  DF1 = T2;
- RE1_bit = 1;
+ BF1 = 1;
  }
  } else {
  F1=0;
  }
  }
 
- if (DF1>0){
+ if (BF1==1){
  F2++;
  DF2 = (T2-DF1);
- DFT = ((F2*2)-1)*150;
- if ((DFT>(DF2-Tht))&&(DFT<(DF2+Tht))){
- contTOF = T2;
+ DFT1 = ((F2*2)-1)*150;
+ if ((DFT1>(DF2-Tht))&&(DFT1<(DF2+Tht))){
+ RE1_bit = 1;
+ DF2 = T2;
+ BF2 = 1;
+ BF1 = 0;
+ }
+ }
+
+ if (BF2==1){
+ F3++;
+ DF3 = (T2-DF2);
+ DFT2 = ((F3*2)-1)*150;
+ if ((DFT2>(DF3-Tht))&&(DFT2<(DF3+Tht))){
  RE1_bit = 0;
- DF1 = 0;
+ DF3 = T2;
+ BF2 = 0;
  TMR1ON_bit = 0;
  contT = 0;
  }
  }
-
 
  T1 = contT;
  INTCON.INT0IF = 0;
@@ -215,7 +227,12 @@ void main() {
  FEC = 0;
  F1 = 0;
  F2 = 0;
- DFT = 0;
+ F3 = 0;
+ BF1 = 0;
+ BF2 = 0;
+ BF3 = 0;
+ DFT1 = 0;
+ DFT2 = 0;
 
  Rspt[0] = Hdr;
  Rspt[1] = idSlv;
@@ -242,9 +259,15 @@ void main() {
 
  F1 = 0;
  F2 = 0;
+ F3 = 0;
+ BF1 = 0;
+ BF2 = 0;
+ BF3 = 0;
  DF1 = 0;
  DF2 = 0;
- DFT = 0;
+ DF3 = 0;
+ DFT1 = 0;
+ DFT2 = 0;
 
  TMR2ON_bit=1;
 

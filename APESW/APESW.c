@@ -21,8 +21,9 @@ const short End = 0x0D;                        //Constante de delimitador de fin
 unsigned short ThT = 8;                        //Constante de umbral de tiempo en pulsos de reloj del sistema (10 * 4/48MHz = 0.833us)
 unsigned short Dms;                            //Variable para almacenar la parte mas significativa del dato de respuesta
 unsigned short Dmn;                            //Variable para almacenar la parte menos significativa del dato de respuesta
-unsigned short F1, F2;                         //Variables para almacenar los pulsos de cada fase
-unsigned short DF1, DF2, DFT;                  //Variables para la detecccion de cambio de fase
+unsigned short BF1; BF2; BF3;                  //Variables para banderas de deteccion de fase
+unsigned short F1, F2, F3;                     //Variables para almacenar los pulsos de cada fase
+unsigned short DF1, DF2, DF3, DFT1, DFT2;      //Variables para la detecccion de cambio de fase
 
 //Declaracion de variables para el calculo de la distancia
 unsigned int contp;                            //Contador para controlar los pulsos de exitacion del transductor ultrasonico.
@@ -111,26 +112,37 @@ void Interrupt(){
               F1++;
               if (F1==3) {                       //Si 3 intervalos consecutivos cumplen con la condicion de estabilizacion, se empieza con el proceso de busqueda de cambio de fase
                  DF1 = T2;                       //Almacena el valor actual de la variable T2 para la referencia de inicio de deteccion de fase
-                 RE1_bit = 1;                    //Visualiza por el pin RE1 el inicio de la fase 1
+                 BF1 = 1;                        //Activa la bandera de deteccion de la fase 1
               }
            } else {
               F1=0;                              //Resetea el contador si no encuentra 3 intervalos iguales
            }
        }
        
-       if (DF1>0){                                     //Verifica si se habilito el inicio de deteccion de fase **
+       if (BF1==1){                                     //Inicia  la deteccion del primer cambio de fase
           F2++;
           DF2 = (T2-DF1);
-          DFT = ((F2*2)-1)*150;
-          if ((DFT>(DF2-Tht))&&(DFT<(DF2+Tht))){
-              contTOF = T2;
+          DFT1 = ((F2*2)-1)*150;
+          if ((DFT1>(DF2-Tht))&&(DFT1<(DF2+Tht))){
+              RE1_bit = 1;
+              DF2 = T2;
+              BF2 = 1;
+              BF1 = 0;
+          }
+       }
+       
+       if (BF2==1){
+          F3++;
+          DF3 = (T2-DF2);
+          DFT2 = ((F3*2)-1)*150;                       //!!!!!
+          if ((DFT2>(DF3-Tht))&&(DFT2<(DF3+Tht))){
               RE1_bit = 0;
-              DF1 = 0;
+              DF3 = T2;
+              BF2 = 0;
               TMR1ON_bit = 0;                          //Apaga el TMR1.
               contT = 0;                               //Limpia el contenido de la variable contT.
           }
        }
-       
        
        T1 = contT;                                     //Actualiza T1 con el valor actual del contador contT.
        INTCON.INT0IF = 0;                              //Limpia la bandera de interrupcion de INT0.
@@ -227,8 +239,13 @@ void main() {
      Di = 0;
      FEC = 0;
      F1 = 0;
-     F2 = 0;           
-     DFT = 0;
+     F2 = 0;  
+     F3 = 0;
+     BF1 = 0;
+     BF2 = 0;
+     BF3 = 0;
+     DFT1 = 0;
+     DFT2 = 0;
      
      Rspt[0] = Hdr;
      Rspt[1] = idSlv;
@@ -255,9 +272,15 @@ void main() {
            
            F1 = 0;                               //Limpia las variables utilizadas en la deteccion de cambio de fase
            F2 = 0;
+           F3 = 0;
+           BF1 = 0;
+           BF2 = 0;
+           BF3 = 0;
            DF1 = 0;
            DF2 = 0;
-           DFT = 0;
+           DF3 = 0;
+           DFT1 = 0;
+           DFT2 = 0;
            
            TMR2ON_bit=1;                         //Enciende el TMR2.
 
