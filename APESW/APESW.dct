@@ -138,6 +138,9 @@ bclip
 bclip_bit
 bf
 bf_bit
+bf1
+bf2
+bf3
 bgst
 bgst_bit
 bor
@@ -329,11 +332,13 @@ delay_cyc
 df
 df1
 df2
+df3
 dfn8ee
 dfn8ee_bit
 dfn8ef
 dfn8ef_bit
-dft
+dft1
+dft2
 dhtvalue
 di
 dir_
@@ -479,6 +484,7 @@ exp
 f
 f1
 f2
+f3
 fabs
 fast
 fec
