@@ -19,6 +19,7 @@ unsigned int T1;
 unsigned int T2;
 unsigned int DT;
 unsigned int Di;
+unsigned int vector[30];
 
 unsigned short BS;
 unsigned short FP;
@@ -34,7 +35,7 @@ unsigned long DHTvalue;
 char *punT1;
 char *punDt;
 
-char txt1[8], txt2[8];
+char txt1[8], txt2[8], txt3[4];
 unsigned char Ptcn[Psize];
 unsigned char Rspt[Rsize];
 
@@ -90,32 +91,11 @@ void Interrupt(){
  T2 = contT;
  DT = (T2-T1);
 
- if (F1<=3){
- if (DT>(298-Tht)&&DT<(298+Tht)){
- F1++;
- if (F1==3) {
- DF1 = T2;
- RE1_bit = 1;
-
- }
- } else {
- F1=0;
- }
+ if (k<=29){
+ vector[k] = DT;
  }
 
- if (DF1>0){
- F2++;
- DF2 = (T2-DF1);
- DFT = ((F2*2)-1)*149;
- if (DFT>(DF2-Tht)&&DFT<(DF2+Tht)){
- contTOF = T2;
- RE1_bit = 0;
- DF1 = 0;
- TMR1ON_bit = 0;
- contT = 0;
- }
- }
-
+ k++;
 
  T1 = contT;
  INTCON.INT0IF = 0;
@@ -167,7 +147,7 @@ void Configuracion() {
 
  INTCON.INT0IE = 1;
  INTCON2.RBPU = 1;
- INTCON2.INTEDG0 = 0;
+ INTCON2.INTEDG0 = 1;
 
  ADCON1 = 0b00001111;
  CMCON = 0b00000111;
@@ -215,6 +195,8 @@ void main() {
  F2 = 0;
  DFT = 0;
 
+ k = 0;
+
  Rspt[0] = Hdr;
  Rspt[1] = idSlv;
  Rspt[4] = End;
@@ -236,7 +218,7 @@ void main() {
  contT = 0;
  T1=0;
  T2=0;
- DT=0;
+
 
  F1 = 0;
  F2 = 0;
@@ -244,24 +226,31 @@ void main() {
  DF2 = 0;
  DFT = 0;
 
- TMR2ON_bit=1;
 
+ TMR2ON_bit=1;
 
  TOF = (contTOF)*(4./48);
  Df = ((VSnd * TOF ) / 2000);
  Di = Df*10;
+#line 256 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
+ IntToStr(DT, txt1);
+ ShortTostr(k, txt2);
 
- for (i=2;i<4;i++){
- Rspt[i]=(*punDt++);
+ Lcd_Out(1,1,"DT: ");
+ Lcd_Out_Cp(txt1);
+ Lcd_Out(2,1,"k: ");
+ Lcd_Out_Cp(txt2);
+
+
+
+ for (j=0;j<30;j++){
+ IntToStr(vector[j], txt3);
+ UART1_Write_Text(txt3);
  }
 
- FloatToStr(TOF, txt1);
- FloatToStr(Df, txt2);
 
- Lcd_Out(1,1,"TOF: ");
- Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"Dst: ");
- Lcd_Out_Cp(txt2);
+
+ k = 0;
 
  delay_ms(15);
 

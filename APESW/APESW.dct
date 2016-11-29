@@ -1489,6 +1489,7 @@ txreg
 txsta
 txt1
 txt2
+txt3
 ua
 ua_bit
 uaddr
@@ -1567,6 +1568,7 @@ vdelay_advanced_ms
 vdelay_ms
 vdirmag
 vdirmag_bit
+vector
 velocidad
 vrefm
 vrefm_bit
