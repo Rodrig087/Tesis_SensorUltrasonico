@@ -60,21 +60,17 @@ void Interrupt(){
 
  if (TMR2IF_bit){
 
- if (contp<=42){
- BS = ~BS;
- RD0_bit = BS;
- if (contp==20){
- BS = 0;
- }
- if ((contp>=19)&&(contp<=23)){
- RD1_bit = 0;
- } else {
- RD1_bit = 1;
+ if (contp<=39){
+
+ RD0_bit = ~RD0_bit;
+ if (contp==22){
+ PR2 = 145;
  }
 
  } else {
  TMR2ON_bit=0;
  RD0_bit = 0;
+ PR2 = 152;
  TMR1ON_bit=1;
  TMR1L=0X00;
  TMR1H=0X00;
@@ -182,7 +178,10 @@ void Configuracion() {
 
  T2CON = 0x00;
  PIE1.TMR2IE = 1;
- PR2 = 149;
+ PR2 = 152;
+
+
+
 
  TRISD0_bit = 0;
  TRISD1_bit = 0;

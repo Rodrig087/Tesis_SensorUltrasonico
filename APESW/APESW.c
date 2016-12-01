@@ -3,8 +3,8 @@ Autor: Milton Munoz
 Fecha de creacion: 25/08/2016
 Configuracion: PIC18F4550 8MHz, PLL activado 48MHz
 Descripcion: 
-1.Genera los pulsos de exitacion para el transductor ultrasonico en el pin RD0 por medio de interrupciones del TMR2 cada 12,5us.
-2.Genera una senal para controlar la modulacion AM en el pin RD1.
+1.Genera los pulsos de exitacion para el transductor ultrasonico en el pin RD0 por medio de interrupciones del TMR2.
+2.
 3.Recibe los pulsos de eco por medio de la interrupcion externa INT0, e identifica el cambio de fase.
 4.Calcula el tiempo trasnscurrido entre los cambios de fase de la senal emitida y la senal recibida por medio del TMR1.
 5.Visualiza el dato de TOF en un LCD 16x2.
@@ -73,21 +73,17 @@ void Interrupt(){
 //Interrupcion TIMER 2:
     if (TMR2IF_bit){                             //Verifica si ocurrio una interrupcion por desbordamiento del TMR2.
 
-       if (contp<=42){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
-          BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
-          RD0_bit = BS;
-          if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (22)
-             BS = 0;                             //el cambio de fase en la siguiente iteracion.
-          }
-          if ((contp>=19)&&(contp<=23)){
-             RD1_bit = 0;
-          } else {
-             RD1_bit = 1;
+       if (contp<=39){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
+       
+          RD0_bit = ~RD0_bit;
+          if (contp==22){
+             PR2 = 145;                          //Cambia el valor precargado en el TMR2 para producir una interrupcion cada 12,166666667us ~ 41,095KHz
           }
 
        } else {
           TMR2ON_bit=0;                          //Apaga el TMR2
           RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
+          PR2 = 152;                             //Produce una interrupcion cada 12,5us
           TMR1ON_bit=1;                          //Enciende el TMR1.
           TMR1L=0X00;                            //Limpia los bits menos significativos del TMR1.
           TMR1H=0X00;                            //Limpia los bits mas significativos del TMR1.
@@ -195,7 +191,10 @@ void Configuracion() {
 
      T2CON = 0x00;                               //Configuracion T2CON: Post-escalador 1:1, Timer2 Off, Pre-escalador 1:1
      PIE1.TMR2IE = 1;                            //Habilita la interrupcion por desborde de Timer2                        ====> La interrupcion del TMR2 interfiere con la conversion del DHT22
-     PR2 = 149;                                  //Produce una interrupcion cada 12,5us
+     PR2 = 152;
+     //PR2 = 149;                                  //Produce una interrupcion cada 12,5us
+     //PR2 = 145;                                //Produce una interrupcion cada 12,166666667us ~ 41,095KHz
+     //PR2 = 143;                                //Produce una interrupcion cada 12us ~ 41,66KHz
 
      TRISD0_bit = 0;                             //Establece el pin D0 como salida
      TRISD1_bit = 0;                             //Establece el pin D1 como salida
