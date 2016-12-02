@@ -30,26 +30,27 @@ L__Interrupt34:
 L__Interrupt35:
 	BSF         RD0_bit+0, BitPos(RD0_bit+0) 
 L__Interrupt36:
-;APESW.c,79 :: 		if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (22)
+;APESW.c,79 :: 		if (contp==21){                        //Cambia el valor de la variable auxiliar para producir  (22)
 	MOVLW       0
 	XORWF       _contp+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt37
-	MOVLW       20
+	MOVLW       21
 	XORWF       _contp+0, 0 
 L__Interrupt37:
 	BTFSS       STATUS+0, 2 
 	GOTO        L_Interrupt2
-;APESW.c,80 :: 		BS = 0;                             //el cambio de fase en la siguiente iteracion.
-	CLRF        _BS+0 
+;APESW.c,80 :: 		BS = 1;                             //el cambio de fase en la siguiente iteracion.
+	MOVLW       1
+	MOVWF       _BS+0 
 ;APESW.c,81 :: 		}
 L_Interrupt2:
-;APESW.c,82 :: 		if ((contp>=19)&&(contp<=23)){
+;APESW.c,82 :: 		if ((contp>=20)&&(contp<=24)){
 	MOVLW       0
 	SUBWF       _contp+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt38
-	MOVLW       19
+	MOVLW       20
 	SUBWF       _contp+0, 0 
 L__Interrupt38:
 	BTFSS       STATUS+0, 0 
@@ -61,7 +62,7 @@ L__Interrupt38:
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt39
 	MOVF        _contp+0, 0 
-	SUBLW       23
+	SUBLW       24
 L__Interrupt39:
 	BTFSS       STATUS+0, 0 
 	GOTO        L_Interrupt5
@@ -80,8 +81,8 @@ L_Interrupt6:
 L_Interrupt1:
 ;APESW.c,89 :: 		TMR2ON_bit=0;                          //Apaga el TMR2
 	BCF         TMR2ON_bit+0, BitPos(TMR2ON_bit+0) 
-;APESW.c,90 :: 		RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
-	BCF         RD0_bit+0, BitPos(RD0_bit+0) 
+;APESW.c,90 :: 		RD0_bit = 1;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
+	BSF         RD0_bit+0, BitPos(RD0_bit+0) 
 ;APESW.c,91 :: 		TMR1ON_bit=1;                          //Enciende el TMR1.
 	BSF         TMR1ON_bit+0, BitPos(TMR1ON_bit+0) 
 ;APESW.c,92 :: 		TMR1L=0X00;                            //Limpia los bits menos significativos del TMR1.
@@ -576,8 +577,8 @@ _main:
 ;APESW.c,211 :: 		void main() {
 ;APESW.c,213 :: 		Configuracion();
 	CALL        _Configuracion+0, 0
-;APESW.c,215 :: 		RD0_bit = 0;                                //Limpia el pin D0
-	BCF         RD0_bit+0, BitPos(RD0_bit+0) 
+;APESW.c,215 :: 		RD0_bit = 1;                                //Limpia el pin D0
+	BSF         RD0_bit+0, BitPos(RD0_bit+0) 
 ;APESW.c,216 :: 		RD1_bit = 1;                                //Limpia el pin D1
 	BSF         RD1_bit+0, BitPos(RD1_bit+0) 
 ;APESW.c,217 :: 		RE1_bit = 0;

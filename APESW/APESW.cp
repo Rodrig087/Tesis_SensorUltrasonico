@@ -63,10 +63,10 @@ void Interrupt(){
  if (contp<=42){
  BS = ~BS;
  RD0_bit = BS;
- if (contp==20){
- BS = 0;
+ if (contp==21){
+ BS = 1;
  }
- if ((contp>=19)&&(contp<=23)){
+ if ((contp>=20)&&(contp<=24)){
  RD1_bit = 0;
  } else {
  RD1_bit = 1;
@@ -74,7 +74,7 @@ void Interrupt(){
 
  } else {
  TMR2ON_bit=0;
- RD0_bit = 0;
+ RD0_bit = 1;
  TMR1ON_bit=1;
  TMR1L=0X00;
  TMR1H=0X00;
@@ -199,7 +199,7 @@ void main() {
 
  Configuracion();
 
- RD0_bit = 0;
+ RD0_bit = 1;
  RD1_bit = 1;
  RE1_bit = 0;
  PORTB = 0;

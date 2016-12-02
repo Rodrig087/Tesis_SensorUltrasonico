@@ -76,10 +76,10 @@ void Interrupt(){
        if (contp<=42){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (43)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
-          if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (22)
-             BS = 0;                             //el cambio de fase en la siguiente iteracion.
+          if (contp==21){                        //Cambia el valor de la variable auxiliar para producir  (22)
+             BS = 1;                             //el cambio de fase en la siguiente iteracion.
           }
-          if ((contp>=19)&&(contp<=23)){
+          if ((contp>=20)&&(contp<=24)){
              RD1_bit = 0;
           } else {
              RD1_bit = 1;
@@ -87,7 +87,7 @@ void Interrupt(){
 
        } else {
           TMR2ON_bit=0;                          //Apaga el TMR2
-          RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
+          RD0_bit = 1;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
           TMR1ON_bit=1;                          //Enciende el TMR1.
           TMR1L=0X00;                            //Limpia los bits menos significativos del TMR1.
           TMR1H=0X00;                            //Limpia los bits mas significativos del TMR1.
@@ -212,7 +212,7 @@ void main() {
 
      Configuracion();
 
-     RD0_bit = 0;                                //Limpia el pin D0
+     RD0_bit = 1;                                //Limpia el pin D0
      RD1_bit = 1;                                //Limpia el pin D1
      RE1_bit = 0;
      PORTB = 0;                                  //Limpia el puerto B
