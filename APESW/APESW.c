@@ -74,15 +74,13 @@ void Interrupt(){
 //Interrupcion TIMER 2:
     if (TMR2IF_bit){                             //Verifica si ocurrio una interrupcion por desbordamiento del TMR2.
 
-       if (contp<=64){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (42)
+       if (contp<=20){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (42)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
-          if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (20)
+          /*if ((contp==10)||(contp==23)||(contp==40)||(contp==53)){                        //Cambia el valor de la variable auxiliar para producir  (20)
              BS = 0;                             //el primer cambio de fase en la siguiente iteracion.
-          }
-          if (contp==43){                        //Cambia el valor de la variable auxiliar para producir  (20)
-             BS = 0;                             //el segundo cambio de fase en la siguiente iteracion.
-          }
+          }*/
+
 
        } else {
           TMR2ON_bit=0;                          //Apaga el TMR2

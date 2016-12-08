@@ -1,5 +1,5 @@
-#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
-#line 16 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
+#line 1 "D:/Git/Tesis_SensorUltrasonico/APESW/APESW.c"
+#line 16 "D:/Git/Tesis_SensorUltrasonico/APESW/APESW.c"
 const short idSlv = 0x31;
 const short Psize = 4;
 const short Rsize = 5;
@@ -61,16 +61,10 @@ void Interrupt(){
 
  if (TMR2IF_bit){
 
- if (contp<=64){
+ if (contp<=20){
  BS = ~BS;
  RD0_bit = BS;
- if (contp==20){
- BS = 0;
- }
- if (contp==43){
- BS = 0;
- }
-
+#line 85 "D:/Git/Tesis_SensorUltrasonico/APESW/APESW.c"
  } else {
  TMR2ON_bit=0;
  RD0_bit = 0;
