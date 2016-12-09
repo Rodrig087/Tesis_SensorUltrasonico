@@ -1,5 +1,5 @@
-#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
-#line 16 "E:/Milton/Github/Tesis/SensorUltrasonico/APESW/APESW.c"
+#line 1 "D:/Git/Tesis_SensorUltrasonico/APESW/APESW.c"
+#line 16 "D:/Git/Tesis_SensorUltrasonico/APESW/APESW.c"
 const short idSlv = 0x31;
 const short Psize = 4;
 const short Rsize = 5;
@@ -60,19 +60,20 @@ void Interrupt(){
 
 
  if (TMR2IF_bit){
-
- if (contp<=64){
+ RD1_bit = ~RD1_bit;
+ if (contp<=23){
  BS = ~BS;
  RD0_bit = BS;
- if (contp==20){
- BS = 0;
+ if ((contp==9)){
+ BS = 1;
  }
- if (contp==43){
+ if ((contp==11)){
  BS = 0;
  }
 
+
  } else {
- TMR2ON_bit=0;
+
  RD0_bit = 0;
  TMR1ON_bit=1;
  TMR1L=0X00;
@@ -192,6 +193,7 @@ void Configuracion() {
  T2CON = 0x00;
  PIE1.TMR2IE = 1;
  PR2 = 149;
+ TMR2ON_bit=1;
 
  TRISD0_bit = 0;
  TRISD1_bit = 0;
@@ -248,14 +250,15 @@ void main() {
  while (1){
 
 
- Velocidad();
+
 
  BS = 0;
  contp = 0;
  contT = 0;
- T1=0;
- T2=0;
- DT=0;
+ T1 = 0;
+ T2 = 0;
+ DT = 0;
+ RD1_bit = 1;
 
  F1 = 0;
  F2 = 0;
@@ -269,7 +272,7 @@ void main() {
  DFT1 = 0;
  DFT2 = 0;
 
- TMR2ON_bit=1;
+
 
 
  TOF = (contTOF)*(4./48);

@@ -73,19 +73,20 @@ void Interrupt(){
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //Interrupcion TIMER 2:
     if (TMR2IF_bit){                             //Verifica si ocurrio una interrupcion por desbordamiento del TMR2.
-
-       if (contp<=64){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (42)
+       RD1_bit = ~RD1_bit;
+       if (contp<=23){                           //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (42)
           BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
           RD0_bit = BS;
-          if (contp==20){                        //Cambia el valor de la variable auxiliar para producir  (20)
+          if ((contp==9)){                        //Cambia el valor de la variable auxiliar para producir  (20)
+             BS = 1;                             //el primer cambio de fase en la siguiente iteracion.
+          }
+          if ((contp==11)){                        //Cambia el valor de la variable auxiliar para producir  (20)
              BS = 0;                             //el primer cambio de fase en la siguiente iteracion.
           }
-          if (contp==43){                        //Cambia el valor de la variable auxiliar para producir  (20)
-             BS = 0;                             //el segundo cambio de fase en la siguiente iteracion.
-          }
+
 
        } else {
-          TMR2ON_bit=0;                          //Apaga el TMR2
+          //TMR2ON_bit=0;                          //Apaga el TMR2
           RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
           TMR1ON_bit=1;                          //Enciende el TMR1.
           TMR1L=0X00;                            //Limpia los bits menos significativos del TMR1.
@@ -205,6 +206,7 @@ void Configuracion() {
      T2CON = 0x00;                               //Configuracion T2CON: Post-escalador 1:1, Timer2 Off, Pre-escalador 1:1
      PIE1.TMR2IE = 1;                            //Habilita la interrupcion por desborde de Timer2                        ====> La interrupcion del TMR2 interfiere con la conversion del DHT22
      PR2 = 149;                                  //Produce una interrupcion cada 12,5us
+     TMR2ON_bit=1;
 
      TRISD0_bit = 0;                             //Establece el pin D0 como salida
      TRISD1_bit = 0;                             //Establece el pin D1 como salida
@@ -261,14 +263,15 @@ void main() {
      while (1){
      
 
-           Velocidad();                          //Invoca la funcion para calcular la Velocidad del sonido
+           //Velocidad();                          //Invoca la funcion para calcular la Velocidad del sonido
            
            BS = 0;
            contp = 0;                            //Limpia los contadores
            contT = 0;
-           T1=0;
-           T2=0;
-           DT=0;
+           T1 = 0;
+           T2 = 0;
+           DT = 0;
+           RD1_bit = 1;
            
            F1 = 0;                               //Limpia las variables utilizadas en la deteccion de cambio de fase
            F2 = 0;
@@ -282,7 +285,7 @@ void main() {
            DFT1 = 0;
            DFT2 = 0;
            
-           TMR2ON_bit=1;                         //Enciende el TMR2.
+           //TMR2ON_bit=1;                         //Enciende el TMR2.
 
            
            TOF = (contTOF)*(4./48);               //Calcula el valor de TOF (en microsegundos)
