@@ -1,0 +1,13 @@
+0	1	mikroCdsPIC.exe -MSF -DBG -pP33FJ12GP201 -DL -SSA -O11111114 -fo80 -N"D:\Git\Tesis_SensorUltrasonico\DSP\DSP.mcpds" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\uses\" -SP"D:\Git\Tesis_SensorUltrasonico\DSP\" "DSP.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl"	 
+diagnostics: 0	121	Loading...	 
+diagnostics: 0	122	Compilation Started	DSP.c
+diagnostics: 35	123	Compiled Successfully	DSP.c
+warning: 28	1519	Logical expression is always: 'False'	DSP.c
+diagnostics: 0	127	All files Compiled in 78 ms	 
+hint: 0	1144	Used RX (bytes): 23 (72%)   Free RX (bytes): 9 (28%)	Used RX (bytes): 23 (72%)   Free RX (bytes): 9 (28%)
+hint: 0	1144	Static RAM (bytes): 0   Dynamic RAM (bytes): 1024	Static RAM (bytes): 0   Dynamic RAM (bytes): 1024
+hint: 0	1144	Used ROM (bytes): 576 (7%)  Free ROM (bytes): 7616 (93%)	Used ROM (bytes): 576 (7%)  Free ROM (bytes): 7616 (93%)
+diagnostics: 0	125	Project Linked Successfully	DSP.mcpds
+diagnostics: 0	128	Linked in 78 ms	 
+diagnostics: 0	129	Project 'DSP.mcpds' completed: 250 ms	 
+diagnostics: 0	103	Finished successfully: 13 dic. 2016, 16:48:49	DSP.mcpds
