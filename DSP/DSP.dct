@@ -221,6 +221,7 @@ ackstat
 ackstat
 ackstat
 ackstat_bit
+acos
 ad12b
 ad12b
 ad12b_bit
@@ -1002,6 +1003,9 @@ amsk_9_bit
 asam
 asam
 asam_bit
+asin
+atan
+atan2
 b
 b0
 b1
@@ -1064,6 +1068,7 @@ brg_9_bit
 brgh
 brgh
 brgh_bit
+bs
 bufm
 bufm
 bufm_bit
@@ -1086,6 +1091,7 @@ bwm3
 c
 c
 c_bit
+ceil
 cf
 cf
 cf_bit
@@ -1270,8 +1276,10 @@ cnpu1
 cnpu1bits
 cnpu2
 cnpu2bits
+contp
 corcon
 corconbits
+cos
 cosc
 cosc_0
 cosc_0_bit
@@ -1282,6 +1290,7 @@ cosc_2_bit
 cosc0
 cosc1
 cosc2
+cosh
 covaerr
 covaerr
 covaerr_bit
@@ -1367,6 +1376,7 @@ delay_8ms
 delay_cyc
 delay_cyc_long
 delay_w0
+df
 disi
 disi
 disi_bit
@@ -1530,19 +1540,23 @@ doze2
 dozen
 dozen
 dozen_bit
+dstemp
 edt
 edt
 edt_bit
 erase
 erase_
 erase_bit
+exp
 extr
 extr
 extr_bit
+fabs
 ferr
 ferr
 ferr_bit
 float_fpack
+floor
 form
 form_0
 form_0_bit
@@ -1560,6 +1574,7 @@ frcdiv_2_bit
 frcdiv0
 frcdiv1
 frcdiv2
+frexp
 frmdly
 frmdly
 frmdly_bit
@@ -2419,9 +2434,12 @@ latb9
 latb9
 latb9_bit
 latbbits
+ldexp
 lock
 lock_
 lock_bit
+log
+log10
 lpback
 lpback
 lpback_bit
@@ -2454,6 +2472,7 @@ modconbits
 mode16
 mode16
 mode16_bit
+modf
 msten
 msten
 msten_bit
@@ -2822,6 +2841,9 @@ ovberr_bit
 ovbte
 ovbte
 ovbte_bit
+ow_read
+ow_reset
+ow_write
 p
 p
 p
@@ -2978,6 +3000,7 @@ porta
 portabits
 portb
 portbbits
+pow
 ppre
 ppre_0
 ppre_0_bit
@@ -3498,6 +3521,8 @@ signext_7_bit
 simsam
 simsam
 simsam_bit
+sin
+sinh
 sleep
 sleep
 sleep_bit
@@ -3662,6 +3687,7 @@ spre_2_bit
 spre0
 spre1
 spre2
+sqrt
 sr
 srbits
 ss1r
@@ -3810,6 +3836,8 @@ t3ip2
 t3md
 t3md
 t3md_bit
+tan
+tanh
 tbf
 tbf
 tbf
@@ -3866,6 +3894,7 @@ tgate_bit
 tgate_t1con_bit
 tgate_t2con_bit
 tgate_t3con_bit
+timer1interrupt
 tmr1
 tmr1_0
 tmr1_0_bit
@@ -3998,6 +4027,7 @@ tmr3hld_8
 tmr3hld_8_bit
 tmr3hld_9
 tmr3hld_9_bit
+tof
 ton
 ton
 ton
@@ -4323,9 +4353,11 @@ vecnum3
 vecnum4
 vecnum5
 vecnum6
+velocidad
 vregs
 vregs
 vregs_bit
+vsnd
 w0
 w1
 w10
