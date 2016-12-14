@@ -10,10 +10,26 @@ Descripcion:
 // Declaracion de variables para el calculo de la distancia //
 unsigned int contp;                              //Contador para controlar los pulsos de exitacion del transductor ultrasonico.
 
-float TOF, Df, VSnd;
-float DSTemp;
+float TOF, Df;
+float DSTemp, VSnd;
 
 unsigned short BS;                               //Variable auxiliar para establecer el cambio de estado en el bit RD0.
+
+char txt1[8], txt2[8];
+
+// Conexiones del modulo LCD //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+sbit LCD_RS at LATB4_bit;
+sbit LCD_EN at LATB7_bit;
+sbit LCD_D4 at LATB8_bit;
+sbit LCD_D5 at LATB9_bit;
+sbit LCD_D6 at LATB14_bit;
+sbit LCD_D7 at LATB15_bit;
+sbit LCD_RS_Direction at TRISB4_bit;
+sbit LCD_EN_Direction at TRISB7_bit;
+sbit LCD_D4_Direction at TRISB8_bit;
+sbit LCD_D5_Direction at TRISB9_bit;
+sbit LCD_D6_Direction at TRISB14_bit;
+sbit LCD_D7_Direction at TRISB15_bit;
 
 // Interrupciones //
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
@@ -29,6 +45,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      T1IF_bit = 0;                               //Limpia la bandera de interrupcion de Timer2
 }
 
+
 // Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura //
 void Velocidad(){
      unsigned int Temp;
@@ -43,6 +60,7 @@ void Velocidad(){
      Ow_Reset(&PORTB, 1);
      Ow_Write(&PORTB, 1, 0xCC);                           //Issue command SKIP_ROM
      Ow_Write(&PORTB, 1, 0xBE);                           //Issue command READ_SCRATCHPAD
+     Delay_ms(400);
 
      Temp =  Ow_Read(&PORTB, 1);
      Temp = (Ow_Read(&PORTB, 1) << 8) + Temp;
@@ -57,6 +75,7 @@ void Velocidad(){
 
      VSnd = 331.45 * sqrt(1+(DsTemp/273));                //Expresa la temperatura en punto flotante
 }
+
 
 // Configuraciones //
 void MainInit(){
@@ -80,9 +99,16 @@ void MainInit(){
      //Inicializacion de variables
      BS = 0;
      contp = 0;
-
+     
+     //Inicializacion del LCD
+     Lcd_init();                                 //Inicializa el LCD
+     Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
+     Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
+     
+     ADPCFG = 0xFFFF;
 
 }
+
 
 void main(){
 
@@ -95,8 +121,18 @@ void main(){
        TON_bit = 1;
        contp = 0;
        BS = 0;
-       Delay_ms(15);
        
+       FloatToStr(DSTemp, txt1);
+       FloatToStr(VSnd, txt2);
+
+       Lcd_Out(1,1,"Tmp: ");
+       Lcd_Out_Cp(txt1);
+       Lcd_Out(2,1,"Vel: ");
+       Lcd_Out_Cp(txt2);
+
+       
+       Delay_ms(15);
+
  }
 
 }
