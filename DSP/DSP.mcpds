@@ -24,8 +24,9 @@ Count=0
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=1
+Count=2
 File0=DSP.c
+File1=..\APESW\APESW.c
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]

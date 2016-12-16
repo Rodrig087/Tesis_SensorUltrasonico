@@ -10,13 +10,13 @@ unsigned short BS;
 char txt1[8], txt2[8];
 
 
-sbit LCD_RS at LATB4_bit;
+sbit LCD_RS at LATA4_bit;
 sbit LCD_EN at LATB7_bit;
 sbit LCD_D4 at LATB8_bit;
 sbit LCD_D5 at LATB9_bit;
 sbit LCD_D6 at LATB14_bit;
 sbit LCD_D7 at LATB15_bit;
-sbit LCD_RS_Direction at TRISB4_bit;
+sbit LCD_RS_Direction at TRISA4_bit;
 sbit LCD_EN_Direction at TRISB7_bit;
 sbit LCD_D4_Direction at TRISB8_bit;
 sbit LCD_D5_Direction at TRISB9_bit;
@@ -30,7 +30,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  RB0_bit = BS;
  }else {
  RB0_bit = 0;
- TON_bit = 0;
+ T1CON.TON = 0;
  }
 
  contp++;
@@ -44,18 +44,18 @@ void Velocidad(){
  unsigned int Rint;
  float Rfrac;
 
- Ow_Reset(&PORTB, 1);
- Ow_Write(&PORTB, 1, 0xCC);
- Ow_Write(&PORTB, 1, 0x44);
- Delay_us(120);
+ Ow_Reset(&PORTB, 4);
+ Ow_Write(&PORTB, 4, 0xCC);
+ Ow_Write(&PORTB, 4, 0x44);
+ Delay_us(100);
 
- Ow_Reset(&PORTB, 1);
- Ow_Write(&PORTB, 1, 0xCC);
- Ow_Write(&PORTB, 1, 0xBE);
- Delay_ms(400);
+ Ow_Reset(&PORTB, 4);
+ Ow_Write(&PORTB, 4, 0xCC);
+ Ow_Write(&PORTB, 4, 0xBE);
+ Delay_us(100);
 
- Temp = Ow_Read(&PORTB, 1);
- Temp = (Ow_Read(&PORTB, 1) << 8) + Temp;
+ Temp = Ow_Read(&PORTB, 4);
+ Temp = (Ow_Read(&PORTB, 4) << 8) + Temp;
 
  if (Temp & 0x8000) {
  Temp = 0;
@@ -74,19 +74,19 @@ void MainInit(){
 
 
  CLKDIVbits.PLLPRE = 0;
- PLLFBD = 38;
+ PLLFBD = 41;
  CLKDIVbits.PLLPOST = 0;
 
 
- TRISB = 0;
- LATB = 0;
+ TRISB0_bit = 0;
+ LATB0_bit = 0;
 
 
- TON_bit = 1;
+ T1CON = 0x8000;
  T1IE_bit = 1;
  T1IF_bit = 0;
- IPC0 = IPC0 | 0x1000;
- PR1 = 500;
+ IPC0bits.T1IP = 0x01;
+ PR1 = 495;
 
 
  BS = 0;
@@ -96,8 +96,6 @@ void MainInit(){
  Lcd_init();
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
-
- ADPCFG = 0xFFFF;
 
 }
 
@@ -110,7 +108,7 @@ void main(){
 
  Velocidad();
 
- TON_bit = 1;
+ T1CON.TON = 1;
  contp = 0;
  BS = 0;
 
