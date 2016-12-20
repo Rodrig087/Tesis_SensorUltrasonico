@@ -70,7 +70,7 @@ void Velocidad(){
 
 
 
-void MainInit(){
+void Configuracion(){
 
 
  CLKDIVbits.PLLPRE = 0;
@@ -78,15 +78,27 @@ void MainInit(){
  CLKDIVbits.PLLPOST = 0;
 
 
- TRISB0_bit = 0;
- LATB0_bit = 0;
-
-
  T1CON = 0x8000;
  T1IE_bit = 1;
  T1IF_bit = 0;
  IPC0bits.T1IP = 0x01;
  PR1 = 495;
+
+
+ AD1CON1.AD12B = 0;
+ AD1PCFGL = 0xFFFC;
+ AD1CON2bits.VCFG = 0;
+ AD1CON3.ADRC = 0;
+ AD1CON3bits.ADCS = 0x02;
+ AD1CON2bits.CHPS = 0x00;
+ AD1CON1bits.SSRC = 0x00;
+ AD1CON1bits.FORM = 0x01;
+ AD1CON1.ADON = 1;
+
+
+
+ TRISB0_bit = 0;
+ LATB0_bit = 0;
 
 
  BS = 0;
@@ -102,7 +114,7 @@ void MainInit(){
 
 void main(){
 
- MainInit();
+ Configuracion();
 
  while (1){
 

@@ -1297,6 +1297,7 @@ cnpu1
 cnpu1bits
 cnpu2
 cnpu2bits
+configuracion
 contp
 corcon
 corconbits
@@ -2499,7 +2500,6 @@ lposcen
 lposcen_bit
 ltrim
 main
-maininit
 matherr
 matherr
 matherr_bit

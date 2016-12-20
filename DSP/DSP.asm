@@ -178,9 +178,9 @@ L_end_Velocidad:
 	RETURN
 ; end of _Velocidad
 
-_MainInit:
+_Configuracion:
 
-;DSP.c,81 :: 		void MainInit(){
+;DSP.c,81 :: 		void Configuracion(){
 ;DSP.c,84 :: 		CLKDIVbits.PLLPRE = 0;                      //PLLPRE<4:0> = 0  ->  N1 = 2    8MHz / 2 = 4MHz
 	PUSH	W10
 	MOV	#lo_addr(CLKDIVbits), W0
@@ -199,18 +199,14 @@ _MainInit:
 	AND.B	W1, W0, W1
 	MOV	#lo_addr(CLKDIVbits), W0
 	MOV.B	W1, [W0]
-;DSP.c,89 :: 		TRISB0_bit = 0;                             //Establece el pin A3 como salida
-	BCLR	TRISB0_bit, BitPos(TRISB0_bit+0)
-;DSP.c,90 :: 		LATB0_bit = 0;                              //Limpia el pin A3
-	BCLR	LATB0_bit, BitPos(LATB0_bit+0)
-;DSP.c,93 :: 		T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
+;DSP.c,89 :: 		T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
 	MOV	#32768, W0
 	MOV	WREG, T1CON
-;DSP.c,94 :: 		T1IE_bit = 1;                               //Habilita la interrupcion por desborde de TMR1
+;DSP.c,90 :: 		T1IE_bit = 1;                               //Habilita la interrupcion por desborde de TMR1
 	BSET	T1IE_bit, BitPos(T1IE_bit+0)
-;DSP.c,95 :: 		T1IF_bit = 0;                               //Limpia la bandera de interrupcion
+;DSP.c,91 :: 		T1IF_bit = 0;                               //Limpia la bandera de interrupcion
 	BCLR	T1IF_bit, BitPos(T1IF_bit+0)
-;DSP.c,96 :: 		IPC0bits.T1IP = 0x01;                       //Establece el nivel de prioridad de la interrupcion
+;DSP.c,92 :: 		IPC0bits.T1IP = 0x01;                       //Establece el nivel de prioridad de la interrupcion
 	MOV	#4096, W0
 	MOV	W0, W1
 	MOV	#lo_addr(IPC0bits), W0
@@ -220,29 +216,80 @@ _MainInit:
 	MOV	#lo_addr(IPC0bits), W0
 	XOR	W1, [W0], W1
 	MOV	W1, IPC0bits
-;DSP.c,97 :: 		PR1 = 495;                                  //Precarga del TMR1
+;DSP.c,93 :: 		PR1 = 495;                                  //Precarga del TMR1
 	MOV	#495, W0
 	MOV	WREG, PR1
-;DSP.c,100 :: 		BS = 0;
+;DSP.c,96 :: 		AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
+	BCLR	AD1CON1, #10
+;DSP.c,97 :: 		AD1PCFGL = 0xFFFC;                          //Configura los puertos AN0 y AN1 como entradas analogicas y todas las demas como digitales
+	MOV	#65532, W0
+	MOV	WREG, AD1PCFGL
+;DSP.c,98 :: 		AD1CON2bits.VCFG = 0;                       //Selecciona AVDD y AVSS como fuentes de voltaje de referencia
+	MOV	AD1CON2bits, W1
+	MOV	#8191, W0
+	AND	W1, W0, W0
+	MOV	WREG, AD1CON2bits
+;DSP.c,99 :: 		AD1CON3.ADRC = 0;                           //Selecciona el reloj de conversion del ADC derivado del reloj del sistema
+	BCLR	AD1CON3, #15
+;DSP.c,100 :: 		AD1CON3bits.ADCS = 0x02;                    //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
+	MOV.B	#2, W0
+	MOV.B	W0, W1
+	MOV	#lo_addr(AD1CON3bits), W0
+	XOR.B	W1, [W0], W1
+	MOV.B	#255, W0
+	AND.B	W1, W0, W1
+	MOV	#lo_addr(AD1CON3bits), W0
+	XOR.B	W1, [W0], W1
+	MOV	#lo_addr(AD1CON3bits), W0
+	MOV.B	W1, [W0]
+;DSP.c,101 :: 		AD1CON2bits.CHPS = 0x00;                    //Selecciona unicamente el canal CH0
+	MOV	AD1CON2bits, W1
+	MOV	#64767, W0
+	AND	W1, W0, W0
+	MOV	WREG, AD1CON2bits
+;DSP.c,102 :: 		AD1CON1bits.SSRC = 0x00;                    //Selecciona la fuente de disparo de conversion !!
+	MOV	#lo_addr(AD1CON1bits), W0
+	MOV.B	[W0], W1
+	MOV.B	#31, W0
+	AND.B	W1, W0, W1
+	MOV	#lo_addr(AD1CON1bits), W0
+	MOV.B	W1, [W0]
+;DSP.c,103 :: 		AD1CON1bits.FORM = 0x01;                    //Selecciona el formato en que se presentaran los resultados de conversion, 01->Entero con signo(-512_511)
+	MOV	#256, W0
+	MOV	W0, W1
+	MOV	#lo_addr(AD1CON1bits), W0
+	XOR	W1, [W0], W1
+	MOV	#768, W0
+	AND	W1, W0, W1
+	MOV	#lo_addr(AD1CON1bits), W0
+	XOR	W1, [W0], W1
+	MOV	W1, AD1CON1bits
+;DSP.c,104 :: 		AD1CON1.ADON = 1;                           //Enciende el modulo ADC
+	BSET	AD1CON1, #15
+;DSP.c,108 :: 		TRISB0_bit = 0;                             //Establece el pin A3 como salida
+	BCLR	TRISB0_bit, BitPos(TRISB0_bit+0)
+;DSP.c,109 :: 		LATB0_bit = 0;                              //Limpia el pin A3
+	BCLR	LATB0_bit, BitPos(LATB0_bit+0)
+;DSP.c,112 :: 		BS = 0;
 	MOV	#lo_addr(_BS), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;DSP.c,101 :: 		contp = 0;
+;DSP.c,113 :: 		contp = 0;
 	CLR	W0
 	MOV	W0, _contp
-;DSP.c,104 :: 		Lcd_init();                                 //Inicializa el LCD
+;DSP.c,116 :: 		Lcd_init();                                 //Inicializa el LCD
 	CALL	_Lcd_Init
-;DSP.c,105 :: 		Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
+;DSP.c,117 :: 		Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
 	MOV.B	#1, W10
 	CALL	_Lcd_Cmd
-;DSP.c,106 :: 		Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
+;DSP.c,118 :: 		Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
 	MOV.B	#12, W10
 	CALL	_Lcd_Cmd
-;DSP.c,108 :: 		}
-L_end_MainInit:
+;DSP.c,120 :: 		}
+L_end_Configuracion:
 	POP	W10
 	RETURN
-; end of _MainInit
+; end of _Configuracion
 
 _main:
 	MOV	#2048, W15
@@ -253,52 +300,52 @@ _main:
 	MOV	#4, W0
 	IOR	68
 
-;DSP.c,111 :: 		void main(){
-;DSP.c,113 :: 		MainInit();
+;DSP.c,123 :: 		void main(){
+;DSP.c,125 :: 		Configuracion();
 	PUSH	W10
 	PUSH	W11
 	PUSH	W12
-	CALL	_MainInit
-;DSP.c,115 :: 		while (1){
+	CALL	_Configuracion
+;DSP.c,127 :: 		while (1){
 L_main7:
-;DSP.c,117 :: 		Velocidad();
+;DSP.c,129 :: 		Velocidad();
 	CALL	_Velocidad
-;DSP.c,119 :: 		T1CON.TON = 1;
+;DSP.c,131 :: 		T1CON.TON = 1;
 	BSET	T1CON, #15
-;DSP.c,120 :: 		contp = 0;
+;DSP.c,132 :: 		contp = 0;
 	CLR	W0
 	MOV	W0, _contp
-;DSP.c,121 :: 		BS = 0;
+;DSP.c,133 :: 		BS = 0;
 	MOV	#lo_addr(_BS), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;DSP.c,123 :: 		FloatToStr(DSTemp, txt1);
+;DSP.c,135 :: 		FloatToStr(DSTemp, txt1);
 	MOV	#lo_addr(_txt1), W12
 	MOV	_DSTemp, W10
 	MOV	_DSTemp+2, W11
 	CALL	_FloatToStr
-;DSP.c,124 :: 		FloatToStr(VSnd, txt2);
+;DSP.c,136 :: 		FloatToStr(VSnd, txt2);
 	MOV	#lo_addr(_txt2), W12
 	MOV	_VSnd, W10
 	MOV	_VSnd+2, W11
 	CALL	_FloatToStr
-;DSP.c,126 :: 		Lcd_Out(1,1,"Tmp: ");
+;DSP.c,138 :: 		Lcd_Out(1,1,"Tmp: ");
 	MOV	#lo_addr(?lstr1_DSP), W12
 	MOV	#1, W11
 	MOV	#1, W10
 	CALL	_Lcd_Out
-;DSP.c,127 :: 		Lcd_Out_Cp(txt1);
+;DSP.c,139 :: 		Lcd_Out_Cp(txt1);
 	MOV	#lo_addr(_txt1), W10
 	CALL	_Lcd_Out_CP
-;DSP.c,128 :: 		Lcd_Out(2,1,"Vel: ");
+;DSP.c,140 :: 		Lcd_Out(2,1,"Vel: ");
 	MOV	#lo_addr(?lstr2_DSP), W12
 	MOV	#1, W11
 	MOV	#2, W10
 	CALL	_Lcd_Out
-;DSP.c,129 :: 		Lcd_Out_Cp(txt2);
+;DSP.c,141 :: 		Lcd_Out_Cp(txt2);
 	MOV	#lo_addr(_txt2), W10
 	CALL	_Lcd_Out_CP
-;DSP.c,132 :: 		Delay_ms(15);
+;DSP.c,144 :: 		Delay_ms(15);
 	MOV	#4, W8
 	MOV	#3392, W7
 L_main9:
@@ -306,9 +353,9 @@ L_main9:
 	BRA NZ	L_main9
 	DEC	W8
 	BRA NZ	L_main9
-;DSP.c,134 :: 		}
+;DSP.c,146 :: 		}
 	GOTO	L_main7
-;DSP.c,136 :: 		}
+;DSP.c,148 :: 		}
 L_end_main:
 	POP	W12
 	POP	W11

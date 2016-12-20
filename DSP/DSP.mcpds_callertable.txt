@@ -1,5 +1,5 @@
 main
-	MainInit
+	Configuracion
 		Lcd_Init
 			Delay_8ms
 			Strobe

@@ -78,16 +78,12 @@ void Velocidad(){
 
 
 // Configuraciones //
-void MainInit(){
+void Configuracion(){
 
      //Configuracion del PLL para generar un FOSC de 80MHz  a partir de un oscilador externo de 8MHz
      CLKDIVbits.PLLPRE = 0;                      //PLLPRE<4:0> = 0  ->  N1 = 2    8MHz / 2 = 4MHz
      PLLFBD = 41;                                //PLLDIV<8:0> = 38 ->  M = 40    4MHz * 40 = 160MHz
      CLKDIVbits.PLLPOST = 0;                     //PLLPOST<1:0> = 0 ->  N2 = 2    160MHz / 2 = 80MHz
-     
-     //Configuracion de puertos
-     TRISB0_bit = 0;                             //Establece el pin A3 como salida
-     LATB0_bit = 0;                              //Limpia el pin A3
 
      //Configuracion del TMR1
      T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
@@ -95,6 +91,22 @@ void MainInit(){
      T1IF_bit = 0;                               //Limpia la bandera de interrupcion
      IPC0bits.T1IP = 0x01;                       //Establece el nivel de prioridad de la interrupcion
      PR1 = 495;                                  //Precarga del TMR1
+     
+     //Configuracion del ADC
+     AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
+     AD1PCFGL = 0xFFFC;                          //Configura los puertos AN0 y AN1 como entradas analogicas y todas las demas como digitales
+     AD1CON2bits.VCFG = 0;                       //Selecciona AVDD y AVSS como fuentes de voltaje de referencia
+     AD1CON3.ADRC = 0;                           //Selecciona el reloj de conversion del ADC derivado del reloj del sistema
+     AD1CON3bits.ADCS = 0x02;                    //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
+     AD1CON2bits.CHPS = 0x00;                    //Selecciona unicamente el canal CH0
+     AD1CON1bits.SSRC = 0x00;                    //Selecciona la fuente de disparo de conversion !!
+     AD1CON1bits.FORM = 0x01;                    //Selecciona el formato en que se presentaran los resultados de conversion, 01->Entero con signo(-512_511)
+     AD1CON1.ADON = 1;                           //Enciende el modulo ADC
+     
+     
+     //Configuracion de puertos
+     TRISB0_bit = 0;                             //Establece el pin A3 como salida
+     LATB0_bit = 0;                              //Limpia el pin A3
      
      //Inicializacion de variables
      BS = 0;
@@ -110,7 +122,7 @@ void MainInit(){
 
 void main(){
 
- MainInit();
+ Configuracion();
  
  while (1){
  
