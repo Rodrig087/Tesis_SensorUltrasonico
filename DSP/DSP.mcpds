@@ -24,9 +24,8 @@ Count=0
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=2
+Count=1
 File0=DSP.c
-File1=..\APESW\APESW.c
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -45,13 +44,14 @@ Count=0
 [PLDS]
 Count=0
 [Useses]
-Count=6
+Count=7
 File0=One_Wire
 File1=C_Math
 File2=Lcd
 File3=Lcd_Constants
 File4=Conversions
 File5=C_String
+File6=SPI
 [EXPANDED NODES]
 Node1=Sources
 Count=1

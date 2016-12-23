@@ -1,5 +1,5 @@
 #line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/DSP.c"
-#line 11 "D:/Git/Tesis_SensorUltrasonico/DSP/DSP.c"
+#line 13 "D:/Git/Tesis_SensorUltrasonico/DSP/DSP.c"
 unsigned int contp;
 
 float TOF, Df;
@@ -8,6 +8,8 @@ float DSTemp, VSnd;
 unsigned short BS;
 
 char txt1[8], txt2[8];
+
+
 
 
 sbit LCD_RS at LATA4_bit;
@@ -24,18 +26,9 @@ sbit LCD_D6_Direction at TRISB14_bit;
 sbit LCD_D7_Direction at TRISB15_bit;
 
 
-void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
- if (contp<20){
- BS = ~BS;
- RB0_bit = BS;
- }else {
- RB0_bit = 0;
- T1CON.TON = 0;
- }
+sbit Chip_Select at LATB1_bit;
+sbit Chip_Select_Direction at TRISB1_bit;
 
- contp++;
- T1IF_bit = 0;
-}
 
 
 
@@ -69,6 +62,47 @@ void Velocidad(){
 }
 
 
+void DAC_Output(unsigned int valueDAC) {
+ char temp;
+
+ Chip_Select = 0;
+
+
+ temp = (valueDAC >> 8) & 0x0F;
+ temp |= 0x30;
+ SPI1_Write(temp);
+
+
+ temp = valueDAC;
+ SPI1_Write(temp);
+
+ Chip_Select = 1;
+}
+
+
+
+
+
+void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+ if (contp<20){
+ BS = ~BS;
+ RB0_bit = BS;
+ }else {
+ RB0_bit = 0;
+ T1CON.TON = 0;
+ }
+
+ contp++;
+ T1IF_bit = 0;
+}
+
+
+void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
+ DAC_Output(ADC1BUF0);
+ AD1IF_bit = 0;
+}
+
+
 
 void Configuracion(){
 
@@ -76,6 +110,11 @@ void Configuracion(){
  CLKDIVbits.PLLPRE = 0;
  PLLFBD = 41;
  CLKDIVbits.PLLPOST = 0;
+
+
+ TRISB0_bit = 0;
+ TRISA0_bit = 1;
+ LATB0_bit = 0;
 
 
  T1CON = 0x8000;
@@ -86,35 +125,48 @@ void Configuracion(){
 
 
  AD1CON1.AD12B = 0;
- AD1PCFGL = 0xFFFC;
+ AD1CON1bits.SSRC = 0x07;
+ AD1CON1bits.FORM = 0x01;
+ AD1CON1.ASAM = 0;
+ AD1CON1.SIMSAM = 0;
+ AD1CON1.ADSIDL = 0;
+
  AD1CON2bits.VCFG = 0;
+ AD1CON2bits.CHPS = 0x00;
+ AD1CON2.CSCNA = 0;
+ AD1CON2bits.SMPI = 0;
+ AD1CON2.BUFM = 0;
+ AD1CON2.ALTS = 0x00;
+
  AD1CON3.ADRC = 0;
  AD1CON3bits.ADCS = 0x02;
- AD1CON2bits.CHPS = 0x00;
- AD1CON1bits.SSRC = 0x00;
- AD1CON1bits.FORM = 0x01;
+ AD1CON3bits.SAMC = 0;
+
+ AD1CHS0 = 0;
+ AD1CHS123 = 0;
+
+ AD1PCFGL = 0xFFFE;
+ AD1CSSL = 0x00;
+
+ IEC0.AD1IE = 0x00;
+ IPC3bits.AD1IP = 1;
+
  AD1CON1.ADON = 1;
 
 
-
- TRISB0_bit = 0;
- LATB0_bit = 0;
+ SPI1_Init();
 
 
  BS = 0;
  contp = 0;
-
-
- Lcd_init();
- Lcd_Cmd(_LCD_CLEAR);
- Lcd_Cmd(_LCD_CURSOR_OFF);
-
+#line 180 "D:/Git/Tesis_SensorUltrasonico/DSP/DSP.c"
 }
 
 
 void main(){
 
  Configuracion();
+
 
  while (1){
 
@@ -124,14 +176,7 @@ void main(){
  contp = 0;
  BS = 0;
 
- FloatToStr(DSTemp, txt1);
- FloatToStr(VSnd, txt2);
-
- Lcd_Out(1,1,"Tmp: ");
- Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"Vel: ");
- Lcd_Out_Cp(txt2);
-
+ DAC_Output(ADC1BUF0);
 
  Delay_ms(15);
 

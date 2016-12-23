@@ -7,6 +7,8 @@ Descripcion:
 
 ---------------------------------------------------------------------------------------------------------------------------*/
 
+// Variables //
+
 // Declaracion de variables para el calculo de la distancia //
 unsigned int contp;                              //Contador para controlar los pulsos de exitacion del transductor ultrasonico.
 
@@ -17,7 +19,9 @@ unsigned short BS;                               //Variable auxiliar para establ
 
 char txt1[8], txt2[8];
 
-// Conexiones del modulo LCD //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Conexiones //
+
+// Conexiones del modulo LCD //
 sbit LCD_RS at LATA4_bit;
 sbit LCD_EN at LATB7_bit;
 sbit LCD_D4 at LATB8_bit;
@@ -31,22 +35,13 @@ sbit LCD_D5_Direction at TRISB9_bit;
 sbit LCD_D6_Direction at TRISB14_bit;
 sbit LCD_D7_Direction at TRISB15_bit;
 
-// Interrupciones //
-void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
-     if (contp<20){                              //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (42)
-          BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
-          RB0_bit = BS;
-     }else {
-          RB0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
-          T1CON.TON = 0;
-     }
+// Conexiones del modulo DAC  //
+sbit Chip_Select at LATB1_bit;
+sbit Chip_Select_Direction at TRISB1_bit;
 
-     contp++;                                    //Aumenta el contador en una unidad.
-     T1IF_bit = 0;                               //Limpia la bandera de interrupcion de Timer2
-}
+// Funciones //
 
-
-// Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura //
+// Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura
 void Velocidad(){
      unsigned int Temp;
      unsigned int Rint;
@@ -76,6 +71,47 @@ void Velocidad(){
      VSnd = 331.45 * sqrt(1+(DsTemp/273));       //Expresa la temperatura en punto flotante
 }
 
+//Funcion para control del DAC
+void DAC_Output(unsigned int valueDAC) {
+     char temp;
+
+     Chip_Select = 0;                            //Seleccionar chip DAC
+
+     // Send High Byte
+     temp = (valueDAC >> 8) & 0x0F;              //Store valueDAC[11..8] to temp[3..0]
+     temp |= 0x30;                               //Define DAC setting, see MCP4921 datasheet
+     SPI1_Write(temp);                           //Send high byte via SPI
+
+     // Send Low Byte
+     temp = valueDAC;                            //Store valueDAC[7..0] to temp[7..0]
+     SPI1_Write(temp);                           //Send low byte via SPI
+
+     Chip_Select = 1;                            //Deseleccionar chip DAC
+}
+
+
+// Interrupciones //
+
+//Interrupcion por desbordamiento del TMR1
+void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+     if (contp<20){                              //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (42)
+          BS = ~BS;                              //Variable auxiliar para establecer el cambio de estado en el bit RD0.
+          RB0_bit = BS;
+     }else {
+          RB0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
+          T1CON.TON = 0;
+     }
+
+     contp++;                                    //Aumenta el contador en una unidad.
+     T1IF_bit = 0;                               //Limpia la bandera de interrupcion de Timer2
+}
+
+//Interrupcion por conversion completada del ADC
+void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
+   DAC_Output(ADC1BUF0);                         //Invoca a la funcion de control del DAC
+   AD1IF_bit = 0;                                //Limpia la bandera de interrupcion del ADC
+}
+
 
 // Configuraciones //
 void Configuracion(){
@@ -84,6 +120,11 @@ void Configuracion(){
      CLKDIVbits.PLLPRE = 0;                      //PLLPRE<4:0> = 0  ->  N1 = 2    8MHz / 2 = 4MHz
      PLLFBD = 41;                                //PLLDIV<8:0> = 38 ->  M = 40    4MHz * 40 = 160MHz
      CLKDIVbits.PLLPOST = 0;                     //PLLPOST<1:0> = 0 ->  N2 = 2    160MHz / 2 = 80MHz
+     
+     //Configuracion de puertos
+     TRISB0_bit = 0;                             //Establece el pin B0 como salida
+     TRISA0_bit = 1;
+     LATB0_bit = 0;                              //Limpia el pin A3
 
      //Configuracion del TMR1
      T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
@@ -94,28 +135,47 @@ void Configuracion(){
      
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
-     AD1PCFGL = 0xFFFC;                          //Configura los puertos AN0 y AN1 como entradas analogicas y todas las demas como digitales
+     AD1CON1bits.SSRC = 0x07;                    //Internal counter ends sampling and starts conversion (auto-convert)
+     AD1CON1bits.FORM = 0x01;                    //Selecciona el formato en que se presentaran los resultados de conversion, 01->Entero con signo(-512_511)
+     AD1CON1.ASAM = 0;                           //El muestreo comienza cuando se ajusta el bit SAMP (Para muestreo manual)
+     AD1CON1.SIMSAM = 0;                         //0 -> Muestrea múltiples canales individualmente en secuencia
+     AD1CON1.ADSIDL = 0;                         //Continua con la operacion del modulo durante el modo desocupado
+
      AD1CON2bits.VCFG = 0;                       //Selecciona AVDD y AVSS como fuentes de voltaje de referencia
+     AD1CON2bits.CHPS = 0x00;                    //Selecciona unicamente el canal CH0
+     AD1CON2.CSCNA = 0;                          //No escanea las entradas de CH0 durante la Muestra A
+     AD1CON2bits.SMPI = 0;                       //Sample/Convert Sequences Per Interrupt Selection bits
+     AD1CON2.BUFM = 0;                           //Bit de selección del modo de relleno del búfer, 0 -> Siempre comienza a llenar el buffer desde el principio
+     AD1CON2.ALTS = 0x00;                        //Utiliza siempre la selección de entrada de canal para la muestra A
+
      AD1CON3.ADRC = 0;                           //Selecciona el reloj de conversion del ADC derivado del reloj del sistema
      AD1CON3bits.ADCS = 0x02;                    //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
-     AD1CON2bits.CHPS = 0x00;                    //Selecciona unicamente el canal CH0
-     AD1CON1bits.SSRC = 0x00;                    //Selecciona la fuente de disparo de conversion !!
-     AD1CON1bits.FORM = 0x01;                    //Selecciona el formato en que se presentaran los resultados de conversion, 01->Entero con signo(-512_511)
+     AD1CON3bits.SAMC = 0;                       //Auto Sample Time bits, 0 -> 0 TAD
+
+     AD1CHS0 = 0;                                //ADC1 INPUT CHANNEL 0 SELECT REGISTER
+     AD1CHS123 = 0;                              //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
+
+     AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
+     AD1CSSL = 0x00;                             //Se salta todos los puertos ANx para los escaneos de entrada
+
+     IEC0.AD1IE = 0x00;                          //Activa la interrupcion por conversion completa del ADC
+     IPC3bits.AD1IP = 1;                         //Nivel de prioridad de interrupcion del ADC = 1
+     
      AD1CON1.ADON = 1;                           //Enciende el modulo ADC
      
-     
-     //Configuracion de puertos
-     TRISB0_bit = 0;                             //Establece el pin A3 como salida
-     LATB0_bit = 0;                              //Limpia el pin A3
+     //Inicializacion del DAC
+     SPI1_Init();                                //Inicializa el modulo DAC
      
      //Inicializacion de variables
      BS = 0;
      contp = 0;
      
-     //Inicializacion del LCD
-     Lcd_init();                                 //Inicializa el LCD
+     /*//Inicializacion del LCD
+     Lcd_init();                                 //Inicializa el modulo LCD
      Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
-     Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
+     Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD*/
+     
+
 
 }
 
@@ -123,6 +183,7 @@ void Configuracion(){
 void main(){
 
  Configuracion();
+ //value = 2048;                          // When program starts, DAC gives
  
  while (1){
  
@@ -132,14 +193,7 @@ void main(){
        contp = 0;
        BS = 0;
        
-       FloatToStr(DSTemp, txt1);
-       FloatToStr(VSnd, txt2);
-
-       Lcd_Out(1,1,"Tmp: ");
-       Lcd_Out_Cp(txt1);
-       Lcd_Out(2,1,"Vel: ");
-       Lcd_Out_Cp(txt2);
-
+       DAC_Output(ADC1BUF0);
        
        Delay_ms(15);
 
