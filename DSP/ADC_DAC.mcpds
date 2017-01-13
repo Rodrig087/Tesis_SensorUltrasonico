@@ -1,12 +1,12 @@
 [DEVICE]
-Name=P33FJ12GP201
+Name=P33FJ32MC202
 Clock=80000000
 [MEMORY_MODEL]
 Value=0
 [BUILD_TYPE]
 Value=0
 [ACTIVE_TAB]
-Value=DSP.c
+Value=ADC_DAC.c
 [USE_EEPROM]
 Value=0
 [USE_HEAP]
@@ -17,7 +17,7 @@ Value=2000
 Value=
 [FILES]
 Count=1
-File0=DSP.c
+File0=ADC_DAC.c
 [BINARIES]
 Count=0
 [IMAGES]
@@ -25,7 +25,7 @@ Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
 Count=1
-File0=DSP.c
+File0=ADC_DAC.c
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -33,10 +33,13 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=3
+Count=6
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\uses\
 Path2=D:\Git\Tesis_SensorUltrasonico\DSP\
+Path3=D:\Git\Tesis_Test\ADC_DAC_dsPIC\
+Path4=E:\Milton\Github\Tesis\Test\ADC_DAC_dsPIC\
+Path5=E:\Milton\Tesis\Programas\MikroC\Ejemplos\ADC_DAC_dsPIC\
 [HEADER_PATH]
 Count=0
 [HEADERS]
@@ -44,14 +47,11 @@ Count=0
 [PLDS]
 Count=0
 [Useses]
-Count=7
-File0=One_Wire
+Count=3
+File0=SPI
 File1=C_Math
-File2=Lcd
-File3=Lcd_Constants
-File4=Conversions
-File5=C_String
-File6=SPI
+File2=One_Wire
 [EXPANDED NODES]
 Node1=Sources
-Count=1
+Node2=Output Files
+Count=2

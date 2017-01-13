@@ -1,6 +1,5 @@
 main
 	Configuracion
-		SPI1_Init
 	Velocidad
 		Ow_Reset
 			Delay_500us
@@ -24,9 +23,7 @@ main
 		_Div_FP
 		_AddSub_FP
 		_Mul_FP
-	DAC_Output
-		SPI1_Write
-			SPI1_Read
 ADC1Int
-	DAC_Output
-Timer1Interrupt
+	Envolvente
+Timer2Interrupt
+Timer1Int

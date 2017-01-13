@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<MCU_DEVICE_FLAGS>
+  <DEVICE>
+    <DEVICE_NAME>P33FJ12GP202</DEVICE_NAME>
+    <SETTINGS>
+      <COUNT>19</COUNT>
+      <SETTING0>
+        <NAME>Boot Segment Write Protect</NAME>
+        <DESCRIPTION>Boot Segment may be written</DESCRIPTION>
+      </SETTING0>
+      <SETTING1>
+        <NAME>Boot Segment Program Flash Code Protection</NAME>
+        <DESCRIPTION>No Boot program Flash segment</DESCRIPTION>
+      </SETTING1>
+      <SETTING2>
+        <NAME>General Code Segment Write Protect</NAME>
+        <DESCRIPTION>Disabled</DESCRIPTION>
+      </SETTING2>
+      <SETTING3>
+        <NAME>General Segment Code Protection</NAME>
+        <DESCRIPTION>Disabled</DESCRIPTION>
+      </SETTING3>
+      <SETTING4>
+        <NAME>Oscillator Mode</NAME>
+        <DESCRIPTION>Internal Fast RC (FRC) w/ PLL</DESCRIPTION>
+      </SETTING4>
+      <SETTING5>
+        <NAME>Internal External Switch Over Mode</NAME>
+        <DESCRIPTION>Enabled</DESCRIPTION>
+      </SETTING5>
+      <SETTING6>
+        <NAME>Primary Oscillator Source</NAME>
+        <DESCRIPTION>Primary Oscillator Disabled</DESCRIPTION>
+      </SETTING6>
+      <SETTING7>
+        <NAME>OSC2 Pin Configuration</NAME>
+        <DESCRIPTION>OSC2 functions as CLKO</DESCRIPTION>
+      </SETTING7>
+      <SETTING8>
+        <NAME>Peripheral pin select configuration</NAME>
+        <DESCRIPTION>Allow only one reconfiguration</DESCRIPTION>
+      </SETTING8>
+      <SETTING9>
+        <NAME>Clock Switching and Monitor</NAME>
+        <DESCRIPTION>Both Clock Switching and Fail-Safe Clock Monitor are disabled</DESCRIPTION>
+      </SETTING9>
+      <SETTING10>
+        <NAME>Watchdog Timer Postscaler</NAME>
+        <DESCRIPTION>1:32,768</DESCRIPTION>
+      </SETTING10>
+      <SETTING11>
+        <NAME>WDT Prescaler</NAME>
+        <DESCRIPTION>1:128</DESCRIPTION>
+      </SETTING11>
+      <SETTING12>
+        <NAME>Watchdog Timer Window</NAME>
+        <DESCRIPTION>Disabled</DESCRIPTION>
+      </SETTING12>
+      <SETTING13>
+        <NAME>Watchdog Timer Enable</NAME>
+        <DESCRIPTION>Disabled</DESCRIPTION>
+      </SETTING13>
+      <SETTING14>
+        <NAME>POR Timer Value</NAME>
+        <DESCRIPTION>128ms</DESCRIPTION>
+      </SETTING14>
+      <SETTING15>
+        <NAME>Alternate I2C  pins</NAME>
+        <DESCRIPTION>Disabled</DESCRIPTION>
+      </SETTING15>
+      <SETTING16>
+        <NAME>Comm Channel Select</NAME>
+        <DESCRIPTION>Communicate on PGC1/EMUC1 and PGD1/EMUD1</DESCRIPTION>
+      </SETTING16>
+      <SETTING17>
+        <NAME>JTAG Port Enable</NAME>
+        <DESCRIPTION>Disabled</DESCRIPTION>
+      </SETTING17>
+      <SETTING18>
+        <NAME>Background Debug</NAME>
+        <DESCRIPTION>Disabled</DESCRIPTION>
+      </SETTING18>
+    </SETTINGS>
+  </DEVICE>
+</MCU_DEVICE_FLAGS>
