@@ -44,6 +44,7 @@ void Envolvente() {
      if (value>5){
          if (value>aux_value){
             aux_value=value;
+            LATA1_bit = ~LATA1_bit;
          }
          else{
             aux_value=aux_value-5;
@@ -54,6 +55,12 @@ void Envolvente() {
      }else{
            aux_value=0;
      }
+     //Punto maximo
+    /*if (aux_value>VM){
+        LATA1_bit = ~LATA1_bit;
+        VM = aux_value;
+     }*/
+
      //Visualizacion de la senal tratada en el puerto B
      LATB = aux_value;
 }
@@ -125,7 +132,7 @@ void Configuracion(){
      //Configuracion de puertos
      AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
      TRISA0_bit = 1;                             //Set RA0 pin as input
-     TRISA1_bit = 1;                             //Set RA1 pin as input
+     TRISA1_bit = 0;                             //Set RA1 pin as output
      TRISB = 0x8000;                             //Establece los pines 0-14 de PORTB como salidas y el pin 15 como entrada
 
      //Configuracion del ADC
@@ -182,6 +189,8 @@ void main() {
      Configuracion();
 
      while(1){
+              IEC0.T1IE = 0;                     //Desabilita la interrupcion por desborde del TMR1 para no interferir con la lectura del sensor de temperatura
+     
               Velocidad();                       //Llama a la funcion para calcular la Velocidad del sonido
               
               T2CON.TON = 1;                     //Enciende el TMR2
@@ -189,6 +198,8 @@ void main() {
               
               contp = 0;                         //Limpia la variable del contador de pulsos
               BS = 0;                            //Limpia la variable auxiliar de cambio de estado de los pulsos
+              
+              VM = 0;                            //Limpia la variable de deteccion del punto maximo
               
               Delay_ms(15);
      }

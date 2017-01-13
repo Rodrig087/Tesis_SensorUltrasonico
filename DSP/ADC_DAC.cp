@@ -31,6 +31,7 @@ void Envolvente() {
  if (value>5){
  if (value>aux_value){
  aux_value=value;
+ LATA1_bit = ~LATA1_bit;
  }
  else{
  aux_value=aux_value-5;
@@ -41,7 +42,7 @@ void Envolvente() {
  }else{
  aux_value=0;
  }
-
+#line 65 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
  LATB = aux_value;
 }
 
@@ -112,7 +113,7 @@ void Configuracion(){
 
  AD1PCFGL = 0xFFFE;
  TRISA0_bit = 1;
- TRISA1_bit = 1;
+ TRISA1_bit = 0;
  TRISB = 0x8000;
 
 
@@ -169,6 +170,8 @@ void main() {
  Configuracion();
 
  while(1){
+ IEC0.T1IE = 0;
+
  Velocidad();
 
  T2CON.TON = 1;
@@ -176,6 +179,8 @@ void main() {
 
  contp = 0;
  BS = 0;
+
+ VM = 0;
 
  Delay_ms(15);
  }
