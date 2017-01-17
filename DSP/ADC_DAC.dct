@@ -1104,6 +1104,7 @@ brgh
 brgh
 brgh_bit
 bs
+buffer_size
 bufm
 bufm
 bufm_bit
@@ -1367,6 +1368,8 @@ cnterr
 cnterr
 cnterr
 cnterr_bit
+coeff_a
+coeff_b
 configuracion
 contp
 corcon
@@ -1854,6 +1857,7 @@ faov3l_bit
 ferr
 ferr
 ferr_bit
+filter_order
 float_fpack
 floor
 flta1ie
@@ -1966,6 +1970,7 @@ gcstat
 gcstat_bit
 get_fosc_khz
 get_fosc_per_cyc
+i
 i2c1add
 i2c1add_0
 i2c1add_0_bit
@@ -2481,6 +2486,7 @@ ifs3
 ifs3bits
 ifs4
 ifs4bits
+iir_radix
 ilr
 ilr_0
 ilr_0_bit
@@ -2524,6 +2530,8 @@ indx1r1
 indx1r2
 indx1r3
 indx1r4
+inext
+input
 int0ep
 int0ep
 int0ep_bit
@@ -3333,6 +3341,7 @@ osync
 osync_bit
 osync_pwm1con2_bit
 osync_pwm2con2_bit
+output
 ov
 ov
 ov_bit
@@ -4775,6 +4784,8 @@ satdw_bit
 sb
 sb
 sb_bit
+scale_a
+scale_b
 sck1r
 sck1r_0
 sck1r_0_bit
@@ -5877,8 +5888,19 @@ vecnum3
 vecnum4
 vecnum5
 vecnum6
+vector_add
+vector_convolve
+vector_correlate
+vector_dot
+vector_max
+vector_min
+vector_multiply
+vector_negate
+vector_set
+vector_subtract
+vectorpower
+vectorscale
 velocidad
-vm
 vregs
 vregs
 vregs_bit

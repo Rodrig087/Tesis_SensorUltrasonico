@@ -7,13 +7,24 @@ float DSTemp, VSnd;
 
 unsigned int value = 0;
 unsigned int aux_value = 0;
+#line 27 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+const unsigned int BUFFER_SIZE = 8;
+const unsigned int FILTER_ORDER = 2;
+const unsigned int COEFF_B[FILTER_ORDER+1] = {0x3B56, 0x76AD, 0x3B56};
+const unsigned int COEFF_A[FILTER_ORDER+1] = {0x4000, 0x8B59, 0x3594};
+const unsigned int SCALE_B = 7;
+const unsigned int SCALE_A = -1;
 
-unsigned int VM=0;
+unsigned int inext;
+ydata unsigned int input[BUFFER_SIZE];
+ydata unsigned int output[BUFFER_SIZE];
 
+short i;
 
 
 
 void Envolvente() {
+ unsigned int CurrentValue;
 
  if (ADC1BUF0>512){
  value = (ADC1BUF0-512);
@@ -28,10 +39,12 @@ void Envolvente() {
  value = (ADC1BUF0+((512-ADC1BUF0)*2))-513;
  }
 
+
  if (value>5){
+
  if (value>aux_value){
  aux_value=value;
- LATA1_bit = ~LATA1_bit;
+
  }
  else{
  aux_value=aux_value-5;
@@ -39,11 +52,31 @@ void Envolvente() {
  aux_value=value;
  }
  }
+
  }else{
  aux_value=0;
+
  }
-#line 65 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
- LATB = aux_value;
+
+
+ input[inext] = aux_value;
+
+ CurrentValue = IIR_Radix( SCALE_B,
+ SCALE_A,
+ COEFF_B,
+ COEFF_A,
+ FILTER_ORDER+1,
+ input,
+ BUFFER_SIZE,
+ output,
+ inext);
+
+ output[inext] = CurrentValue;
+ inext = (inext+1) & (BUFFER_SIZE-1);
+
+
+ LATB = CurrentValue;
+
 }
 
 void Velocidad(){
@@ -170,9 +203,14 @@ void main() {
  Configuracion();
 
  while(1){
+
  IEC0.T1IE = 0;
 
  Velocidad();
+
+ inext = 0;
+ Vector_Set(input, BUFFER_SIZE, 0);
+ Vector_Set(output, BUFFER_SIZE, 0);
 
  T2CON.TON = 1;
  IEC0.T2IE = 1;
@@ -180,7 +218,8 @@ void main() {
  contp = 0;
  BS = 0;
 
- VM = 0;
+
+
 
  Delay_ms(15);
  }

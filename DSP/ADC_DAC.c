@@ -21,12 +21,26 @@ float DSTemp, VSnd;
 unsigned int value = 0;
 unsigned int aux_value = 0;
 //Variables para determinar el maximo de la funcion
-unsigned int VM=0;
+/*unsigned int VP=0;
+unsigned int y0=0, y1=0, y2=0;*/
+//Variables para realizar el filtrado
+const unsigned int BUFFER_SIZE = 8;
+const unsigned int FILTER_ORDER = 2;
+const unsigned int COEFF_B[FILTER_ORDER+1] = {0x3B56, 0x76AD, 0x3B56};
+const unsigned int COEFF_A[FILTER_ORDER+1] = {0x4000, 0x8B59, 0x3594};
+const unsigned int SCALE_B = 7;
+const unsigned int SCALE_A = -1;
 
+unsigned int inext;                         // Input buffer index
+ydata unsigned int input[BUFFER_SIZE];      // Input buffer
+ydata unsigned int output[BUFFER_SIZE];     // Output buffer
+
+short i;
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
 //Funcion para la deteccion de la Envolvente de la senal
 void Envolvente() {
+     unsigned int CurrentValue;
      //Valor absoluto de la funcion
      if (ADC1BUF0>512){
         value = (ADC1BUF0-512);
@@ -40,11 +54,13 @@ void Envolvente() {
      if (ADC1BUF0<512){
         value = (ADC1BUF0+((512-ADC1BUF0)*2))-513;
      }
+     
      //Holding
      if (value>5){
+        //LATA1_bit = ~LATA1_bit;
          if (value>aux_value){
             aux_value=value;
-            LATA1_bit = ~LATA1_bit;
+            //y2 = aux_value;
          }
          else{
             aux_value=aux_value-5;
@@ -52,17 +68,31 @@ void Envolvente() {
                aux_value=value;
             }
          }
+
      }else{
            aux_value=0;
+           //CurrentValue = 0;
      }
-     //Punto maximo
-    /*if (aux_value>VM){
-        LATA1_bit = ~LATA1_bit;
-        VM = aux_value;
-     }*/
 
+     //Filtrado
+     input[inext] = aux_value;                   // Fetch sample
+
+     CurrentValue = IIR_Radix( SCALE_B,        //
+                              SCALE_A,        //
+                              COEFF_B,        // b coefficients of the filter
+                              COEFF_A,        // a coefficients of the filter
+                              FILTER_ORDER+1, // Filter order + 1
+                              input,          // Input buffer
+                              BUFFER_SIZE,    // Input buffer length
+                              output,         // Input buffer
+                              inext);         // Current sample
+
+     output[inext] = CurrentValue;
+     inext = (inext+1) & (BUFFER_SIZE-1);      // inext = (inext + 1) mod BUFFER_SIZE;
+     
      //Visualizacion de la senal tratada en el puerto B
-     LATB = aux_value;
+     LATB = CurrentValue;
+
 }
 //Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura registrada por el sensor DS18B20
 void Velocidad(){
@@ -189,17 +219,23 @@ void main() {
      Configuracion();
 
      while(1){
-              IEC0.T1IE = 0;                     //Desabilita la interrupcion por desborde del TMR1 para no interferir con la lectura del sensor de temperatura
      
+             IEC0.T1IE = 0;                     //Desabilita la interrupcion por desborde del TMR1 para no interferir con la lectura del sensor de temperatura
+
               Velocidad();                       //Llama a la funcion para calcular la Velocidad del sonido
-              
+
+              inext   = 0;                              // Initialize buffer index
+              Vector_Set(input, BUFFER_SIZE, 0);        // Clear input buffer
+              Vector_Set(output, BUFFER_SIZE, 0);       // Clear output buffer
+
               T2CON.TON = 1;                     //Enciende el TMR2
               IEC0.T2IE = 1;                     //Habilita la interrupcion pos desborde del TMR2
-              
+
               contp = 0;                         //Limpia la variable del contador de pulsos
               BS = 0;                            //Limpia la variable auxiliar de cambio de estado de los pulsos
-              
-              VM = 0;                            //Limpia la variable de deteccion del punto maximo
+
+              //VP = 0;                  //Limpia la variable de deteccion del punto maximo
+
               
               Delay_ms(15);
      }
