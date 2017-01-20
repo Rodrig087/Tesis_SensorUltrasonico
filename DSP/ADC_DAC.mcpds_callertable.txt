@@ -23,9 +23,6 @@ main
 		_Div_FP
 		_AddSub_FP
 		_Mul_FP
-	Vector_Set
 ADC1Int
-	Envolvente
-		Iir_Radix
 Timer2Interrupt
-Timer1Int
+Timer1Interrupt

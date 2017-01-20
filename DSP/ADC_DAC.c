@@ -10,13 +10,25 @@ Descripcion:
 4.Realiza la deteccion de envolvente de la senal muestreada.
 5.
 ---------------------------------------------------------------------------------------------------------------------------*/
+//Coeficientes filtro IIR
+unsigned int ca1 = 0x3B56;                       //Coeficientes de a escalados con un factor de 7   (ax*2^7 -> 16bQ7)
+unsigned int ca2 = 0x76AD;
+unsigned int cb1 = 0x4000;                       //Coeficientes de b escalados con un factor de -1  (ax*2^-1 -> 16bQ-1)
+unsigned int cb2 = 0x8B59;
+unsigned int cb3 = 0x3594;
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
 unsigned short BS;
-//Variables para el calculo de la Velocidad del sonido
+//Variables para el calculo de la Velocidad del sonido:
 float DSTemp, VSnd;
+//Variables para el almacenamiento de la señal muestreada:
+const unsigned int nm = 300;
+unsigned int M[nm];
+unsigned int i;
+unsigned int j;
+short bm;
 //Variables para la deteccion de la Envolvente de la senal
 unsigned int value = 0;
 unsigned int aux_value = 0;
@@ -24,43 +36,24 @@ unsigned int aux_value = 0;
 /*unsigned int VP=0;
 unsigned int y0=0, y1=0, y2=0;*/
 //Variables para realizar el filtrado
-const unsigned int BUFFER_SIZE = 8;
-const unsigned int FILTER_ORDER = 2;
-const unsigned int COEFF_B[FILTER_ORDER+1] = {0x3B56, 0x76AD, 0x3B56};
-const unsigned int COEFF_A[FILTER_ORDER+1] = {0x4000, 0x8B59, 0x3594};
-const unsigned int SCALE_B = 7;
-const unsigned int SCALE_A = -1;
+/*long x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;                         //32 bits
+unsigned int YY = 0;*/
 
-unsigned int inext;                         // Input buffer index
-ydata unsigned int input[BUFFER_SIZE];      // Input buffer
-ydata unsigned int output[BUFFER_SIZE];     // Output buffer
-
-short i;
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
 //Funcion para la deteccion de la Envolvente de la senal
 void Envolvente() {
-     unsigned int CurrentValue;
+
      //Valor absoluto de la funcion
-     if (ADC1BUF0>512){
-        value = (ADC1BUF0-512);
-     }
-     if (ADC1BUF0==512){
-        value = 0;
-     }
-     if (ADC1BUF0==0){
-        value = 0;
-     }
+     value = ADC1BUF0&0x01FF;                               //mod 512
      if (ADC1BUF0<512){
-        value = (ADC1BUF0+((512-ADC1BUF0)*2))-513;
+        value = (ADC1BUF0+((512-ADC1BUF0)*2))&0x01FE;
      }
-     
-     //Holding
-     if (value>5){
-        //LATA1_bit = ~LATA1_bit;
+
+   //Holding
+    if (value>5){
          if (value>aux_value){
             aux_value=value;
-            //y2 = aux_value;
          }
          else{
             aux_value=aux_value-5;
@@ -68,30 +61,12 @@ void Envolvente() {
                aux_value=value;
             }
          }
-
      }else{
            aux_value=0;
-           //CurrentValue = 0;
      }
 
-     //Filtrado
-     input[inext] = aux_value;                   // Fetch sample
-
-     CurrentValue = IIR_Radix( SCALE_B,        //
-                              SCALE_A,        //
-                              COEFF_B,        // b coefficients of the filter
-                              COEFF_A,        // a coefficients of the filter
-                              FILTER_ORDER+1, // Filter order + 1
-                              input,          // Input buffer
-                              BUFFER_SIZE,    // Input buffer length
-                              output,         // Input buffer
-                              inext);         // Current sample
-
-     output[inext] = CurrentValue;
-     inext = (inext+1) & (BUFFER_SIZE-1);      // inext = (inext + 1) mod BUFFER_SIZE;
-     
      //Visualizacion de la senal tratada en el puerto B
-     LATB = CurrentValue;
+     LATB = (aux_value);
 
 }
 //Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura registrada por el sensor DS18B20
@@ -128,12 +103,32 @@ void Velocidad(){
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
 //Interrupcion por conversion completada del ADC
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
-     Envolvente();                                 //Llama a la funcion para detectar la Envolvente de la senal
+     if (i<nm){
+        M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
+        i++;                                       //Aumenta en 1 el subindice del vector de Muestras
+     } else {
+        bm = 1;                                    //Cuando el indice del vector de muestras M llega a nm, habilta la bandera bm para terminar con el muestreo y permitir la reconstruccion de la señal mediante el mismo TMR1
+        i = 0;                                     //Limpia el indice del vector de muestras
+        IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
+        //IEC0.AD1IE = 0;                            //Desabilita la interrupcion por conversion completa del ADC
+     }
      AD1IF_bit = 0;                                //Limpia la bandera de interrupcion del ADC
 }
 //Interrupcion por desbordamiento del TMR1
-void Timer1Int() org IVT_ADDR_T1INTERRUPT {
-     SAMP_bit = 0;                                 //Limpia el bit SAMP para iniciar la conversion del ADC
+void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+     LATA1_bit = ~LATA1_bit;
+     if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
+        SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
+     }
+     if (bm==1) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
+          if (j<nm){
+             LATB = M[j];
+             j++;
+          } else {
+             j = 0;
+             bm = 0;
+          }
+     }
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 }
 //Interrupcion por desbordamiento del TMR2
@@ -143,8 +138,9 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
           RB14_bit = BS;
      }else {
           RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
-          IEC0.T2IE = 0;                           //Desabilita la interrupcion por desborde del TMR2 para no interferir con la lectura del sensor de temperatura
+          IEC0.T2IE = 0;                           //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
           IEC0.T1IE = 1;                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
+          IEC0.AD1IE = 1;                          //Habilita la interrupcion por conversion completa del ADC
      }
      contp++;                                      //Aumenta el contador en una unidad.
      T2IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR2
@@ -167,7 +163,7 @@ void Configuracion(){
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
-     AD1CON1bits.FORM = 0x00;                    //!!Selecciona el formato en que se presentaran los resultados de conversion, 01->Entero con signo(-512_511)
+     AD1CON1bits.FORM = 0x00;                    //Formato de la canversion: 00->(0_1023)|01->(-512_511)|02->(0_0.999)|03->(-1_0.999)
      AD1CON1.SIMSAM = 0;                         //0 -> Muestrea múltiples canales individualmente en secuencia
      AD1CON1.ADSIDL = 0;                         //Continua con la operacion del modulo durante el modo desocupado
      AD1CON1.ASAM = 1;                           //Muestreo automatico
@@ -189,7 +185,7 @@ void Configuracion(){
 
      AD1CSSL = 0x00;                             //Se salta todos los puertos ANx para los escaneos de entrada
 
-     IEC0.AD1IE = 0x01;                          //Activa la interrupcion por conversion completa del ADC
+     //IEC0.AD1IE = 0x00;                          //Activa la interrupcion por conversion completa del ADC
 
      AD1CON1.ADON = 1;                           //Enciende el modulo ADC
 
@@ -217,27 +213,38 @@ void Configuracion(){
 void main() {
 
      Configuracion();
-
+     
      while(1){
      
-             IEC0.T1IE = 0;                     //Desabilita la interrupcion por desborde del TMR1 para no interferir con la lectura del sensor de temperatura
+              IEC0.T1IE = 0;                     //Desabilita la interrupcion por desborde del TMR1 para no interferir con la lectura del sensor de temperatura
 
               Velocidad();                       //Llama a la funcion para calcular la Velocidad del sonido
 
-              inext   = 0;                              // Initialize buffer index
-              Vector_Set(input, BUFFER_SIZE, 0);        // Clear input buffer
-              Vector_Set(output, BUFFER_SIZE, 0);       // Clear output buffer
-
-              T2CON.TON = 1;                     //Enciende el TMR2
-              IEC0.T2IE = 1;                     //Habilita la interrupcion pos desborde del TMR2
-
               contp = 0;                         //Limpia la variable del contador de pulsos
               BS = 0;                            //Limpia la variable auxiliar de cambio de estado de los pulsos
+              
+              i = 0;                             //Limpia las variables asociadas al almacenamiento de la señal muestreada
+              j = 0;
+              bm = 0;
+              
+              IEC0.T2IE = 1;                     //Habilita la interrupcion pos desborde del TMR2
+              T2CON.TON = 1;                     //Enciende el TMR2
+              
+              //--------------------------------------------------------------------------------------------------------------------------------------
+              
+              Delay_ms(10);
+
+              
+              if (bm==1) {
+                 IEC0.T1IE = 1;
+              }
+              
+              //IEC0.T1IE = 1;
 
               //VP = 0;                  //Limpia la variable de deteccion del punto maximo
 
               
-              Delay_ms(15);
+              //Delay_ms(30);
      }
 
 }

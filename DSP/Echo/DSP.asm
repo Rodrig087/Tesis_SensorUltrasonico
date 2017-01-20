@@ -11,22 +11,22 @@ _Interrupt:
 	BTFSS       STATUS+0, 2 
 	GOTO        L_Interrupt1
 ;DSP.c,21 :: 		if ((contp>(delay_p))&&(contp<(delay_p+20))){
-	MOVLW       3
+	MOVLW       0
 	MOVWF       R0 
 	MOVF        _contp+1, 0 
 	SUBWF       R0, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt11
 	MOVF        _contp+0, 0 
-	SUBLW       232
+	SUBLW       60
 L__Interrupt11:
 	BTFSC       STATUS+0, 0 
 	GOTO        L_Interrupt4
-	MOVLW       3
+	MOVLW       0
 	SUBWF       _contp+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt12
-	MOVLW       252
+	MOVLW       80
 	SUBWF       _contp+0, 0 
 L__Interrupt12:
 	BTFSC       STATUS+0, 0 
@@ -37,11 +37,11 @@ L__Interrupt8:
 ;DSP.c,23 :: 		}
 L_Interrupt4:
 ;DSP.c,24 :: 		if (contp==(delay_p+20)){
-	MOVF        _contp+1, 0 
-	XORLW       3
+	MOVLW       0
+	XORWF       _contp+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt13
-	MOVLW       252
+	MOVLW       80
 	XORWF       _contp+0, 0 
 L__Interrupt13:
 	BTFSS       STATUS+0, 2 

@@ -47,12 +47,11 @@ Count=0
 [PLDS]
 Count=0
 [Useses]
-Count=5
+Count=4
 File0=SPI
 File1=C_Math
 File2=One_Wire
-File3=IirRadix
-File4=Vectors
+File3=Q15
 [EXPANDED NODES]
 Node1=Sources
 Node2=Output Files

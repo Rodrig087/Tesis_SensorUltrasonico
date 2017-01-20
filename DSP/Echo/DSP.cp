@@ -1,8 +1,8 @@
-#line 1 "D:/Git/Tesis_Test/DSP/DSP.c"
-#line 11 "D:/Git/Tesis_Test/DSP/DSP.c"
+#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/Echo/DSP.c"
+#line 11 "D:/Git/Tesis_SensorUltrasonico/DSP/Echo/DSP.c"
 unsigned int contp;
 unsigned short ie;
-const short delay_p = 1000;
+const short delay_p = 60;
 
 
 void Interrupt(){

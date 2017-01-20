@@ -1,50 +1,39 @@
 #line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-#line 16 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+#line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+unsigned int ca1 = 0x3B56;
+unsigned int ca2 = 0x76AD;
+unsigned int cb1 = 0x4000;
+unsigned int cb2 = 0x8B59;
+unsigned int cb3 = 0x3594;
+
+
+
 unsigned int contp;
 unsigned short BS;
 
 float DSTemp, VSnd;
 
+const unsigned int nm = 300;
+unsigned int M[nm];
+unsigned int i;
+unsigned int j;
+short bm;
+
 unsigned int value = 0;
 unsigned int aux_value = 0;
-#line 27 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-const unsigned int BUFFER_SIZE = 8;
-const unsigned int FILTER_ORDER = 2;
-const unsigned int COEFF_B[FILTER_ORDER+1] = {0x3B56, 0x76AD, 0x3B56};
-const unsigned int COEFF_A[FILTER_ORDER+1] = {0x4000, 0x8B59, 0x3594};
-const unsigned int SCALE_B = 7;
-const unsigned int SCALE_A = -1;
-
-unsigned int inext;
-ydata unsigned int input[BUFFER_SIZE];
-ydata unsigned int output[BUFFER_SIZE];
-
-short i;
-
-
-
+#line 45 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 void Envolvente() {
- unsigned int CurrentValue;
 
- if (ADC1BUF0>512){
- value = (ADC1BUF0-512);
- }
- if (ADC1BUF0==512){
- value = 0;
- }
- if (ADC1BUF0==0){
- value = 0;
- }
+
+ value = ADC1BUF0&0x01FF;
  if (ADC1BUF0<512){
- value = (ADC1BUF0+((512-ADC1BUF0)*2))-513;
+ value = (ADC1BUF0+((512-ADC1BUF0)*2))&0x01FE;
  }
 
 
  if (value>5){
-
  if (value>aux_value){
  aux_value=value;
-
  }
  else{
  aux_value=aux_value-5;
@@ -52,30 +41,12 @@ void Envolvente() {
  aux_value=value;
  }
  }
-
  }else{
  aux_value=0;
-
  }
 
 
- input[inext] = aux_value;
-
- CurrentValue = IIR_Radix( SCALE_B,
- SCALE_A,
- COEFF_B,
- COEFF_A,
- FILTER_ORDER+1,
- input,
- BUFFER_SIZE,
- output,
- inext);
-
- output[inext] = CurrentValue;
- inext = (inext+1) & (BUFFER_SIZE-1);
-
-
- LATB = CurrentValue;
+ LATB = (aux_value);
 
 }
 
@@ -112,12 +83,32 @@ void Velocidad(){
 
 
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
- Envolvente();
+ if (i<nm){
+ M[i] = ADC1BUF0;
+ i++;
+ } else {
+ bm = 1;
+ i = 0;
+ IEC0.T1IE = 0;
+
+ }
  AD1IF_bit = 0;
 }
 
-void Timer1Int() org IVT_ADDR_T1INTERRUPT {
+void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+ LATA1_bit = ~LATA1_bit;
+ if (bm==0){
  SAMP_bit = 0;
+ }
+ if (bm==1) {
+ if (j<nm){
+ LATB = M[j];
+ j++;
+ } else {
+ j = 0;
+ bm = 0;
+ }
+ }
  T1IF_bit = 0;
 }
 
@@ -129,6 +120,7 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  RB14_bit = 0;
  IEC0.T2IE = 0;
  IEC0.T1IE = 1;
+ IEC0.AD1IE = 1;
  }
  contp++;
  T2IF_bit = 0;
@@ -173,7 +165,7 @@ void Configuracion(){
 
  AD1CSSL = 0x00;
 
- IEC0.AD1IE = 0x01;
+
 
  AD1CON1.ADON = 1;
 
@@ -208,20 +200,31 @@ void main() {
 
  Velocidad();
 
- inext = 0;
- Vector_Set(input, BUFFER_SIZE, 0);
- Vector_Set(output, BUFFER_SIZE, 0);
-
- T2CON.TON = 1;
- IEC0.T2IE = 1;
-
  contp = 0;
  BS = 0;
 
+ i = 0;
+ j = 0;
+ bm = 0;
+
+ IEC0.T2IE = 1;
+ T2CON.TON = 1;
 
 
 
- Delay_ms(15);
+ Delay_ms(10);
+
+
+ if (bm==1) {
+ IEC0.T1IE = 1;
+ }
+
+
+
+
+
+
+
  }
 
 }
