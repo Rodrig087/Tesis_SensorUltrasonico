@@ -20,7 +20,6 @@ unsigned int cb3 = 0x3594;
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
-unsigned short BS;
 //Variables para el calculo de la Velocidad del sonido:
 float DSTemp, VSnd;
 //Variables para el almacenamiento de la señal muestreada:
@@ -107,16 +106,15 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
         M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
         i++;                                       //Aumenta en 1 el subindice del vector de Muestras
      } else {
-        bm = 1;                                    //Cuando el indice del vector de muestras M llega a nm, habilta la bandera bm para terminar con el muestreo y permitir la reconstruccion de la señal mediante el mismo TMR1
-        i = 0;                                     //Limpia el indice del vector de muestras
+        bm = 1;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
+        T1CON.TON = 0;                             //Apaga el TMR1
         IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
-        //IEC0.AD1IE = 0;                            //Desabilita la interrupcion por conversion completa del ADC
      }
      AD1IF_bit = 0;                                //Limpia la bandera de interrupcion del ADC
 }
 //Interrupcion por desbordamiento del TMR1
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
-     LATA1_bit = ~LATA1_bit;
+     LATA1_bit = ~LATA1_bit;                       //Auxiliar para ver el proceso de la interrupcion
      if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
         SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
      }
@@ -125,20 +123,21 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
              LATB = M[j];
              j++;
           } else {
-             j = 0;
-             bm = 0;
+             bm = 0;                               //Cambia el valor de la bandera bm para permitir un nuevo muestreo
+             IEC0.T1IE = 0;                        //Desabilita la interrupcion por desborde del TMR1
           }
      }
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 }
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
+     LATA4_bit = ~LATA4_bit;                       //Auxiliar para ver el proceso de la interrupcion
      if (contp<20){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
-          BS = ~BS;                                //Variable auxiliar para establecer el cambio de estado en el bit RD0.
-          RB14_bit = BS;
+          RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
      }else {
           RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
           IEC0.T2IE = 0;                           //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
+          T1CON.TON = 1;                           //Enciende el TMR1
           IEC0.T1IE = 1;                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
           IEC0.AD1IE = 1;                          //Habilita la interrupcion por conversion completa del ADC
      }
@@ -159,6 +158,7 @@ void Configuracion(){
      AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
      TRISA0_bit = 1;                             //Set RA0 pin as input
      TRISA1_bit = 0;                             //Set RA1 pin as output
+     TRISA4_bit = 0;
      TRISB = 0x8000;                             //Establece los pines 0-14 de PORTB como salidas y el pin 15 como entrada
 
      //Configuracion del ADC
@@ -215,36 +215,32 @@ void main() {
      Configuracion();
      
      while(1){
-     
-              IEC0.T1IE = 0;                     //Desabilita la interrupcion por desborde del TMR1 para no interferir con la lectura del sensor de temperatura
 
-              Velocidad();                       //Llama a la funcion para calcular la Velocidad del sonido
+              // Generacion de pulsos y captura de la señal de retorno //
+              if (bm==0){
+              
+                  T2CON.TON = 1;                     //Enciende el TMR2
+                  IEC0.T2IE = 1;                     //Habilita la interrupcion por desborde del TMR2
+                  contp = 0;                         //Limpia la variable del contador de pulsos
+                  RB14_bit = 0;                      //Limpia el pin que produce los pulsos de exitacion del transductor
+                  
+                  i = 0;                             //Limpia las variables asociadas al almacenamiento de la señal muestreada
+                  j = 0;
 
-              contp = 0;                         //Limpia la variable del contador de pulsos
-              BS = 0;                            //Limpia la variable auxiliar de cambio de estado de los pulsos
-              
-              i = 0;                             //Limpia las variables asociadas al almacenamiento de la señal muestreada
-              j = 0;
-              bm = 0;
-              
-              IEC0.T2IE = 1;                     //Habilita la interrupcion pos desborde del TMR2
-              T2CON.TON = 1;                     //Enciende el TMR2
-              
-              //--------------------------------------------------------------------------------------------------------------------------------------
-              
-              Delay_ms(10);
-
-              
-              if (bm==1) {
-                 IEC0.T1IE = 1;
               }
               
-              //IEC0.T1IE = 1;
+              // Procesamiento de la señal capturada //
+              else {
 
-              //VP = 0;                  //Limpia la variable de deteccion del punto maximo
-
+                  Velocidad();                       //Llama a la funcion para calcular la Velocidad del sonido
+                  
+                  T1CON.TON = 1;                     //Enciende el TMR1
+                  IEC0.T1IE = 1;                     //Habilita la interrupcion por desborde del TMR1
+                  
+              }
               
-              //Delay_ms(30);
+              Delay_ms(10);
+              
      }
 
 }
