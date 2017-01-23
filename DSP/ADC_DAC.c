@@ -10,11 +10,26 @@ Descripcion:
 4.Realiza la deteccion de envolvente de la senal muestreada.
 5.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR (Fs=200KHz, Fc=3KHz)
+//Coeficientes filtro IIR Paso-Bajo (Fs=200KHz, Fc=3KHz)
 const float ca1 = 0.002080567135492;
 const float ca2 = 0.004161134270985;
 const float cb2 = -1.866892279711715;
 const float cb3 = 0.875214548253684;
+
+//Conexiones módulo LCD
+sbit LCD_RS at LATB0_bit;
+sbit LCD_EN at LATB1_bit;
+sbit LCD_D4 at LATB2_bit;
+sbit LCD_D5 at LATB3_bit;
+sbit LCD_D6 at LATB4_bit;
+sbit LCD_D7 at LATB5_bit;
+sbit LCD_RS_Direction at TRISB0_bit;
+sbit LCD_EN_Direction at TRISB1_bit;
+sbit LCD_D4_Direction at TRISB2_bit;
+sbit LCD_D5_Direction at TRISB3_bit;
+sbit LCD_D6_Direction at TRISB4_bit;
+sbit LCD_D7_Direction at TRISB5_bit;
+
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
@@ -29,16 +44,19 @@ unsigned int i;
 unsigned int j;
 unsigned int k;
 short bm;
-//Variables para la deteccion de la Envolvente de la senal
+//Variables para la deteccion de la Envolvente de la señal
 unsigned int value = 0;
 unsigned int aux_value = 0;
-// Declaracion de variables //
+//Variables para el filtrado de la señal
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
 unsigned int YY = 0;
 //Variables para determinar el maximo de la funcion
-/*unsigned int VP=0;
-unsigned int y0=0, y1=0, y2=0;*/
-
+unsigned int VP=0;
+unsigned int yy0=0, yy1=0, yy2=0;
+unsigned int index;
+unsigned int maxIndex;
+//Variables para la visualizacion de datos en el LCD
+char txt1[8], txt2[8] ;
 
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
@@ -96,20 +114,22 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
         SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
      }
-     if (bm==1) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
+     /*if (bm==1) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
           if (j<nm){
-             LATB = R[j];
+
+             yy2 = R[j];
              j++;
+
           } else {
-             bm = 0;                               //Cambia el valor de la bandera bm para permitir un nuevo muestreo
+             //bm = 0;                               //Cambia el valor de la bandera bm para permitir un nuevo muestreo
              IEC0.T1IE = 0;                        //Desabilita la interrupcion por desborde del TMR1
           }
-     }
+     }*/
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 }
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
-     LATA4_bit = ~LATA4_bit;                       //Auxiliar para ver el proceso de la interrupcion
+     //LATA4_bit = ~LATA4_bit;                       //Auxiliar para ver el proceso de la interrupcion
      if (contp<20){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
           RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
      }else {
@@ -192,8 +212,12 @@ void main() {
 
      Configuracion();
      
+     Lcd_init();                                 //Inicializa el LCD
+     Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
+     Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
+     
      while(1){
-
+              //bm=2;
               // Generacion de pulsos y captura de la señal de retorno //
               if (bm==0){
               
@@ -208,7 +232,7 @@ void main() {
               }
               
               // Procesamiento de la señal capturada //
-              else {
+              if (bm==1){
 
                   Velocidad();                                             //Llama a la funcion para calcular la Velocidad del sonido
                   
@@ -247,13 +271,40 @@ void main() {
                       YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
                       
                       R[k] = YY;
+
+                      bm = 2;                                              //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
                       
                   }
 
-                  T1CON.TON = 1;                                           //Enciende el TMR1
-                  IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1
+                  //T1CON.TON = 1;                                           //Enciende el TMR1
+                  //IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1
                   
               }
+              
+              // Cálculo del punto maximo y TOF
+              if (bm==2){
+              
+                 yy0 = 0;
+                 yy1 = 0;
+                 yy2 = 0;
+
+                 yy1 = Vector_Max(R, nm, &index);
+                 maxIndex = index;
+                 
+                 yy0 = R[maxIndex-10];
+                 yy2 = R[maxIndex+10];
+                 
+                 IntToStr(yy1, txt1);
+                 IntToStr(maxIndex, txt2);
+
+                 Lcd_Out(1,1,"yy1: ");
+                 Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD*/
+                 Lcd_Out(2,1,"Index: ");
+                 Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/
+                 
+                 bm = 0;
+              }
+              
               
               Delay_ms(10);
               

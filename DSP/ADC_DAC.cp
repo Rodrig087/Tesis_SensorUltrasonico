@@ -6,6 +6,21 @@ const float cb2 = -1.866892279711715;
 const float cb3 = 0.875214548253684;
 
 
+sbit LCD_RS at LATB0_bit;
+sbit LCD_EN at LATB1_bit;
+sbit LCD_D4 at LATB2_bit;
+sbit LCD_D5 at LATB3_bit;
+sbit LCD_D6 at LATB4_bit;
+sbit LCD_D7 at LATB5_bit;
+sbit LCD_RS_Direction at TRISB0_bit;
+sbit LCD_EN_Direction at TRISB1_bit;
+sbit LCD_D4_Direction at TRISB2_bit;
+sbit LCD_D5_Direction at TRISB3_bit;
+sbit LCD_D6_Direction at TRISB4_bit;
+sbit LCD_D7_Direction at TRISB5_bit;
+
+
+
 
 unsigned int contp;
 
@@ -24,7 +39,17 @@ unsigned int aux_value = 0;
 
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
 unsigned int YY = 0;
-#line 46 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+
+unsigned int VP=0;
+unsigned int yy0=0, yy1=0, yy2=0;
+unsigned int index;
+unsigned int maxIndex;
+
+char txt1[8], txt2[8] ;
+
+
+
+
 void Envolvente() {
 
 }
@@ -78,20 +103,12 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  if (bm==0){
  SAMP_bit = 0;
  }
- if (bm==1) {
- if (j<nm){
- LATB = R[j];
- j++;
- } else {
- bm = 0;
- IEC0.T1IE = 0;
- }
- }
+#line 128 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
  T1IF_bit = 0;
 }
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
- LATA4_bit = ~LATA4_bit;
+
  if (contp<20){
  RB14_bit = ~RB14_bit;
  }else {
@@ -174,6 +191,10 @@ void main() {
 
  Configuracion();
 
+ Lcd_init();
+ Lcd_Cmd(_LCD_CLEAR);
+ Lcd_Cmd(_LCD_CURSOR_OFF);
+
  while(1){
 
 
@@ -190,7 +211,7 @@ void main() {
  }
 
 
- else {
+ if (bm==1){
 
  Velocidad();
 
@@ -230,12 +251,39 @@ void main() {
 
  R[k] = YY;
 
- }
-
- T1CON.TON = 1;
- IEC0.T1IE = 1;
+ bm = 2;
 
  }
+
+
+
+
+ }
+
+
+ if (bm==2){
+
+ yy0 = 0;
+ yy1 = 0;
+ yy2 = 0;
+
+ yy1 = Vector_Max(R, nm, &index);
+ maxIndex = index;
+
+ yy0 = R[maxIndex-10];
+ yy2 = R[maxIndex+10];
+
+ IntToStr(yy1, txt1);
+ IntToStr(maxIndex, txt2);
+
+ Lcd_Out(1,1,"yy1: ");
+ Lcd_Out_Cp(txt1);
+ Lcd_Out(2,1,"Index: ");
+ Lcd_Out_Cp(txt2);
+
+ bm = 0;
+ }
+
 
  Delay_ms(10);
 
