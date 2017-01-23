@@ -1128,7 +1128,6 @@ c
 c_bit
 ca1
 ca2
-cb1
 cb2
 cb3
 ceid
@@ -6475,6 +6474,9 @@ wren_bit
 wrerr
 wrerr
 wrerr_bit
+x0
+x1
+x2
 xb
 xb_0
 xb_0_bit
@@ -6605,6 +6607,9 @@ xwm0
 xwm1
 xwm2
 xwm3
+y0
+y1
+y2
 ye_0
 ye_0_bit
 ye_1
@@ -6687,6 +6692,7 @@ ywm0
 ywm1
 ywm2
 ywm3
+yy
 z
 z
 z_bit

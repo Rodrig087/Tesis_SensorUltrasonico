@@ -23,6 +23,12 @@ main
 		_Div_FP
 		_AddSub_FP
 		_Mul_FP
+	_Long2Float
+	_AddSub_FP
+	_Mul_FP
+	_Sub_FP
+		_AddSub_FP
+	_Float2Longint
 ADC1Int
 Timer2Interrupt
 Timer1Interrupt

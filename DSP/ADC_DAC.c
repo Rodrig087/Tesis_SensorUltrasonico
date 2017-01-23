@@ -10,12 +10,11 @@ Descripcion:
 4.Realiza la deteccion de envolvente de la senal muestreada.
 5.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR
-unsigned int ca1 = 0x3B56;                       //Coeficientes de a escalados con un factor de 7   (ax*2^7 -> 16bQ7)
-unsigned int ca2 = 0x76AD;
-unsigned int cb1 = 0x4000;                       //Coeficientes de b escalados con un factor de -1  (ax*2^-1 -> 16bQ-1)
-unsigned int cb2 = 0x8B59;
-unsigned int cb3 = 0x3594;
+//Coeficientes filtro IIR (Fs=200KHz, Fc=3KHz)
+const float ca1 = 0.002080567135492;
+const float ca2 = 0.004161134270985;
+const float cb2 = -1.866892279711715;
+const float cb3 = 0.875214548253684;
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
@@ -33,41 +32,18 @@ short bm;
 //Variables para la deteccion de la Envolvente de la senal
 unsigned int value = 0;
 unsigned int aux_value = 0;
+// Declaracion de variables //
+float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
+unsigned int YY = 0;
 //Variables para determinar el maximo de la funcion
 /*unsigned int VP=0;
 unsigned int y0=0, y1=0, y2=0;*/
-//Variables para realizar el filtrado
-/*long x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;                         //32 bits
-unsigned int YY = 0;*/
+
 
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
 //Funcion para la deteccion de la Envolvente de la senal
 void Envolvente() {
-
-     //Valor absoluto de la funcion
-     value = ADC1BUF0&0x01FF;                               //mod 512
-     if (ADC1BUF0<512){
-        value = (ADC1BUF0+((512-ADC1BUF0)*2))&0x01FE;
-     }
-
-   //Holding
-    if (value>5){
-         if (value>aux_value){
-            aux_value=value;
-         }
-         else{
-            aux_value=aux_value-5;
-            if (aux_value<0){
-               aux_value=value;
-            }
-         }
-     }else{
-           aux_value=0;
-     }
-
-     //Visualizacion de la senal tratada en el puerto B
-     LATB = (aux_value);
 
 }
 //Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura registrada por el sensor DS18B20
@@ -221,12 +197,12 @@ void main() {
               // Generacion de pulsos y captura de la señal de retorno //
               if (bm==0){
               
-                  T2CON.TON = 1;                     //Enciende el TMR2
-                  IEC0.T2IE = 1;                     //Habilita la interrupcion por desborde del TMR2
-                  contp = 0;                         //Limpia la variable del contador de pulsos
-                  RB14_bit = 0;                      //Limpia el pin que produce los pulsos de exitacion del transductor
+                  T2CON.TON = 1;                                           //Enciende el TMR2
+                  IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
+                  contp = 0;                                               //Limpia la variable del contador de pulsos
+                  RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
                   
-                  i = 0;                             //Limpia las variables asociadas al almacenamiento de la señal muestreada
+                  i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
                   j = 0;
 
               }
@@ -234,17 +210,17 @@ void main() {
               // Procesamiento de la señal capturada //
               else {
 
-                  Velocidad();                       //Llama a la funcion para calcular la Velocidad del sonido
+                  Velocidad();                                             //Llama a la funcion para calcular la Velocidad del sonido
                   
                   for (k=0;k<nm;k++){
                   
                       //Valor absoluto
-                      value = M[k]&0x01FF;           //Establece los datos en mod 512
+                      value = M[k]&0x01FF;                                 //Establece los datos en mod 512
                       if (M[k]<512){
-                         value = (M[k]+((512-M[k])*2))&0x01FE;
+                         value = (M[k]+((512-M[k])*2))&0x01FE;             //Invierte la señal y establece los datos en mod 511
                       }
                       
-                      //Holding
+                      //Retencion
                       if (value>5){
                          if (value>aux_value){
                             aux_value=value;
@@ -259,12 +235,23 @@ void main() {
                          aux_value=0;
                       }
                       
-                      R[k] = aux_value;
+                      //Filtrado
+                      x0 = (float)(aux_value);                             //Adquisición de una muestra de 10 bits en, x[0].
+                      y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
+
+                      y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
+                      y1 = y0;
+                      x2 = x1;
+                      x1 = x0;
+
+                      YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
+                      
+                      R[k] = YY;
                       
                   }
 
-                  T1CON.TON = 1;                     //Enciende el TMR1
-                  IEC0.T1IE = 1;                     //Habilita la interrupcion por desborde del TMR1
+                  T1CON.TON = 1;                                           //Enciende el TMR1
+                  IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1
                   
               }
               

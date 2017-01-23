@@ -1,10 +1,9 @@
 #line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 #line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-unsigned int ca1 = 0x3B56;
-unsigned int ca2 = 0x76AD;
-unsigned int cb1 = 0x4000;
-unsigned int cb2 = 0x8B59;
-unsigned int cb3 = 0x3594;
+const float ca1 = 0.002080567135492;
+const float ca2 = 0.004161134270985;
+const float cb2 = -1.866892279711715;
+const float cb3 = 0.875214548253684;
 
 
 
@@ -22,32 +21,11 @@ short bm;
 
 unsigned int value = 0;
 unsigned int aux_value = 0;
+
+float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
+unsigned int YY = 0;
 #line 46 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 void Envolvente() {
-
-
- value = ADC1BUF0&0x01FF;
- if (ADC1BUF0<512){
- value = (ADC1BUF0+((512-ADC1BUF0)*2))&0x01FE;
- }
-
-
- if (value>5){
- if (value>aux_value){
- aux_value=value;
- }
- else{
- aux_value=aux_value-5;
- if (aux_value<0){
- aux_value=value;
- }
- }
- }else{
- aux_value=0;
- }
-
-
- LATB = (aux_value);
 
 }
 
@@ -239,7 +217,18 @@ void main() {
  aux_value=0;
  }
 
- R[k] = aux_value;
+
+ x0 = (float)(aux_value);
+ y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);
+
+ y2 = y1;
+ y1 = y0;
+ x2 = x1;
+ x1 = x0;
+
+ YY = (unsigned int)(y0);
+
+ R[k] = YY;
 
  }
 
