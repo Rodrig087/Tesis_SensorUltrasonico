@@ -14,13 +14,15 @@ float DSTemp, VSnd;
 
 const unsigned int nm = 300;
 unsigned int M[nm];
+unsigned int R[nm];
 unsigned int i;
 unsigned int j;
+unsigned int k;
 short bm;
 
 unsigned int value = 0;
 unsigned int aux_value = 0;
-#line 44 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+#line 46 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 void Envolvente() {
 
 
@@ -100,7 +102,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  }
  if (bm==1) {
  if (j<nm){
- LATB = M[j];
+ LATB = R[j];
  j++;
  } else {
  bm = 0;
@@ -213,6 +215,14 @@ void main() {
  else {
 
  Velocidad();
+
+ for (k=0;k<nm;k++){
+ value = M[k]&0x01FF;
+ if (M[k]<512){
+ value = (ADC1BUF0+((512-ADC1BUF0)*2))&0x01FE;
+ }
+ R[k] = value;
+ }
 
  T1CON.TON = 1;
  IEC0.T1IE = 1;

@@ -25,8 +25,10 @@ float DSTemp, VSnd;
 //Variables para el almacenamiento de la señal muestreada:
 const unsigned int nm = 300;
 unsigned int M[nm];
+unsigned int R[nm];
 unsigned int i;
 unsigned int j;
+unsigned int k;
 short bm;
 //Variables para la deteccion de la Envolvente de la senal
 unsigned int value = 0;
@@ -120,7 +122,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      }
      if (bm==1) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
           if (j<nm){
-             LATB = M[j];
+             LATB = R[j];
              j++;
           } else {
              bm = 0;                               //Cambia el valor de la bandera bm para permitir un nuevo muestreo
@@ -234,6 +236,14 @@ void main() {
 
                   Velocidad();                       //Llama a la funcion para calcular la Velocidad del sonido
                   
+                  for (k=0;k<nm;k++){
+                      value = M[k]&0x01FF;           //Establece los datos en mod 512
+                      if (M[k]<512){
+                         value = (ADC1BUF0+((512-ADC1BUF0)*2))&0x01FE;
+                      }
+                      R[k] = value;
+                  }
+
                   T1CON.TON = 1;                     //Enciende el TMR1
                   IEC0.T1IE = 1;                     //Habilita la interrupcion por desborde del TMR1
                   
