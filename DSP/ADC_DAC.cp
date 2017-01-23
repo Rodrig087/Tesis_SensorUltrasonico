@@ -217,11 +217,30 @@ void main() {
  Velocidad();
 
  for (k=0;k<nm;k++){
+
+
  value = M[k]&0x01FF;
  if (M[k]<512){
- value = (ADC1BUF0+((512-ADC1BUF0)*2))&0x01FE;
+ value = (M[k]+((512-M[k])*2))&0x01FE;
  }
- R[k] = value;
+
+
+ if (value>5){
+ if (value>aux_value){
+ aux_value=value;
+ }
+ else{
+ aux_value=aux_value-5;
+ if (aux_value<0){
+ aux_value=value;
+ }
+ }
+ }else{
+ aux_value=0;
+ }
+
+ R[k] = aux_value;
+
  }
 
  T1CON.TON = 1;

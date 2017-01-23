@@ -11,9 +11,9 @@ _Envolvente:
 	MOV	ADC1BUF0, W1
 	MOV	#512, W0
 	CP	W1, W0
-	BRA LTU	L__Envolvente31
+	BRA LTU	L__Envolvente36
 	GOTO	L_Envolvente0
-L__Envolvente31:
+L__Envolvente36:
 ;ADC_DAC.c,51 :: 		value = (ADC1BUF0+((512-ADC1BUF0)*2))&0x01FE;
 	MOV	#512, W1
 	MOV	#lo_addr(ADC1BUF0), W0
@@ -29,16 +29,16 @@ L_Envolvente0:
 ;ADC_DAC.c,55 :: 		if (value>5){
 	MOV	_value, W0
 	CP	W0, #5
-	BRA GTU	L__Envolvente32
+	BRA GTU	L__Envolvente37
 	GOTO	L_Envolvente1
-L__Envolvente32:
+L__Envolvente37:
 ;ADC_DAC.c,56 :: 		if (value>aux_value){
 	MOV	_value, W1
 	MOV	#lo_addr(_aux_value), W0
 	CP	W1, [W0]
-	BRA GTU	L__Envolvente33
+	BRA GTU	L__Envolvente38
 	GOTO	L_Envolvente2
-L__Envolvente33:
+L__Envolvente38:
 ;ADC_DAC.c,57 :: 		aux_value=value;
 	MOV	_value, W0
 	MOV	W0, _aux_value
@@ -51,9 +51,9 @@ L_Envolvente2:
 	MOV	W0, _aux_value
 ;ADC_DAC.c,61 :: 		if (aux_value<0){
 	CP	W0, #0
-	BRA LTU	L__Envolvente34
+	BRA LTU	L__Envolvente39
 	GOTO	L_Envolvente4
-L__Envolvente34:
+L__Envolvente39:
 ;ADC_DAC.c,62 :: 		aux_value=value;
 	MOV	_value, W0
 	MOV	W0, _aux_value
@@ -142,13 +142,13 @@ L_Velocidad8:
 	MOV	W0, W2
 ;ADC_DAC.c,92 :: 		if (Temp & 0x8000) {
 	BTSS	W0, #15
-	GOTO	L__Velocidad29
+	GOTO	L__Velocidad34
 ;ADC_DAC.c,93 :: 		Temp = 0;                                //Si la temperatura es negativa la establece como cero.
 	CLR	W2
 ; Temp end address is: 4 (W2)
 ;ADC_DAC.c,94 :: 		}
 	GOTO	L_Velocidad10
-L__Velocidad29:
+L__Velocidad34:
 ;ADC_DAC.c,92 :: 		if (Temp & 0x8000) {
 ;ADC_DAC.c,94 :: 		}
 L_Velocidad10:
@@ -217,9 +217,9 @@ _ADC1Int:
 	MOV	_i, W1
 	MOV	#300, W0
 	CP	W1, W0
-	BRA LTU	L__ADC1Int37
+	BRA LTU	L__ADC1Int42
 	GOTO	L_ADC1Int11
-L__ADC1Int37:
+L__ADC1Int42:
 ;ADC_DAC.c,108 :: 		M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
 	MOV	_i, W0
 	SL	W0, #1, W1
@@ -272,9 +272,9 @@ _Timer1Interrupt:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
-	BRA Z	L__Timer1Interrupt39
+	BRA Z	L__Timer1Interrupt44
 	GOTO	L_Timer1Interrupt13
-L__Timer1Interrupt39:
+L__Timer1Interrupt44:
 ;ADC_DAC.c,121 :: 		SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
 	BCLR	SAMP_bit, BitPos(SAMP_bit+0)
 ;ADC_DAC.c,122 :: 		}
@@ -283,16 +283,16 @@ L_Timer1Interrupt13:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA Z	L__Timer1Interrupt40
+	BRA Z	L__Timer1Interrupt45
 	GOTO	L_Timer1Interrupt14
-L__Timer1Interrupt40:
+L__Timer1Interrupt45:
 ;ADC_DAC.c,124 :: 		if (j<nm){
 	MOV	_j, W1
 	MOV	#300, W0
 	CP	W1, W0
-	BRA LTU	L__Timer1Interrupt41
+	BRA LTU	L__Timer1Interrupt46
 	GOTO	L_Timer1Interrupt15
-L__Timer1Interrupt41:
+L__Timer1Interrupt46:
 ;ADC_DAC.c,125 :: 		LATB = R[j];
 	MOV	_j, W0
 	SL	W0, #1, W1
@@ -344,9 +344,9 @@ _Timer2Interrupt:
 ;ADC_DAC.c,137 :: 		if (contp<20){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
 	MOV	_contp, W0
 	CP	W0, #20
-	BRA LTU	L__Timer2Interrupt43
+	BRA LTU	L__Timer2Interrupt48
 	GOTO	L_Timer2Interrupt17
-L__Timer2Interrupt43:
+L__Timer2Interrupt48:
 ;ADC_DAC.c,138 :: 		RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
 	BTG	RB14_bit, BitPos(RB14_bit+0)
 ;ADC_DAC.c,139 :: 		}else {
@@ -556,9 +556,9 @@ L_main19:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
-	BRA Z	L__main46
+	BRA Z	L__main51
 	GOTO	L_main21
-L__main46:
+L__main51:
 ;ADC_DAC.c,224 :: 		T2CON.TON = 1;                     //Enciende el TMR2
 	BSET	T2CON, #15
 ;ADC_DAC.c,225 :: 		IEC0.T2IE = 1;                     //Habilita la interrupcion por desborde del TMR2
@@ -586,10 +586,10 @@ L_main23:
 	MOV	_k, W1
 	MOV	#300, W0
 	CP	W1, W0
-	BRA LTU	L__main47
+	BRA LTU	L__main52
 	GOTO	L_main24
-L__main47:
-;ADC_DAC.c,240 :: 		value = M[k]&0x01FF;           //Establece los datos en mod 512
+L__main52:
+;ADC_DAC.c,242 :: 		value = M[k]&0x01FF;           //Establece los datos en mod 512
 	MOV	_k, W0
 	SL	W0, #1, W1
 	MOV	#lo_addr(_M), W0
@@ -598,56 +598,101 @@ L__main47:
 	MOV	#511, W1
 	MOV	#lo_addr(_value), W0
 	AND	W2, W1, [W0]
-;ADC_DAC.c,241 :: 		if (M[k]<512){
+;ADC_DAC.c,243 :: 		if (M[k]<512){
 	MOV	[W3], W1
 	MOV	#512, W0
 	CP	W1, W0
-	BRA LTU	L__main48
+	BRA LTU	L__main53
 	GOTO	L_main26
-L__main48:
-;ADC_DAC.c,242 :: 		value = (ADC1BUF0+((512-ADC1BUF0)*2))&0x01FE;
-	MOV	#512, W1
-	MOV	#lo_addr(ADC1BUF0), W0
-	SUB	W1, [W0], W0
+L__main53:
+;ADC_DAC.c,244 :: 		value = (M[k]+((512-M[k])*2))&0x01FE;
+	MOV	_k, W0
 	SL	W0, #1, W1
-	MOV	#lo_addr(ADC1BUF0), W0
-	ADD	W1, [W0], W2
+	MOV	#lo_addr(_M), W0
+	ADD	W0, W1, W1
+	MOV	#512, W0
+	SUB	W0, [W1], W0
+	SL	W0, #1, W0
+	ADD	W0, [W1], W2
 	MOV	#510, W1
 	MOV	#lo_addr(_value), W0
 	AND	W2, W1, [W0]
-;ADC_DAC.c,243 :: 		}
+;ADC_DAC.c,245 :: 		}
 L_main26:
-;ADC_DAC.c,244 :: 		R[k] = value;
+;ADC_DAC.c,248 :: 		if (value>5){
+	MOV	_value, W0
+	CP	W0, #5
+	BRA GTU	L__main54
+	GOTO	L_main27
+L__main54:
+;ADC_DAC.c,249 :: 		if (value>aux_value){
+	MOV	_value, W1
+	MOV	#lo_addr(_aux_value), W0
+	CP	W1, [W0]
+	BRA GTU	L__main55
+	GOTO	L_main28
+L__main55:
+;ADC_DAC.c,250 :: 		aux_value=value;
+	MOV	_value, W0
+	MOV	W0, _aux_value
+;ADC_DAC.c,251 :: 		}
+	GOTO	L_main29
+L_main28:
+;ADC_DAC.c,253 :: 		aux_value=aux_value-5;
+	MOV	_aux_value, W0
+	SUB	W0, #5, W0
+	MOV	W0, _aux_value
+;ADC_DAC.c,254 :: 		if (aux_value<0){
+	CP	W0, #0
+	BRA LTU	L__main56
+	GOTO	L_main30
+L__main56:
+;ADC_DAC.c,255 :: 		aux_value=value;
+	MOV	_value, W0
+	MOV	W0, _aux_value
+;ADC_DAC.c,256 :: 		}
+L_main30:
+;ADC_DAC.c,257 :: 		}
+L_main29:
+;ADC_DAC.c,258 :: 		}else{
+	GOTO	L_main31
+L_main27:
+;ADC_DAC.c,259 :: 		aux_value=0;
+	CLR	W0
+	MOV	W0, _aux_value
+;ADC_DAC.c,260 :: 		}
+L_main31:
+;ADC_DAC.c,262 :: 		R[k] = aux_value;
 	MOV	_k, W0
 	SL	W0, #1, W1
 	MOV	#lo_addr(_R), W0
 	ADD	W0, W1, W1
-	MOV	_value, W0
+	MOV	_aux_value, W0
 	MOV	W0, [W1]
 ;ADC_DAC.c,239 :: 		for (k=0;k<nm;k++){
 	MOV	#1, W1
 	MOV	#lo_addr(_k), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,245 :: 		}
+;ADC_DAC.c,264 :: 		}
 	GOTO	L_main23
 L_main24:
-;ADC_DAC.c,247 :: 		T1CON.TON = 1;                     //Enciende el TMR1
+;ADC_DAC.c,266 :: 		T1CON.TON = 1;                     //Enciende el TMR1
 	BSET	T1CON, #15
-;ADC_DAC.c,248 :: 		IEC0.T1IE = 1;                     //Habilita la interrupcion por desborde del TMR1
+;ADC_DAC.c,267 :: 		IEC0.T1IE = 1;                     //Habilita la interrupcion por desborde del TMR1
 	BSET	IEC0, #3
-;ADC_DAC.c,250 :: 		}
+;ADC_DAC.c,269 :: 		}
 L_main22:
-;ADC_DAC.c,252 :: 		Delay_ms(10);
+;ADC_DAC.c,271 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
-L_main27:
+L_main32:
 	DEC	W7
-	BRA NZ	L_main27
+	BRA NZ	L_main32
 	DEC	W8
-	BRA NZ	L_main27
-;ADC_DAC.c,254 :: 		}
+	BRA NZ	L_main32
+;ADC_DAC.c,273 :: 		}
 	GOTO	L_main19
-;ADC_DAC.c,256 :: 		}
+;ADC_DAC.c,275 :: 		}
 L_end_main:
 L__main_end_loop:
 	BRA	L__main_end_loop
