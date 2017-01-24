@@ -33,8 +33,12 @@ main
 		_AddSub_FP
 		_Mul_FP
 	Vector_Max
-	IntToStr
-		WordToStr
+	FloatToStr
+		strcpy
+		_Compare_Le_Fp
+		_Compare_Ge_Fp
+			_Compare_Fp
+		_Mul_FP
 	Lcd_Out
 		Lcd_Cmd
 		Lcd_Chr_CP
@@ -42,10 +46,11 @@ main
 	Lcd_Out_CP
 		Lcd_Chr_CP
 	_Long2Float
-	_AddSub_FP
-	_Mul_FP
 	_Sub_FP
 		_AddSub_FP
+	_Mul_FP
+	_AddSub_FP
+	_Div_FP
 	_Float2Longint
 ADC1Int
 Timer2Interrupt

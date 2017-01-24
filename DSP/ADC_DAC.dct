@@ -1821,6 +1821,7 @@ dts3i
 dts3i
 dts3i
 dts3i_bit
+dx
 edt
 edt
 edt_bit
@@ -1995,6 +1996,9 @@ gcstat_bit
 get_fosc_khz
 get_fosc_per_cyc
 i
+i0
+i1
+i2
 i2c1add
 i2c1add_0
 i2c1add_0_bit
@@ -2533,7 +2537,6 @@ imv0
 imv0
 imv1
 imv1
-index
 indx
 indx
 indx
@@ -3076,6 +3079,7 @@ nvmop0
 nvmop1
 nvmop2
 nvmop3
+nx
 oa
 oa
 oa_bit
@@ -5470,6 +5474,7 @@ tgate_t2con_bit
 tgate_t3con_bit
 timer1interrupt
 timer2interrupt
+tmax
 tmr1
 tmr1_0
 tmr1_0_bit
@@ -5602,6 +5607,7 @@ tmr3hld_8
 tmr3hld_8_bit
 tmr3hld_9
 tmr3hld_9_bit
+tof
 ton
 ton
 ton
@@ -5737,6 +5743,8 @@ tun4
 tun5
 txt1
 txt2
+txt3
+txt4
 u1brg
 u1ctsr
 u1ctsr_0

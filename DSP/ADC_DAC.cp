@@ -34,6 +34,7 @@ unsigned int j;
 unsigned int k;
 short bm;
 
+
 unsigned int value = 0;
 unsigned int aux_value = 0;
 
@@ -41,11 +42,15 @@ float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
 unsigned int YY = 0;
 
 unsigned int VP=0;
-unsigned int yy0=0, yy1=0, yy2=0;
-unsigned int index;
 unsigned int maxIndex;
+unsigned int i0, i1, i2;
+float yy0, yy1, yy2;
+float nx;
+float dx;
+float tmax;
+float TOF;
 
-char txt1[8], txt2[8] ;
+char txt1[6], txt2[6], txt3[6], txt4[6] ;
 
 
 
@@ -103,7 +108,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  if (bm==0){
  SAMP_bit = 0;
  }
-#line 128 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+#line 133 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
  T1IF_bit = 0;
 }
 
@@ -136,7 +141,8 @@ void Configuracion(){
  TRISA0_bit = 1;
  TRISA1_bit = 0;
  TRISA4_bit = 0;
- TRISB = 0x8000;
+ TRISB14_bit = 0;
+
 
 
  AD1CON1.AD12B = 0;
@@ -263,30 +269,46 @@ void main() {
 
  if (bm==2){
 
- yy0 = 0;
- yy1 = 0;
- yy2 = 0;
+ yy0 = 0.0;
+ yy1 = 0.0;
+ yy2 = 0.0;
+ nx = 0.0;
+ dx = 0.0;
 
- yy1 = Vector_Max(R, nm, &index);
- maxIndex = index;
+ yy1 = Vector_Max(R, nm, &maxIndex);
+ i1 = maxIndex;
+ i0 = i1 - 5;
+ i2 = i1 + 5;
+ yy0 = R[i0];
+ yy2 = R[i2];
 
- yy0 = R[maxIndex-10];
- yy2 = R[maxIndex+10];
+ nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));
+ dx = nx * 50.0;
+ tmax = ((float)(i1))*5.0;
 
- IntToStr(yy1, txt1);
- IntToStr(maxIndex, txt2);
+ TOF = (tmax)+dx;
 
- Lcd_Out(1,1,"yy1: ");
+ FloatToStr(nx, txt1);
+ FloatToStr(dx, txt2);
+ FloatToStr(tmax, txt3);
+ FloatToStr(TOF, txt4);
+
+ Lcd_Out(1,1,"nx: ");
  Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"Index: ");
+ Lcd_Out(2,1,"dx: ");
  Lcd_Out_Cp(txt2);
+ Lcd_Out(3,1,"tmax: ");
+ Lcd_Out_Cp(txt3);
+ Lcd_Out(4,1,"TOF: ");
+ Lcd_Out_Cp(txt4);
+
+ Delay_ms(1);
 
  bm = 0;
+
  }
 
-
  Delay_ms(10);
-
  }
 
 }

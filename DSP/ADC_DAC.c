@@ -44,6 +44,7 @@ unsigned int i;
 unsigned int j;
 unsigned int k;
 short bm;
+//unsigned int V[10]={1,2,3,4,50,50,50,7,8,9};
 //Variables para la deteccion de la Envolvente de la señal
 unsigned int value = 0;
 unsigned int aux_value = 0;
@@ -52,11 +53,15 @@ float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
 unsigned int YY = 0;
 //Variables para determinar el maximo de la funcion
 unsigned int VP=0;
-unsigned int yy0=0, yy1=0, yy2=0;
-unsigned int index;
 unsigned int maxIndex;
+unsigned int i0, i1, i2;
+float yy0, yy1, yy2;
+float nx;
+float dx;
+float tmax;
+float TOF;
 //Variables para la visualizacion de datos en el LCD
-char txt1[8], txt2[8] ;
+char txt1[6], txt2[6], txt3[6], txt4[6] ;
 
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
@@ -121,7 +126,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
              j++;
 
           } else {
-             //bm = 0;                               //Cambia el valor de la bandera bm para permitir un nuevo muestreo
+             //bm = 0;                             //Cambia el valor de la bandera bm para permitir un nuevo muestreo
              IEC0.T1IE = 0;                        //Desabilita la interrupcion por desborde del TMR1
           }
      }*/
@@ -157,7 +162,8 @@ void Configuracion(){
      TRISA0_bit = 1;                             //Set RA0 pin as input
      TRISA1_bit = 0;                             //Set RA1 pin as output
      TRISA4_bit = 0;
-     TRISB = 0x8000;                             //Establece los pines 0-14 de PORTB como salidas y el pin 15 como entrada
+     TRISB14_bit = 0;
+
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
@@ -284,30 +290,46 @@ void main() {
               // Cálculo del punto maximo y TOF
               if (bm==2){
               
-                 yy0 = 0;
-                 yy1 = 0;
-                 yy2 = 0;
+                 yy0 = 0.0;
+                 yy1 = 0.0;
+                 yy2 = 0.0;
+                 nx = 0.0;
+                 dx = 0.0;
 
-                 yy1 = Vector_Max(R, nm, &index);
-                 maxIndex = index;
+                 yy1 = Vector_Max(R, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
+                 i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
+                 i0 = i1 - 5;
+                 i2 = i1 + 5;
+                 yy0 = R[i0];
+                 yy2 = R[i2];
                  
-                 yy0 = R[maxIndex-10];
-                 yy2 = R[maxIndex+10];
+                 nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));                   //Factor de ajuste determinado por interpolacion parabolica
+                 dx = nx * 50.0;
+                 tmax = ((float)(i1))*5.0;
                  
-                 IntToStr(yy1, txt1);
-                 IntToStr(maxIndex, txt2);
+                 TOF = (tmax)+dx;
+                 
+                 FloatToStr(nx, txt1);
+                 FloatToStr(dx, txt2);
+                 FloatToStr(tmax, txt3);
+                 FloatToStr(TOF, txt4);
 
-                 Lcd_Out(1,1,"yy1: ");
-                 Lcd_Out_Cp(txt1);                     //Visualiza el valor del TOF en el LCD*/
-                 Lcd_Out(2,1,"Index: ");
-                 Lcd_Out_Cp(txt2);                     //Visualiza el valor del TOF en el LCD*/
-                 
+                 Lcd_Out(1,1,"nx: ");
+                 Lcd_Out_Cp(txt1);
+                 Lcd_Out(2,1,"dx: ");
+                 Lcd_Out_Cp(txt2);
+                 Lcd_Out(3,1,"tmax: ");
+                 Lcd_Out_Cp(txt3);
+                 Lcd_Out(4,1,"TOF: ");
+                 Lcd_Out_Cp(txt4);
+
+                 Delay_ms(1);
+
                  bm = 0;
+
               }
               
-              
               Delay_ms(10);
-              
      }
 
 }
