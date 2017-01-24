@@ -119,8 +119,10 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  }else {
  RB14_bit = 0;
  IEC0.T2IE = 0;
- T1CON.TON = 1;
+ T2CON.TON = 0;
  IEC0.T1IE = 1;
+ TMR1 = 0;
+ T1CON.TON = 1;
  IEC0.AD1IE = 1;
  }
  contp++;
@@ -206,10 +208,11 @@ void main() {
 
  if (bm==0){
 
- T2CON.TON = 1;
- IEC0.T2IE = 1;
  contp = 0;
  RB14_bit = 0;
+ IEC0.T2IE = 1;
+ TMR2 = 0;
+ T2CON.TON = 1;
 
  i = 0;
  j = 0;
@@ -277,8 +280,8 @@ void main() {
 
  yy1 = Vector_Max(R, nm, &maxIndex);
  i1 = maxIndex;
- i0 = i1 - 5;
- i2 = i1 + 5;
+ i0 = i1 - 10;
+ i2 = i1 + 10;
  yy0 = R[i0];
  yy2 = R[i2];
 

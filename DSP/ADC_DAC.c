@@ -140,8 +140,10 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
      }else {
           RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
           IEC0.T2IE = 0;                           //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
-          T1CON.TON = 1;                           //Enciende el TMR1
+          T2CON.TON = 0;                           //Apaga el TMR2
           IEC0.T1IE = 1;                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
+          TMR1 = 0;                                //Encera el TMR1
+          T1CON.TON = 1;                           //Enciende el TMR1
           IEC0.AD1IE = 1;                          //Habilita la interrupcion por conversion completa del ADC
      }
      contp++;                                      //Aumenta el contador en una unidad.
@@ -227,10 +229,11 @@ void main() {
               // Generacion de pulsos y captura de la señal de retorno //
               if (bm==0){
               
-                  T2CON.TON = 1;                                           //Enciende el TMR2
-                  IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
                   contp = 0;                                               //Limpia la variable del contador de pulsos
                   RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
+                  IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
+                  TMR2 = 0;                                                //Encera el TMR2
+                  T2CON.TON = 1;
                   
                   i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
                   j = 0;
@@ -298,8 +301,8 @@ void main() {
 
                  yy1 = Vector_Max(R, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
                  i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
-                 i0 = i1 - 5;
-                 i2 = i1 + 5;
+                 i0 = i1 - 10;
+                 i2 = i1 + 10;
                  yy0 = R[i0];
                  yy2 = R[i2];
                  
