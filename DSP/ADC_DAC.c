@@ -38,7 +38,8 @@ unsigned int YY = 0;
 //Variables para determinar el maximo de la funcion
 /*unsigned int VP=0;
 unsigned int y0=0, y1=0, y2=0;*/
-
+//Variables para controlar la interrupcion externa
+short int0_en = 0;
 
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
@@ -78,8 +79,18 @@ void Velocidad(){
 
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
+//Interrupcion externa
+void Ext_interrupt0() iv IVT_ADDR_INT0INTERRUPT{
+     LATA4_bit = ~LATA4_bit;
+     IEC0.T1IE = 1;                                //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
+     TMR1 = 0;                                     //Encera el TMR1
+     T1CON.TON = 1;                                //Enciende el TMR1
+     INT0IF_bit = 0;                               //Limpia la bandera de interrupcion de INT0
+
+}
 //Interrupcion por conversion completada del ADC
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
+     IEC0.INT0IE = 0;
      if (i<nm){
         M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
         i++;                                       //Aumenta en 1 el subindice del vector de Muestras
@@ -98,7 +109,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      }
      if (bm==1) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
           if (j<nm){
-             LATB = R[j];
+             LATB = (R[j]&0x7F)|((R[j]<<1)&0x700);
              j++;
           } else {
              bm = 0;                               //Cambia el valor de la bandera bm para permitir un nuevo muestreo
@@ -109,16 +120,17 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 }
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
-     LATA4_bit = ~LATA4_bit;                       //Auxiliar para ver el proceso de la interrupcion
+     //LATA4_bit = ~LATA4_bit;                       //Auxiliar para ver el proceso de la interrupcion
      if (contp<20){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
           RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
      }else {
           RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
+          
           IEC0.T2IE = 0;                           //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
           T2CON.TON = 0;                           //Apaga el TMR2
-          IEC0.T1IE = 1;                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
-          TMR1 = 0;                                //Encera el TMR1
-          T1CON.TON = 1;                           //Enciende el TMR1
+
+          IEC0.INT0IE = 1;                         //Habilita la interrupcion externa Int0
+          INT0IF_bit = 0;
           IEC0.AD1IE = 1;                          //Habilita la interrupcion por conversion completa del ADC
      }
      contp++;                                      //Aumenta el contador en una unidad.
@@ -139,7 +151,7 @@ void Configuracion(){
      TRISA0_bit = 1;                             //Set RA0 pin as input
      TRISA1_bit = 0;                             //Set RA1 pin as output
      TRISA4_bit = 0;
-     TRISB = 0x8000;                             //Establece los pines 0-14 de PORTB como salidas y el pin 15 como entrada
+     TRISB = 0x8080;                             //Establece los pines 8 y 15 como entradas y todas las demas como salidas
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
@@ -181,11 +193,14 @@ void Configuracion(){
      T2IF_bit = 0;                               //Limpia la bandera de interrupcion
      PR2 = 500;                                  //Genera una interrupcion cada 12.5us
      
+     //Configuracion INT0
+     INTCON2.INT0EP = 0;                         //Interrupcion en flanco positivo
+     
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
      IPC3bits.AD1IP = 0x06;                      //Nivel de prioridad de interrupcion del ADC
      IPC0bits.T1IP = 0x07;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
      IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
-
+     IPC0bits.INT0IP = 0x04;                     //Nivel de prioridad de la interrupcion INT0
 }
 
 
@@ -195,12 +210,12 @@ void main() {
      Configuracion();
      
      while(1){
-
+              //bm=1;
               // Generacion de pulsos y captura de la señal de retorno //
               if (bm==0){
 
                   contp = 0;                                               //Limpia la variable del contador de pulsos
-                  RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
+                  RB14_bit = 1;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
                   IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
                   TMR2 = 0;                                                //Encera el TMR2
                   T2CON.TON = 1;                                           //Enciende el TMR2

@@ -1806,6 +1806,7 @@ erase
 erase_
 erase_bit
 exp
+ext_interrupt0
 extr
 extr
 extr_bit
@@ -2529,6 +2530,7 @@ indx1r1
 indx1r2
 indx1r3
 indx1r4
+int0_en
 int0ep
 int0ep
 int0ep_bit

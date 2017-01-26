@@ -32,3 +32,4 @@ main
 ADC1Int
 Timer2Interrupt
 Timer1Interrupt
+Ext_interrupt0

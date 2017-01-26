@@ -24,7 +24,12 @@ unsigned int aux_value = 0;
 
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
 unsigned int YY = 0;
-#line 46 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+#line 42 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+short int0_en = 0;
+
+
+
+
 void Envolvente() {
 
 }
@@ -61,7 +66,17 @@ void Velocidad(){
 
 
 
+void Ext_interrupt0() iv IVT_ADDR_INT0INTERRUPT{
+ LATA4_bit = ~LATA4_bit;
+ IEC0.T1IE = 1;
+ TMR1 = 0;
+ T1CON.TON = 1;
+ INT0IF_bit = 0;
+
+}
+
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
+ IEC0.INT0IE = 0;
  if (i<nm){
  M[i] = ADC1BUF0;
  i++;
@@ -80,7 +95,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  }
  if (bm==1) {
  if (j<nm){
- LATB = R[j];
+ LATB = (R[j]&0x7F)|((R[j]<<1)&0x700);
  j++;
  } else {
  bm = 0;
@@ -91,16 +106,17 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 }
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
- LATA4_bit = ~LATA4_bit;
+
  if (contp<20){
  RB14_bit = ~RB14_bit;
  }else {
  RB14_bit = 0;
+
  IEC0.T2IE = 0;
  T2CON.TON = 0;
- IEC0.T1IE = 1;
- TMR1 = 0;
- T1CON.TON = 1;
+
+ IEC0.INT0IE = 1;
+ INT0IF_bit = 0;
  IEC0.AD1IE = 1;
  }
  contp++;
@@ -121,7 +137,7 @@ void Configuracion(){
  TRISA0_bit = 1;
  TRISA1_bit = 0;
  TRISA4_bit = 0;
- TRISB = 0x8000;
+ TRISB = 0x8080;
 
 
  AD1CON1.AD12B = 0;
@@ -164,10 +180,13 @@ void Configuracion(){
  PR2 = 500;
 
 
+ INTCON2.INT0EP = 0;
+
+
  IPC3bits.AD1IP = 0x06;
  IPC0bits.T1IP = 0x07;
  IPC1bits.T2IP = 0x05;
-
+ IPC0bits.INT0IP = 0x04;
 }
 
 
@@ -182,7 +201,7 @@ void main() {
  if (bm==0){
 
  contp = 0;
- RB14_bit = 0;
+ RB14_bit = 1;
  IEC0.T2IE = 1;
  TMR2 = 0;
  T2CON.TON = 1;
