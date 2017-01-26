@@ -7,5 +7,5 @@ hint: 0	1144	Used RAM (bytes): 3 (1%)  Free RAM (bytes): 2024 (99%)	Used RAM (by
 hint: 0	1144	Used ROM (bytes): 134 (1%)  Free ROM (bytes): 32634 (99%)	Used ROM (bytes): 134 (1%)  Free ROM (bytes): 32634 (99%)
 diagnostics: 0	125	Project Linked Successfully	DSP.mcppi
 diagnostics: 0	128	Linked in 15 ms	 
-diagnostics: 0	129	Project 'DSP.mcppi' completed: 94 ms	 
-diagnostics: 0	103	Finished successfully: 20 ene. 2017, 15:37:26	DSP.mcppi
+diagnostics: 0	129	Project 'DSP.mcppi' completed: 78 ms	 
+diagnostics: 0	103	Finished successfully: 25 ene. 2017, 17:12:21	DSP.mcppi

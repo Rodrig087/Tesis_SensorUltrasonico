@@ -1830,6 +1830,7 @@ erase
 erase_
 erase_bit
 exp
+ext_interrupt0
 extr
 extr
 extr_bit
@@ -5313,6 +5314,8 @@ swpab_bit
 swr
 swr
 swr_bit
+t1
+t1_e
 t1con
 t1conbits
 t1ie

@@ -51,7 +51,7 @@ unsigned int aux_value = 0;
 //Variables para el filtrado de la señal
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
 unsigned int YY = 0;
-//Variables para determinar el maximo de la funcion
+//Variables para determinar el tiempo de maximo de la funcion
 unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2;
@@ -59,6 +59,9 @@ float yy0, yy1, yy2;
 float nx;
 float dx;
 float tmax;
+//Variables para calcular el TOF
+unsigned int T1_e;
+float T1;
 float TOF;
 //Variables para la visualizacion de datos en el LCD
 char txt1[6], txt2[6], txt3[6], txt4[6] ;
@@ -101,6 +104,17 @@ void Velocidad(){
 
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
+//Interrupcion externa
+void Ext_interrupt0() iv IVT_ADDR_INT0INTERRUPT{
+     T1_e = TMR2;
+     LATA4_bit = ~LATA4_bit;
+     IEC0.T1IE = 1;                                //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
+     TMR1 = 0;                                     //Encera el TMR1
+     T1CON.TON = 1;                                //Enciende el TMR1
+     INT0IF_bit = 0;                               //Limpia la bandera de interrupcion de INT0
+     IEC0.INT0IE = 0;                              //Desabilita la interrupcion externa Int0
+     T2CON.TON = 0;                                //Apaga el TMR2
+}
 //Interrupcion por conversion completada del ADC
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
      if (i<nm){
@@ -119,32 +133,23 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
         SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
      }
-     /*if (bm==1) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
-          if (j<nm){
-
-             yy2 = R[j];
-             j++;
-
-          } else {
-             //bm = 0;                             //Cambia el valor de la bandera bm para permitir un nuevo muestreo
-             IEC0.T1IE = 0;                        //Desabilita la interrupcion por desborde del TMR1
-          }
-     }*/
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 }
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
      //LATA4_bit = ~LATA4_bit;                       //Auxiliar para ver el proceso de la interrupcion
-     if (contp<20){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
+     if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
           RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
      }else {
           RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
-          IEC0.T2IE = 0;                           //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
-          T2CON.TON = 0;                           //Apaga el TMR2
-          IEC0.T1IE = 1;                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
-          TMR1 = 0;                                //Encera el TMR1
-          T1CON.TON = 1;                           //Enciende el TMR1
+
+          IEC0.INT0IE = 1;                         //Habilita la interrupcion externa INT0
+          INT0IF_bit = 0;                          //Limpia la bandera de interrupcion de INT0
           IEC0.AD1IE = 1;                          //Habilita la interrupcion por conversion completa del ADC
+          
+          IEC0.T2IE = 0;                           //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
+          TMR2  = 0;                               //Encera el TMR2
+          LATA4_bit = ~LATA4_bit;
      }
      contp++;                                      //Aumenta el contador en una unidad.
      T2IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR2
@@ -165,7 +170,7 @@ void Configuracion(){
      TRISA1_bit = 0;                             //Set RA1 pin as output
      TRISA4_bit = 0;
      TRISB14_bit = 0;
-
+     TRISB7_bit = 1;
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
@@ -207,11 +212,15 @@ void Configuracion(){
      T2IF_bit = 0;                               //Limpia la bandera de interrupcion
      PR2 = 500;                                  //Genera una interrupcion cada 12.5us
      
+     //Configuracion INT0
+     INTCON2.INT0EP = 0;                         //Interrupcion en flanco positivo
+     
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
      IPC3bits.AD1IP = 0x06;                      //Nivel de prioridad de interrupcion del ADC
      IPC0bits.T1IP = 0x07;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
      IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
-
+     IPC0bits.INT0IP = 0x04;                     //Nivel de prioridad de la interrupcion INT0
+     
 }
 
 
@@ -242,8 +251,6 @@ void main() {
               
               // Procesamiento de la señal capturada //
               if (bm==1){
-
-                  Velocidad();                                             //Llama a la funcion para calcular la Velocidad del sonido
                   
                   for (k=0;k<nm;k++){
                   
@@ -293,11 +300,14 @@ void main() {
               // Cálculo del punto maximo y TOF
               if (bm==2){
               
+                // Velocidad();                                                //Llama a la funcion para calcular la Velocidad del sonido
+
                  yy0 = 0.0;
                  yy1 = 0.0;
                  yy2 = 0.0;
                  nx = 0.0;
                  dx = 0.0;
+                 T1 = 0.0;
 
                  yy1 = Vector_Max(R, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
                  i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
@@ -312,19 +322,21 @@ void main() {
                  
                  TOF = (tmax)+dx;
                  
-                 FloatToStr(nx, txt1);
-                 FloatToStr(dx, txt2);
+                 T1 = T1_e * 0.025;
+                 
+                 IntToStr(T1_e, txt1);
+                 FloatToStr(T1, txt2);
                  FloatToStr(tmax, txt3);
                  FloatToStr(TOF, txt4);
 
-                 Lcd_Out(1,1,"nx: ");
+                 Lcd_Out(1,1,"T1e: ");
                  Lcd_Out_Cp(txt1);
-                 Lcd_Out(2,1,"dx: ");
+                 Lcd_Out(2,1,"T1: ");
                  Lcd_Out_Cp(txt2);
-                 Lcd_Out(3,1,"tmax: ");
+                /*Lcd_Out(3,1,"tmax: ");
                  Lcd_Out_Cp(txt3);
                  Lcd_Out(4,1,"TOF: ");
-                 Lcd_Out_Cp(txt4);
+                 Lcd_Out_Cp(txt4);*/
 
                  Delay_ms(1);
 

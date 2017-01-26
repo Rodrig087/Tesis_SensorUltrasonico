@@ -48,6 +48,9 @@ float yy0, yy1, yy2;
 float nx;
 float dx;
 float tmax;
+
+unsigned int T1_e;
+float T1;
 float TOF;
 
 char txt1[6], txt2[6], txt3[6], txt4[6] ;
@@ -91,6 +94,17 @@ void Velocidad(){
 
 
 
+void Ext_interrupt0() iv IVT_ADDR_INT0INTERRUPT{
+ T1_e = TMR2;
+ LATA4_bit = ~LATA4_bit;
+ IEC0.T1IE = 1;
+ TMR1 = 0;
+ T1CON.TON = 1;
+ INT0IF_bit = 0;
+ IEC0.INT0IE = 0;
+ T2CON.TON = 0;
+}
+
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
  if (i<nm){
  M[i] = ADC1BUF0;
@@ -108,22 +122,23 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  if (bm==0){
  SAMP_bit = 0;
  }
-#line 133 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
  T1IF_bit = 0;
 }
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
 
- if (contp<20){
+ if (contp<10){
  RB14_bit = ~RB14_bit;
  }else {
  RB14_bit = 0;
- IEC0.T2IE = 0;
- T2CON.TON = 0;
- IEC0.T1IE = 1;
- TMR1 = 0;
- T1CON.TON = 1;
+
+ IEC0.INT0IE = 1;
+ INT0IF_bit = 0;
  IEC0.AD1IE = 1;
+
+ IEC0.T2IE = 0;
+ TMR2 = 0;
+ LATA4_bit = ~LATA4_bit;
  }
  contp++;
  T2IF_bit = 0;
@@ -144,7 +159,7 @@ void Configuracion(){
  TRISA1_bit = 0;
  TRISA4_bit = 0;
  TRISB14_bit = 0;
-
+ TRISB7_bit = 1;
 
 
  AD1CON1.AD12B = 0;
@@ -187,9 +202,13 @@ void Configuracion(){
  PR2 = 500;
 
 
+ INTCON2.INT0EP = 0;
+
+
  IPC3bits.AD1IP = 0x06;
  IPC0bits.T1IP = 0x07;
  IPC1bits.T2IP = 0x05;
+ IPC0bits.INT0IP = 0x04;
 
 }
 
@@ -221,8 +240,6 @@ void main() {
 
 
  if (bm==1){
-
- Velocidad();
 
  for (k=0;k<nm;k++){
 
@@ -272,11 +289,14 @@ void main() {
 
  if (bm==2){
 
+
+
  yy0 = 0.0;
  yy1 = 0.0;
  yy2 = 0.0;
  nx = 0.0;
  dx = 0.0;
+ T1 = 0.0;
 
  yy1 = Vector_Max(R, nm, &maxIndex);
  i1 = maxIndex;
@@ -291,20 +311,18 @@ void main() {
 
  TOF = (tmax)+dx;
 
- FloatToStr(nx, txt1);
- FloatToStr(dx, txt2);
+ T1 = T1_e * 0.025;
+
+ IntToStr(T1_e, txt1);
+ FloatToStr(T1, txt2);
  FloatToStr(tmax, txt3);
  FloatToStr(TOF, txt4);
 
- Lcd_Out(1,1,"nx: ");
+ Lcd_Out(1,1,"T1e: ");
  Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"dx: ");
+ Lcd_Out(2,1,"T1: ");
  Lcd_Out_Cp(txt2);
- Lcd_Out(3,1,"tmax: ");
- Lcd_Out_Cp(txt3);
- Lcd_Out(4,1,"TOF: ");
- Lcd_Out_Cp(txt4);
-
+#line 341 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
  Delay_ms(1);
 
  bm = 0;

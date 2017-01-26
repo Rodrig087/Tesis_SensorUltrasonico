@@ -3,17 +3,17 @@
 unsigned int contp;
 unsigned short ie;
 const short delay_p = 60;
-
+const short np = 5;
 
 void Interrupt(){
 
 
  if (TMR2IF_bit){
  if (ie==1){
- if ((contp>(delay_p))&&(contp<(delay_p+20))){
+ if ((contp>(delay_p))&&(contp<(delay_p+(np*2)))){
  RD0_bit = ~RD0_bit;
  }
- if (contp==(delay_p+20)){
+ if (contp==(delay_p+(np*2))){
  TMR2ON_bit=0;
  RD0_bit = 0;
  ie = 0;

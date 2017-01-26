@@ -9,33 +9,13 @@ main
 		Strobe
 		Delay_5500us
 		Delay_50us
-	Velocidad
-		Ow_Reset
-			Delay_500us
-			Delay_80us
-		Ow_Write
-			Delay_80us
-			Delay_1us
-			Delay_50us
-		Ow_Read
-			Delay_1us
-			Delay_50us
-		sqrt
-			frexp
-			ldexp
-				_Compare_Le_Fp
-					_Compare_Fp
-			_Compare_Le_Fp
-			_Div_FP
-			_AddSub_FP
-		_Long2Float
-		_Div_FP
-		_AddSub_FP
-		_Mul_FP
 	Vector_Max
+	IntToStr
+		WordToStr
 	FloatToStr
 		strcpy
 		_Compare_Le_Fp
+			_Compare_Fp
 		_Compare_Ge_Fp
 			_Compare_Fp
 		_Mul_FP
@@ -55,3 +35,4 @@ main
 ADC1Int
 Timer2Interrupt
 Timer1Interrupt
+Ext_interrupt0
