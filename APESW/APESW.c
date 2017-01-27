@@ -43,7 +43,7 @@ unsigned short i,j,k;
 float TOF, Df, VSnd;
 float DSTemp;
 
-unsigned long DHTvalue;
+//unsigned long DHTvalue;
 
 char *punT1;                                   //Variable tipo puntero para calcular el numero de pulsos del TMR1
 char *punDt;                                   //Variable tipo puntero para preparar la trama de datos de respuesta

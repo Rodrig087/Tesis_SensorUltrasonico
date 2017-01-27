@@ -30,7 +30,7 @@ unsigned short i,j,k;
 float TOF, Df, VSnd;
 float DSTemp;
 
-unsigned long DHTvalue;
+
 
 char *punT1;
 char *punDt;

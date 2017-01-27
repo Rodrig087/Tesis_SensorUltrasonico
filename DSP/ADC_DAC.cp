@@ -1,9 +1,9 @@
 #line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 #line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-const float ca1 = 0.002080567135492;
-const float ca2 = 0.004161134270985;
-const float cb2 = -1.866892279711715;
-const float cb3 = 0.875214548253684;
+const float ca1 = 0.007820208033497;
+const float ca2 = 0.015640416066994;
+const float cb2 = -1.734725768809275;
+const float cb3 = 0.766006600943264;
 
 
 sbit LCD_RS at LATB0_bit;
@@ -58,27 +58,23 @@ char txt1[6], txt2[6], txt3[6], txt4[6] ;
 
 
 
-void Envolvente() {
-
-}
-
 void Velocidad(){
  unsigned int Temp;
  unsigned int Rint;
  float Rfrac;
 
- Ow_Reset(&PORTB, 15);
- Ow_Write(&PORTB, 15, 0xCC);
- Ow_Write(&PORTB, 15, 0x44);
+ Ow_Reset(&PORTA, 1);
+ Ow_Write(&PORTA, 1, 0xCC);
+ Ow_Write(&PORTA, 1, 0x44);
  Delay_us(100);
 
- Ow_Reset(&PORTB, 15);
- Ow_Write(&PORTB, 15, 0xCC);
- Ow_Write(&PORTB, 15, 0xBE);
+ Ow_Reset(&PORTA, 1);
+ Ow_Write(&PORTA, 1, 0xCC);
+ Ow_Write(&PORTA, 1, 0xBE);
  Delay_us(100);
 
- Temp = Ow_Read(&PORTB, 15);
- Temp = (Ow_Read(&PORTB, 15) << 8) + Temp;
+ Temp = Ow_Read(&PORTA, 1);
+ Temp = (Ow_Read(&PORTA, 1) << 8) + Temp;
 
  if (Temp & 0x8000) {
  Temp = 0;
@@ -118,7 +114,6 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
 }
 
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
- LATA1_bit = ~LATA1_bit;
  if (bm==0){
  SAMP_bit = 0;
  }
@@ -126,7 +121,6 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 }
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
-
  if (contp<10){
  RB14_bit = ~RB14_bit;
  }else {
@@ -157,7 +151,7 @@ void Configuracion(){
 
  AD1PCFGL = 0xFFFE;
  TRISA0_bit = 1;
- TRISA1_bit = 0;
+
  TRISA4_bit = 0;
  TRISB14_bit = 0;
  TRISB7_bit = 1;
@@ -202,7 +196,6 @@ void Configuracion(){
  T2IF_bit = 0;
 
 
-
  INTCON2.INT0EP = 0;
 
 
@@ -224,7 +217,7 @@ void main() {
  Lcd_Cmd(_LCD_CURSOR_OFF);
 
  while(1){
-
+ bm=2;
 
  if (bm==0){
 
@@ -252,22 +245,7 @@ void main() {
  }
 
 
- if (value>5){
- if (value>aux_value){
- aux_value=value;
- }
- else{
- aux_value=aux_value-5;
- if (aux_value<0){
- aux_value=value;
- }
- }
- }else{
- aux_value=0;
- }
-
-
- x0 = (float)(aux_value);
+ x0 = (float)(value);
  y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);
 
  y2 = y1;
@@ -276,22 +254,20 @@ void main() {
  x1 = x0;
 
  YY = (unsigned int)(y0);
-
  R[k] = YY;
 
  bm = 2;
 
  }
 
-
-
-
  }
 
 
  if (bm==2){
 
-
+ DSTemp = 0.0;
+ VSnd = 0.0;
+ Velocidad();
 
  yy0 = 0.0;
  yy1 = 0.0;
@@ -322,12 +298,14 @@ void main() {
  TOF = T1 + T2;
 
  FloatToStr(T1, txt1);
- FloatToStr(TOF, txt2);
+ FloatToStr(T2, txt2);
+ FloatToStr(DSTemp, txt3);
+ FloatToStr(VSnd, txt4);
 
- Lcd_Out(1,1,"T1: ");
- Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"TOF: ");
- Lcd_Out_Cp(txt2);
+ Lcd_Out(1,1,"Tmp: ");
+ Lcd_Out_Cp(txt3);
+ Lcd_Out(2,1,"Vsn: ");
+ Lcd_Out_Cp(txt4);
 
  Delay_ms(1);
 

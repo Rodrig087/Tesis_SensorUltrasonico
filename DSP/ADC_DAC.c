@@ -10,11 +10,11 @@ Descripcion:
 4.Realiza la deteccion de envolvente de la senal muestreada.
 5.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR Paso-Bajo (Fs=200KHz, Fc=3KHz)
-const float ca1 = 0.002080567135492;
-const float ca2 = 0.004161134270985;
-const float cb2 = -1.866892279711715;
-const float cb3 = 0.875214548253684;
+//Coeficientes filtro IIR Paso-Bajo (Fs=200KHz, Fc=6KHz)
+const float ca1 = 0.007820208033497;
+const float ca2 = 0.015640416066994;
+const float cb2 = -1.734725768809275;
+const float cb3 = 0.766006600943264;
 
 //Conexiones módulo LCD
 sbit LCD_RS at LATB0_bit;
@@ -68,28 +68,24 @@ char txt1[6], txt2[6], txt3[6], txt4[6] ;
 
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
-//Funcion para la deteccion de la Envolvente de la senal
-void Envolvente() {
-
-}
 //Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura registrada por el sensor DS18B20
 void Velocidad(){
      unsigned int Temp;
      unsigned int Rint;
      float Rfrac;
 
-     Ow_Reset(&PORTB, 15);                        //Onewire reset signal
-     Ow_Write(&PORTB, 15, 0xCC);                  //Issue command SKIP_ROM
-     Ow_Write(&PORTB, 15, 0x44);                  //Issue command CONVERT_T
+     Ow_Reset(&PORTA, 1);                        //Onewire reset signal
+     Ow_Write(&PORTA, 1, 0xCC);                  //Issue command SKIP_ROM
+     Ow_Write(&PORTA, 1, 0x44);                  //Issue command CONVERT_T
      Delay_us(100);
 
-     Ow_Reset(&PORTB, 15);
-     Ow_Write(&PORTB, 15, 0xCC);                  //Issue command SKIP_ROM
-     Ow_Write(&PORTB, 15, 0xBE);                  //Issue command READ_SCRATCHPAD
+     Ow_Reset(&PORTA, 1);
+     Ow_Write(&PORTA, 1, 0xCC);                  //Issue command SKIP_ROM
+     Ow_Write(&PORTA, 1, 0xBE);                  //Issue command READ_SCRATCHPAD
      Delay_us(100);
 
-     Temp =  Ow_Read(&PORTB, 15);
-     Temp = (Ow_Read(&PORTB, 15) << 8) + Temp;
+     Temp =  Ow_Read(&PORTA, 1);
+     Temp = (Ow_Read(&PORTA, 1) << 8) + Temp;
 
      if (Temp & 0x8000) {
         Temp = 0;                                //Si la temperatura es negativa la establece como cero.
@@ -129,7 +125,6 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
 }
 //Interrupcion por desbordamiento del TMR1
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
-     LATA1_bit = ~LATA1_bit;                       //Auxiliar para ver el proceso de la interrupcion
      if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
         SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
      }
@@ -137,7 +132,6 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 }
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
-     //LATA4_bit = ~LATA4_bit;                       //Auxiliar para ver el proceso de la interrupcion
      if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
           RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
      }else {
@@ -168,10 +162,10 @@ void Configuracion(){
      //Configuracion de puertos
      AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
      TRISA0_bit = 1;                             //Set RA0 pin as input
-     TRISA1_bit = 0;                             //Set RA1 pin as output
-     TRISA4_bit = 0;
-     TRISB14_bit = 0;
-     TRISB7_bit = 1;
+     //TRISA1_bit = 0;                             //Set RA1 pin as output
+     TRISA4_bit = 0;                             //Set RA4 pin as output
+     TRISB14_bit = 0;                            //Set RB14 pin as output
+     TRISB7_bit = 1;                             //Set RB7 pin as input
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
@@ -211,8 +205,7 @@ void Configuracion(){
      T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
      IEC0.T2IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR2 desabilitada para no interferir con la lectura del sensor de temperatura
      T2IF_bit = 0;                               //Limpia la bandera de interrupcion
-     //PR2 = 500;                                  //Genera una interrupcion cada 12.5us
-     
+
      //Configuracion INT0
      INTCON2.INT0EP = 0;                         //Interrupcion en flanco positivo
      
@@ -235,7 +228,7 @@ void main() {
      Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
      
      while(1){
-              //bm=2;
+              bm=2;
               // Generacion de pulsos y captura de la señal de retorno //
               if (bm==0){
               
@@ -253,7 +246,7 @@ void main() {
               
               // Procesamiento de la señal capturada //
               if (bm==1){
-                  
+
                   for (k=0;k<nm;k++){
                   
                       //Valor absoluto
@@ -262,23 +255,8 @@ void main() {
                          value = (M[k]+((512-M[k])*2))&0x01FE;             //Invierte la señal y establece los datos en mod 511
                       }
                       
-                      //Retencion
-                      if (value>5){
-                         if (value>aux_value){
-                            aux_value=value;
-                         }
-                         else{
-                              aux_value=aux_value-5;
-                              if (aux_value<0){
-                                 aux_value=value;
-                              }
-                         }
-                      }else{
-                         aux_value=0;
-                      }
-                      
                       //Filtrado
-                      x0 = (float)(aux_value);                             //Adquisición de una muestra de 10 bits en, x[0].
+                      x0 = (float)(value);                                 //Adquisición de una muestra de 10 bits en, x[0].
                       y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
 
                       y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
@@ -287,22 +265,20 @@ void main() {
                       x1 = x0;
 
                       YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
-                      
                       R[k] = YY;
 
                       bm = 2;                                              //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
                       
                   }
-
-                  //T1CON.TON = 1;                                           //Enciende el TMR1
-                  //IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1
                   
               }
               
               // Cálculo del punto maximo y TOF
               if (bm==2){
               
-                 //Velocidad();                                                //Llama a la funcion para calcular la Velocidad del sonido
+                 DSTemp = 0.0;
+                 VSnd = 0.0;
+                 Velocidad();                                                //Llama a la funcion para calcular la Velocidad del sonido
 
                  yy0 = 0.0;
                  yy1 = 0.0;
@@ -328,17 +304,19 @@ void main() {
               }
               
               if (bm==3){
-                 
+
                  T1 = T1_e * 0.025;
                  TOF = T1 + T2;
 
                  FloatToStr(T1, txt1);
-                 FloatToStr(TOF, txt2);
+                 FloatToStr(T2, txt2);
+                 FloatToStr(DSTemp, txt3);
+                 FloatToStr(VSnd, txt4);
 
-                 Lcd_Out(1,1,"T1: ");
-                 Lcd_Out_Cp(txt1);
-                 Lcd_Out(2,1,"TOF: ");
-                 Lcd_Out_Cp(txt2);
+                 Lcd_Out(1,1,"Tmp: ");
+                 Lcd_Out_Cp(txt3);
+                 Lcd_Out(2,1,"Vsn: ");
+                 Lcd_Out_Cp(txt4);
 
                  Delay_ms(1);
               
