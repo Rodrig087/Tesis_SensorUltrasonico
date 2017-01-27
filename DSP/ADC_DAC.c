@@ -61,7 +61,7 @@ float dx;
 float tmax;
 //Variables para calcular el TOF
 unsigned int T1_e;
-float T1;
+float T1, T2;
 float TOF;
 //Variables para la visualizacion de datos en el LCD
 char txt1[6], txt2[6], txt3[6], txt4[6] ;
@@ -148,6 +148,7 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
           IEC0.AD1IE = 1;                          //Habilita la interrupcion por conversion completa del ADC
           
           IEC0.T2IE = 0;                           //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
+          PR2 = 0xFFFF;
           TMR2  = 0;                               //Encera el TMR2
           LATA4_bit = ~LATA4_bit;
      }
@@ -210,7 +211,7 @@ void Configuracion(){
      T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
      IEC0.T2IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR2 desabilitada para no interferir con la lectura del sensor de temperatura
      T2IF_bit = 0;                               //Limpia la bandera de interrupcion
-     PR2 = 500;                                  //Genera una interrupcion cada 12.5us
+     //PR2 = 500;                                  //Genera una interrupcion cada 12.5us
      
      //Configuracion INT0
      INTCON2.INT0EP = 0;                         //Interrupcion en flanco positivo
@@ -242,7 +243,8 @@ void main() {
                   RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
                   IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
                   TMR2 = 0;                                                //Encera el TMR2
-                  T2CON.TON = 1;
+                  PR2 = 500;                                               //Genera una interrupcion cada 12.5us
+                  T2CON.TON = 1;                                           //Enciende el TMR2
                   
                   i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
                   j = 0;
@@ -300,14 +302,13 @@ void main() {
               // Cálculo del punto maximo y TOF
               if (bm==2){
               
-                // Velocidad();                                                //Llama a la funcion para calcular la Velocidad del sonido
+                 //Velocidad();                                                //Llama a la funcion para calcular la Velocidad del sonido
 
                  yy0 = 0.0;
                  yy1 = 0.0;
                  yy2 = 0.0;
                  nx = 0.0;
                  dx = 0.0;
-                 T1 = 0.0;
 
                  yy1 = Vector_Max(R, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
                  i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
@@ -320,30 +321,30 @@ void main() {
                  dx = nx * 50.0;
                  tmax = ((float)(i1))*5.0;
                  
-                 TOF = (tmax)+dx;
-                 
-                 T1 = T1_e * 0.025;
-                 
-                 IntToStr(T1_e, txt1);
-                 FloatToStr(T1, txt2);
-                 FloatToStr(tmax, txt3);
-                 FloatToStr(TOF, txt4);
+                 T2 = (tmax)+dx;
 
-                 Lcd_Out(1,1,"T1e: ");
-                 Lcd_Out_Cp(txt1);
-                 Lcd_Out(2,1,"T1: ");
-                 Lcd_Out_Cp(txt2);
-                /*Lcd_Out(3,1,"tmax: ");
-                 Lcd_Out_Cp(txt3);
-                 Lcd_Out(4,1,"TOF: ");
-                 Lcd_Out_Cp(txt4);*/
-
-                 Delay_ms(1);
-
-                 bm = 0;
+                 bm = 3;
 
               }
               
+              if (bm==3){
+                 
+                 T1 = T1_e * 0.025;
+                 TOF = T1 + T2;
+
+                 FloatToStr(T1, txt1);
+                 FloatToStr(TOF, txt2);
+
+                 Lcd_Out(1,1,"T1: ");
+                 Lcd_Out_Cp(txt1);
+                 Lcd_Out(2,1,"TOF: ");
+                 Lcd_Out_Cp(txt2);
+
+                 Delay_ms(1);
+              
+                 bm = 0;
+                 
+              }
               Delay_ms(10);
      }
 

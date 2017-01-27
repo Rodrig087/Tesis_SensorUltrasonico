@@ -50,7 +50,7 @@ float dx;
 float tmax;
 
 unsigned int T1_e;
-float T1;
+float T1, T2;
 float TOF;
 
 char txt1[6], txt2[6], txt3[6], txt4[6] ;
@@ -137,6 +137,7 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  IEC0.AD1IE = 1;
 
  IEC0.T2IE = 0;
+ PR2 = 0xFFFF;
  TMR2 = 0;
  LATA4_bit = ~LATA4_bit;
  }
@@ -199,7 +200,7 @@ void Configuracion(){
  T2CON = 0x8000;
  IEC0.T2IE = 0;
  T2IF_bit = 0;
- PR2 = 500;
+
 
 
  INTCON2.INT0EP = 0;
@@ -231,6 +232,7 @@ void main() {
  RB14_bit = 0;
  IEC0.T2IE = 1;
  TMR2 = 0;
+ PR2 = 500;
  T2CON.TON = 1;
 
  i = 0;
@@ -296,7 +298,6 @@ void main() {
  yy2 = 0.0;
  nx = 0.0;
  dx = 0.0;
- T1 = 0.0;
 
  yy1 = Vector_Max(R, nm, &maxIndex);
  i1 = maxIndex;
@@ -309,26 +310,30 @@ void main() {
  dx = nx * 50.0;
  tmax = ((float)(i1))*5.0;
 
- TOF = (tmax)+dx;
+ T2 = (tmax)+dx;
+
+ bm = 3;
+
+ }
+
+ if (bm==3){
 
  T1 = T1_e * 0.025;
+ TOF = T1 + T2;
 
- IntToStr(T1_e, txt1);
- FloatToStr(T1, txt2);
- FloatToStr(tmax, txt3);
- FloatToStr(TOF, txt4);
+ FloatToStr(T1, txt1);
+ FloatToStr(TOF, txt2);
 
- Lcd_Out(1,1,"T1e: ");
+ Lcd_Out(1,1,"T1: ");
  Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"T1: ");
+ Lcd_Out(2,1,"TOF: ");
  Lcd_Out_Cp(txt2);
-#line 341 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+
  Delay_ms(1);
 
  bm = 0;
 
  }
-
  Delay_ms(10);
  }
 

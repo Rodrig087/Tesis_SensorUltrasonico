@@ -10,8 +10,6 @@ main
 		Delay_5500us
 		Delay_50us
 	Vector_Max
-	IntToStr
-		WordToStr
 	FloatToStr
 		strcpy
 		_Compare_Le_Fp
