@@ -72,13 +72,13 @@ L_Velocidad2:
 	MOV	W0, W2
 ;ADC_DAC.c,69 :: 		if (Temp & 0x8000) {
 	BTSS	W0, #15
-	GOTO	L__Velocidad28
+	GOTO	L__Velocidad23
 ;ADC_DAC.c,70 :: 		Temp = 0;                                //Si la temperatura es negativa la establece como cero.
 	CLR	W2
 ; Temp end address is: 4 (W2)
 ;ADC_DAC.c,71 :: 		}
 	GOTO	L_Velocidad4
-L__Velocidad28:
+L__Velocidad23:
 ;ADC_DAC.c,69 :: 		if (Temp & 0x8000) {
 ;ADC_DAC.c,71 :: 		}
 L_Velocidad4:
@@ -179,9 +179,9 @@ _ADC1Int:
 	MOV	_i, W1
 	MOV	#300, W0
 	CP	W1, W0
-	BRA LTU	L__ADC1Int33
+	BRA LTU	L__ADC1Int28
 	GOTO	L_ADC1Int5
-L__ADC1Int33:
+L__ADC1Int28:
 ;ADC_DAC.c,95 :: 		M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
 	MOV	_i, W0
 	SL	W0, #1, W1
@@ -234,9 +234,9 @@ _Timer1Interrupt:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
-	BRA Z	L__Timer1Interrupt35
+	BRA Z	L__Timer1Interrupt30
 	GOTO	L_Timer1Interrupt7
-L__Timer1Interrupt35:
+L__Timer1Interrupt30:
 ;ADC_DAC.c,108 :: 		SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
 	BCLR	SAMP_bit, BitPos(SAMP_bit+0)
 ;ADC_DAC.c,109 :: 		}
@@ -245,16 +245,16 @@ L_Timer1Interrupt7:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA Z	L__Timer1Interrupt36
+	BRA Z	L__Timer1Interrupt31
 	GOTO	L_Timer1Interrupt8
-L__Timer1Interrupt36:
+L__Timer1Interrupt31:
 ;ADC_DAC.c,111 :: 		if (j<nm){
 	MOV	_j, W1
 	MOV	#300, W0
 	CP	W1, W0
-	BRA LTU	L__Timer1Interrupt37
+	BRA LTU	L__Timer1Interrupt32
 	GOTO	L_Timer1Interrupt9
-L__Timer1Interrupt37:
+L__Timer1Interrupt32:
 ;ADC_DAC.c,112 :: 		LATB = (R[j]&0x7F)|((R[j]<<1)&0x700);
 	MOV	_j, W0
 	SL	W0, #1, W1
@@ -307,12 +307,12 @@ _Timer2Interrupt:
 	PUSH	[W0++]
 
 ;ADC_DAC.c,122 :: 		void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
-;ADC_DAC.c,124 :: 		if (contp<20){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
+;ADC_DAC.c,124 :: 		if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
 	MOV	_contp, W0
-	CP	W0, #20
-	BRA LTU	L__Timer2Interrupt39
+	CP	W0, #10
+	BRA LTU	L__Timer2Interrupt34
 	GOTO	L_Timer2Interrupt11
-L__Timer2Interrupt39:
+L__Timer2Interrupt34:
 ;ADC_DAC.c,125 :: 		RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
 	BTG	RB14_bit, BitPos(RB14_bit+0)
 ;ADC_DAC.c,126 :: 		}else {
@@ -537,14 +537,14 @@ L_main13:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
-	BRA Z	L__main42
+	BRA Z	L__main37
 	GOTO	L_main15
-L__main42:
+L__main37:
 ;ADC_DAC.c,217 :: 		contp = 0;                                               //Limpia la variable del contador de pulsos
 	CLR	W0
 	MOV	W0, _contp
-;ADC_DAC.c,218 :: 		RB14_bit = 1;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
-	BSET	RB14_bit, BitPos(RB14_bit+0)
+;ADC_DAC.c,218 :: 		RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
+	BCLR	RB14_bit, BitPos(RB14_bit+0)
 ;ADC_DAC.c,219 :: 		IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
 	BSET	IEC0, #7
 ;ADC_DAC.c,220 :: 		TMR2 = 0;                                                //Encera el TMR2
@@ -569,9 +569,9 @@ L_main17:
 	MOV	_k, W1
 	MOV	#300, W0
 	CP	W1, W0
-	BRA LTU	L__main43
+	BRA LTU	L__main38
 	GOTO	L_main18
-L__main43:
+L__main38:
 ;ADC_DAC.c,236 :: 		value = M[k]&0x01FF;                                 //Establece los datos en mod 512
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -585,9 +585,9 @@ L__main43:
 	MOV	[W3], W1
 	MOV	#512, W0
 	CP	W1, W0
-	BRA LTU	L__main44
+	BRA LTU	L__main39
 	GOTO	L_main20
-L__main44:
+L__main39:
 ;ADC_DAC.c,238 :: 		value = (M[k]+((512-M[k])*2))&0x01FE;             //Invierte la señal y establece los datos en mod 511
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -602,68 +602,25 @@ L__main44:
 	AND	W2, W1, [W0]
 ;ADC_DAC.c,239 :: 		}
 L_main20:
-;ADC_DAC.c,242 :: 		if (value>5){
+;ADC_DAC.c,243 :: 		x0 = (float)(value);                             //Adquisición de una muestra de 10 bits en, x[0].
 	MOV	_value, W0
-	CP	W0, #5
-	BRA GTU	L__main45
-	GOTO	L_main21
-L__main45:
-;ADC_DAC.c,243 :: 		if (value>aux_value){
-	MOV	_value, W1
-	MOV	#lo_addr(_aux_value), W0
-	CP	W1, [W0]
-	BRA GTU	L__main46
-	GOTO	L_main22
-L__main46:
-;ADC_DAC.c,244 :: 		aux_value=value;
-	MOV	_value, W0
-	MOV	W0, _aux_value
-;ADC_DAC.c,245 :: 		}
-	GOTO	L_main23
-L_main22:
-;ADC_DAC.c,247 :: 		aux_value=aux_value-5;
-	MOV	_aux_value, W0
-	SUB	W0, #5, W0
-	MOV	W0, _aux_value
-;ADC_DAC.c,248 :: 		if (aux_value<0){
-	CP	W0, #0
-	BRA LTU	L__main47
-	GOTO	L_main24
-L__main47:
-;ADC_DAC.c,249 :: 		aux_value=value;
-	MOV	_value, W0
-	MOV	W0, _aux_value
-;ADC_DAC.c,250 :: 		}
-L_main24:
-;ADC_DAC.c,251 :: 		}
-L_main23:
-;ADC_DAC.c,252 :: 		}else{
-	GOTO	L_main25
-L_main21:
-;ADC_DAC.c,253 :: 		aux_value=0;
-	CLR	W0
-	MOV	W0, _aux_value
-;ADC_DAC.c,254 :: 		}
-L_main25:
-;ADC_DAC.c,257 :: 		x0 = (float)(aux_value);                             //Adquisición de una muestra de 10 bits en, x[0].
-	MOV	_aux_value, W0
 	CLR	W1
 	CALL	__Long2Float
 	MOV	W0, _x0
 	MOV	W1, _x0+2
-;ADC_DAC.c,258 :: 		y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
+;ADC_DAC.c,244 :: 		y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
 	MOV	_x2, W2
 	MOV	_x2+2, W3
 	CALL	__AddSub_FP
-	MOV	#23072, W2
-	MOV	#15112, W3
+	MOV	#8276, W2
+	MOV	#15360, W3
 	CALL	__Mul_FP
 	MOV	W0, [W14+0]
 	MOV	W1, [W14+2]
 	MOV	_x1, W0
 	MOV	_x1+2, W1
-	MOV	#23072, W2
-	MOV	#15240, W3
+	MOV	#8276, W2
+	MOV	#15488, W3
 	CALL	__Mul_FP
 	MOV	[W14+0], W2
 	MOV	[W14+2], W3
@@ -672,8 +629,8 @@ L_main25:
 	MOV	W1, [W14+6]
 	MOV	_y1, W0
 	MOV	_y1+2, W1
-	MOV	#63060, W2
-	MOV	#49134, W3
+	MOV	#2942, W2
+	MOV	#49118, W3
 	CALL	__Mul_FP
 	MOV	W0, [W14+0]
 	MOV	W1, [W14+2]
@@ -688,8 +645,8 @@ L_main25:
 	MOV	W1, [W14+6]
 	MOV	_y2, W0
 	MOV	_y2+2, W1
-	MOV	#3600, W2
-	MOV	#16224, W3
+	MOV	#6402, W2
+	MOV	#16196, W3
 	CALL	__Mul_FP
 	MOV	W0, [W14+0]
 	MOV	W1, [W14+2]
@@ -702,28 +659,28 @@ L_main25:
 	POP.D	W2
 	MOV	W0, _y0
 	MOV	W1, _y0+2
-;ADC_DAC.c,260 :: 		y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
+;ADC_DAC.c,246 :: 		y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
 	MOV	_y1, W2
 	MOV	_y1+2, W3
 	MOV	W2, _y2
 	MOV	W3, _y2+2
-;ADC_DAC.c,261 :: 		y1 = y0;
+;ADC_DAC.c,247 :: 		y1 = y0;
 	MOV	W0, _y1
 	MOV	W1, _y1+2
-;ADC_DAC.c,262 :: 		x2 = x1;
+;ADC_DAC.c,248 :: 		x2 = x1;
 	MOV	_x1, W2
 	MOV	_x1+2, W3
 	MOV	W2, _x2
 	MOV	W3, _x2+2
-;ADC_DAC.c,263 :: 		x1 = x0;
+;ADC_DAC.c,249 :: 		x1 = x0;
 	MOV	_x0, W2
 	MOV	_x0+2, W3
 	MOV	W2, _x1
 	MOV	W3, _x1+2
-;ADC_DAC.c,265 :: 		YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
+;ADC_DAC.c,251 :: 		YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
 	CALL	__Float2Longint
 	MOV	W0, _YY
-;ADC_DAC.c,267 :: 		R[k] = YY;
+;ADC_DAC.c,253 :: 		R[k] = YY;
 	MOV	_k, W1
 	SL	W1, #1, W2
 	MOV	#lo_addr(_R), W1
@@ -733,26 +690,26 @@ L_main25:
 	MOV	#1, W1
 	MOV	#lo_addr(_k), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,269 :: 		}
+;ADC_DAC.c,255 :: 		}
 	GOTO	L_main17
 L_main18:
-;ADC_DAC.c,271 :: 		T1CON.TON = 1;                                           //Enciende el TMR1
+;ADC_DAC.c,257 :: 		T1CON.TON = 1;                                           //Enciende el TMR1
 	BSET	T1CON, #15
-;ADC_DAC.c,272 :: 		IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1
+;ADC_DAC.c,258 :: 		IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1
 	BSET	IEC0, #3
-;ADC_DAC.c,274 :: 		}
+;ADC_DAC.c,260 :: 		}
 L_main16:
-;ADC_DAC.c,276 :: 		Delay_ms(10);
+;ADC_DAC.c,262 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
-L_main26:
+L_main21:
 	DEC	W7
-	BRA NZ	L_main26
+	BRA NZ	L_main21
 	DEC	W8
-	BRA NZ	L_main26
-;ADC_DAC.c,278 :: 		}
+	BRA NZ	L_main21
+;ADC_DAC.c,264 :: 		}
 	GOTO	L_main13
-;ADC_DAC.c,280 :: 		}
+;ADC_DAC.c,266 :: 		}
 L_end_main:
 	ULNK
 L__main_end_loop:

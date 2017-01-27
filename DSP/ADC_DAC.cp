@@ -1,9 +1,9 @@
 #line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 #line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-const float ca1 = 0.002080567135492;
-const float ca2 = 0.004161134270985;
-const float cb2 = -1.866892279711715;
-const float cb3 = 0.875214548253684;
+const float ca1 = 0.007820208033497;
+const float ca2 = 0.015640416066994;
+const float cb2 = -1.734725768809275;
+const float cb3 = 0.766006600943264;
 
 
 
@@ -107,7 +107,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
 
- if (contp<20){
+ if (contp<10){
  RB14_bit = ~RB14_bit;
  }else {
  RB14_bit = 0;
@@ -201,7 +201,7 @@ void main() {
  if (bm==0){
 
  contp = 0;
- RB14_bit = 1;
+ RB14_bit = 0;
  IEC0.T2IE = 1;
  TMR2 = 0;
  T2CON.TON = 1;
@@ -225,22 +225,8 @@ void main() {
  }
 
 
- if (value>5){
- if (value>aux_value){
- aux_value=value;
- }
- else{
- aux_value=aux_value-5;
- if (aux_value<0){
- aux_value=value;
- }
- }
- }else{
- aux_value=0;
- }
 
-
- x0 = (float)(aux_value);
+ x0 = (float)(value);
  y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);
 
  y2 = y1;

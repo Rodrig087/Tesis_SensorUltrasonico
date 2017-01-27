@@ -18,10 +18,10 @@ void Interrupt(){
 // Interrupcion por desbordamiento de TIMER 2 //
      if (TMR2IF_bit){
         if (ie==1){
-            if ((contp>(delay_p))&&(contp<(delay_p+20))){
+            if ((contp>(delay_p))&&(contp<(delay_p+10))){
                RD0_bit = ~RD0_bit;
             }
-            if (contp==(delay_p+20)){
+            if (contp==(delay_p+10)){
                TMR2ON_bit=0;                          //Apaga el TMR2
                RD0_bit = 0;                           //Pone a cero despues de enviar todos los pulsos de exitacion.
                ie = 0;

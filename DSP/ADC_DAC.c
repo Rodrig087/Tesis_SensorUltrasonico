@@ -11,10 +11,10 @@ Descripcion:
 5.
 ---------------------------------------------------------------------------------------------------------------------------*/
 //Coeficientes filtro IIR (Fs=200KHz, Fc=3KHz)
-const float ca1 = 0.002080567135492;
-const float ca2 = 0.004161134270985;
-const float cb2 = -1.866892279711715;
-const float cb3 = 0.875214548253684;
+const float ca1 = 0.007820208033497;
+const float ca2 = 0.015640416066994;
+const float cb2 = -1.734725768809275;
+const float cb3 = 0.766006600943264;
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
@@ -121,7 +121,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
      //LATA4_bit = ~LATA4_bit;                       //Auxiliar para ver el proceso de la interrupcion
-     if (contp<20){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
+     if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
           RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
      }else {
           RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
@@ -215,7 +215,7 @@ void main() {
               if (bm==0){
 
                   contp = 0;                                               //Limpia la variable del contador de pulsos
-                  RB14_bit = 1;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
+                  RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
                   IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
                   TMR2 = 0;                                                //Encera el TMR2
                   T2CON.TON = 1;                                           //Enciende el TMR2
@@ -237,24 +237,10 @@ void main() {
                       if (M[k]<512){
                          value = (M[k]+((512-M[k])*2))&0x01FE;             //Invierte la señal y establece los datos en mod 511
                       }
-                      
-                      //Retencion
-                      if (value>5){
-                         if (value>aux_value){
-                            aux_value=value;
-                         }
-                         else{
-                              aux_value=aux_value-5;
-                              if (aux_value<0){
-                                 aux_value=value;
-                              }
-                         }
-                      }else{
-                         aux_value=0;
-                      }
+
                       
                       //Filtrado
-                      x0 = (float)(aux_value);                             //Adquisición de una muestra de 10 bits en, x[0].
+                      x0 = (float)(value);                             //Adquisición de una muestra de 10 bits en, x[0].
                       y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
 
                       y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
