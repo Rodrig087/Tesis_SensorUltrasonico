@@ -37,7 +37,7 @@ unsigned int contp;
 //Variables para el calculo de la Velocidad del sonido:
 float DSTemp, VSnd;
 //Variables para el almacenamiento de la señal muestreada:
-const unsigned int nm = 260;
+const unsigned int nm = 365;
 unsigned int M[nm];
 unsigned int R[nm];
 unsigned int i;
@@ -52,6 +52,12 @@ unsigned int aux_value = 0;
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
 unsigned int YY = 0;
 //Variables para determinar el tiempo de maximo de la funcion
+unsigned int Mmax=0;
+unsigned int Mmin=0;
+unsigned int Mmed=0;
+unsigned int MIndexMax;
+unsigned int MIndexMin;
+
 unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2;
@@ -60,8 +66,6 @@ float nx;
 float dx;
 float tmax;
 //Variables para calcular el TOF
-unsigned int *puntT1, lsw, msw;
-unsigned long T1_e;
 float T1, T2;
 float TOF, Dst;
 //Variables para la visualizacion de datos en el LCD
@@ -101,26 +105,13 @@ void Velocidad(){
 
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
-//Interrupcion externa
-void Ext_interrupt0() iv IVT_ADDR_INT0INTERRUPT{
-     *(puntT1) = TMR2;                              //Almacena el valor de TMR2 en la palabra menos significativa de la variable T1_e
-     *(puntT1+1) = TMR3HLD;                            //Almacena el valor de TMR3HLD en la palabra mas significativa de la variable T1_e
-     TMR3HLD = 0;
-     TMR2 = 0;
-     LATA4_bit = ~LATA4_bit;
-     IEC0.T1IE = 1;                                //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
-     TMR1 = 0;                                     //Encera el TMR1
-     T1CON.TON = 1;                                //Enciende el TMR1
-     INT0IF_bit = 0;                               //Limpia la bandera de interrupcion de INT0
-     IEC0.INT0IE = 0;                              //Desabilita la interrupcion externa Int0
-     T2CON.TON = 0;                                //Apaga el TMR2
-}
 //Interrupcion por conversion completada del ADC
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
      if (i<nm){
         M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
         i++;                                       //Aumenta en 1 el subindice del vector de Muestras
      } else {
+        LATA4_bit = ~LATA4_bit;
         bm = 1;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
         T1CON.TON = 0;                             //Apaga el TMR1
         IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
@@ -141,27 +132,16 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
      }else {
           RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
 
-          IEC0.INT0IE = 1;                         //Habilita la interrupcion externa INT0
-          INT0IF_bit = 0;                          //Limpia la bandera de interrupcion de INT0
-          IEC0.AD1IE = 1;                          //Habilita la interrupcion por conversion completa del ADC
-          
-          T3CON.TON = 0;                           //Apaga el TMR3
-          T2CON.TON = 0;                           //Apaga el TMR2
-          T2CON.T32 = 1;                           //Enable 32-bit Timer mode
-          T2CON.TCS = 0;                           //Select internal instruction cycle clock
-          T2CON.TGATE = 0;                         //Disable Gated Timer mode
-          T2CONbits.TCKPS = 0b00;                  //Select 1:1 Prescaler
-          TMR3 = 0;                                //Limpia el MSW del contador de 32-bit
-          TMR2 = 0;                                //Limpia el LSW del contador de 32-bit
-          //TMR3HLD = 0;
-          
-          //Precarga del periodo para 240000 ciclos (6ms):
-          PR3 = 0xFFFF;                            // Load 32-bit period value (msw)
-          PR2 = 0xFFFF;                            // Load 32-bit period value (lsw)
+          if (contp==104){
+              LATA4_bit = ~LATA4_bit;
+              IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
+              T2CON.TON = 0;                       //Apaga el TMR2
+              IEC0.AD1IE = 1;                      //Habilita la interrupcion por conversion completa del ADC
+              IEC0.T1IE = 1;                       //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
+              TMR1 = 0;                            //Encera el TMR1
+              T1CON.TON = 1;                       //Enciende el TMR1
+          }
 
-          T2CON.TON = 1;                           //Inicializa el contador de 32 bits
-          
-          LATA4_bit = ~LATA4_bit;
      }
      contp++;                                      //Aumenta el contador en una unidad.
      T2IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR2
@@ -216,7 +196,7 @@ void Configuracion(){
      T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
      IEC0.T1IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR1 desabilitada para no interferir con la lectura del sensor de temperatura
      T1IF_bit = 0;                               //Limpia la bandera de interrupcion
-     PR1 = 200;                                  //Genera una interrupcion cada 5us (Fs=200KHz)
+     PR1 = 200;                                  //Genera una interrupcion cada 5us (Fs=00KHz)
      
      ////Configuracion del TMR2
      T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
@@ -239,8 +219,6 @@ void Configuracion(){
 void main() {
 
      Configuracion();
-     
-     puntT1 = &T1_e;                             //Asocia el puntero "puntT1" con la direccion de memoria de la variable T1_e de tipo long
      
      Lcd_init();                                 //Inicializa el LCD
      Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
@@ -270,13 +248,18 @@ void main() {
               
               // Procesamiento de la señal capturada //
               if (bm==1){
+              
+                  //Determinacion punto medio señal
+                  Mmax = Vector_Max(M, nm, &MIndexMax);
+                  Mmin = Vector_Min(M, nm, &MIndexMin);
+                  Mmed = Mmax-((Mmax-Mmin)/2);
 
                   for (k=0;k<nm;k++){
                   
                       //Valor absoluto
-                      value = M[k]&0x01FF;                                 //Establece los datos en mod 512
-                      if (M[k]<512){
-                         value = (M[k]+((512-M[k])*2))&0x01FE;             //Invierte la señal y establece los datos en mod 511
+                      value = M[k]-Mmed;
+                      if (M[k]<Mmed){
+                         value = (M[k]+((Mmed-M[k])*2))-(Mmed);
                       }
                       
                       //Filtrado
@@ -312,13 +295,13 @@ void main() {
 
                  yy1 = Vector_Max(R, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
                  i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
-                 i0 = i1 - 10;
-                 i2 = i1 + 10;
+                 i0 = i1 - 5;
+                 i2 = i1 + 5;
                  yy0 = R[i0];
                  yy2 = R[i2];
                  
                  nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));                   //Factor de ajuste determinado por interpolacion parabolica
-                 dx = nx * 50.0;
+                 dx = nx * 25.0;
                  tmax = ((float)(i1))*5.0;
                  
                  T2 = (tmax)+dx;
@@ -329,16 +312,16 @@ void main() {
               
               if (bm==3){
 
-                 T1 = T1_e * 0.025;
+                 T1 = 94 * 12.5;
                  TOF = T1 + T2;
                  Dst = VSnd * (TOF / 20000.0);
 
-                 FloatToStr(T1, txt1);
-                 FloatToStr(T2, txt2);
+                 FloatToStr(TOF, txt1);
+                 FloatToStr(Dst, txt2);
 
-                 Lcd_Out(1,1,"T1: ");
+                 Lcd_Out(1,1,"TOF: ");
                  Lcd_Out_Cp(txt1);
-                 Lcd_Out(2,1,"T2: ");
+                 Lcd_Out(2,1,"Dst: ");
                  Lcd_Out_Cp(txt2);
 
                  Delay_ms(1);

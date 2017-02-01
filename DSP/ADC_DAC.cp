@@ -26,7 +26,7 @@ unsigned int contp;
 
 float DSTemp, VSnd;
 
-const unsigned int nm = 260;
+const unsigned int nm = 365;
 unsigned int M[nm];
 unsigned int R[nm];
 unsigned int i;
@@ -41,6 +41,12 @@ unsigned int aux_value = 0;
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
 unsigned int YY = 0;
 
+unsigned int Mmax=0;
+unsigned int Mmin=0;
+unsigned int Mmed=0;
+unsigned int MIndexMax;
+unsigned int MIndexMin;
+
 unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2;
@@ -49,8 +55,6 @@ float nx;
 float dx;
 float tmax;
 
-unsigned int *puntT1, lsw, msw;
-unsigned long T1_e;
 float T1, T2;
 float TOF, Dst;
 
@@ -91,25 +95,12 @@ void Velocidad(){
 
 
 
-void Ext_interrupt0() iv IVT_ADDR_INT0INTERRUPT{
- *(puntT1) = TMR2;
- *(puntT1+1) = TMR3HLD;
- TMR3HLD = 0;
- TMR2 = 0;
- LATA4_bit = ~LATA4_bit;
- IEC0.T1IE = 1;
- TMR1 = 0;
- T1CON.TON = 1;
- INT0IF_bit = 0;
- IEC0.INT0IE = 0;
- T2CON.TON = 0;
-}
-
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
  if (i<nm){
  M[i] = ADC1BUF0;
  i++;
  } else {
+ LATA4_bit = ~LATA4_bit;
  bm = 1;
  T1CON.TON = 0;
  IEC0.T1IE = 0;
@@ -130,27 +121,16 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  }else {
  RB14_bit = 0;
 
- IEC0.INT0IE = 1;
- INT0IF_bit = 0;
- IEC0.AD1IE = 1;
-
- T3CON.TON = 0;
- T2CON.TON = 0;
- T2CON.T32 = 1;
- T2CON.TCS = 0;
- T2CON.TGATE = 0;
- T2CONbits.TCKPS = 0b00;
- TMR3 = 0;
- TMR2 = 0;
-
-
-
- PR3 = 0xFFFF;
- PR2 = 0xFFFF;
-
- T2CON.TON = 1;
-
+ if (contp==104){
  LATA4_bit = ~LATA4_bit;
+ IEC0.T2IE = 0;
+ T2CON.TON = 0;
+ IEC0.AD1IE = 1;
+ IEC0.T1IE = 1;
+ TMR1 = 0;
+ T1CON.TON = 1;
+ }
+
  }
  contp++;
  T2IF_bit = 0;
@@ -229,8 +209,6 @@ void main() {
 
  Configuracion();
 
- puntT1 = &T1_e;
-
  Lcd_init();
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
@@ -260,12 +238,17 @@ void main() {
 
  if (bm==1){
 
+
+ Mmax = Vector_Max(M, nm, &MIndexMax);
+ Mmin = Vector_Min(M, nm, &MIndexMin);
+ Mmed = Mmax-((Mmax-Mmin)/2);
+
  for (k=0;k<nm;k++){
 
 
- value = M[k]&0x01FF;
- if (M[k]<512){
- value = (M[k]+((512-M[k])*2))&0x01FE;
+ value = M[k]-Mmed;
+ if (M[k]<Mmed){
+ value = (M[k]+((Mmed-M[k])*2))-(Mmed);
  }
 
 
@@ -301,13 +284,13 @@ void main() {
 
  yy1 = Vector_Max(R, nm, &maxIndex);
  i1 = maxIndex;
- i0 = i1 - 10;
- i2 = i1 + 10;
+ i0 = i1 - 5;
+ i2 = i1 + 5;
  yy0 = R[i0];
  yy2 = R[i2];
 
  nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));
- dx = nx * 50.0;
+ dx = nx * 25.0;
  tmax = ((float)(i1))*5.0;
 
  T2 = (tmax)+dx;
@@ -318,17 +301,16 @@ void main() {
 
  if (bm==3){
 
-
- T1 = T1_e * 0.025;
+ T1 = 94 * 12.5;
  TOF = T1 + T2;
  Dst = VSnd * (TOF / 20000.0);
 
- FloatToStr(T1, txt1);
- FloatToStr(T2, txt2);
+ FloatToStr(TOF, txt1);
+ FloatToStr(Dst, txt2);
 
- Lcd_Out(1,1,"T1: ");
+ Lcd_Out(1,1,"TOF: ");
  Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"T2: ");
+ Lcd_Out(2,1,"Dst: ");
  Lcd_Out_Cp(txt2);
 
  Delay_ms(1);

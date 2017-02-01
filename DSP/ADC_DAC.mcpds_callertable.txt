@@ -13,6 +13,8 @@ main
 		Lcd_Cmd
 		Lcd_Chr_CP
 			Lcd_Cmd
+	Vector_Max
+	Vector_Min
 	Velocidad
 		Ow_Reset
 			Delay_500us
@@ -36,7 +38,6 @@ main
 		_Div_FP
 		_AddSub_FP
 		_Mul_FP
-	Vector_Max
 	FloatToStr
 		strcpy
 		_Compare_Le_Fp
@@ -55,4 +56,3 @@ main
 ADC1Int
 Timer2Interrupt
 Timer1Interrupt
-Ext_interrupt0

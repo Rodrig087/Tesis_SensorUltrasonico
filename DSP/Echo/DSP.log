@@ -6,6 +6,6 @@ diagnostics: 0	127	All files Compiled in 47 ms
 hint: 0	1144	Used RAM (bytes): 3 (1%)  Free RAM (bytes): 2024 (99%)	Used RAM (bytes): 3 (1%)  Free RAM (bytes): 2024 (99%)
 hint: 0	1144	Used ROM (bytes): 134 (1%)  Free ROM (bytes): 32634 (99%)	Used ROM (bytes): 134 (1%)  Free ROM (bytes): 32634 (99%)
 diagnostics: 0	125	Project Linked Successfully	DSP.mcppi
-diagnostics: 0	128	Linked in 31 ms	 
-diagnostics: 0	129	Project 'DSP.mcppi' completed: 93 ms	 
-diagnostics: 0	103	Finished successfully: 31 ene. 2017, 17:22:57	DSP.mcppi
+diagnostics: 0	128	Linked in 15 ms	 
+diagnostics: 0	129	Project 'DSP.mcppi' completed: 94 ms	 
+diagnostics: 0	103	Finished successfully: 01 feb. 2017, 16:40:45	DSP.mcppi

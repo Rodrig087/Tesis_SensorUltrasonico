@@ -1830,7 +1830,6 @@ erase
 erase_
 erase_bit
 exp
-ext_interrupt0
 extr
 extr
 extr_bit
@@ -2952,7 +2951,6 @@ lpback_bit
 lposcen
 lposcen
 lposcen_bit
-lsw
 ltrim
 m
 main
@@ -3023,6 +3021,11 @@ min_asin
 min_log
 min_q15
 min_tan
+mindexmax
+mindexmin
+mmax
+mmed
+mmin
 modcon
 modconbits
 mode16
@@ -3032,7 +3035,6 @@ modf
 msten
 msten
 msten_bit
-msw
 n
 n
 n_bit
@@ -4125,7 +4127,6 @@ ptsidl
 ptsidl_bit
 ptsidl_p1tcon_bit
 ptsidl_p2tcon_bit
-puntt1
 pwm1con1
 pwm1con1bits
 pwm1con2
@@ -5318,7 +5319,6 @@ swr
 swr
 swr_bit
 t1
-t1_e
 t1con
 t1conbits
 t1ie

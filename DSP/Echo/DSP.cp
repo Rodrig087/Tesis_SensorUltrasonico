@@ -2,7 +2,7 @@
 #line 11 "D:/Git/Tesis_SensorUltrasonico/DSP/Echo/DSP.c"
 unsigned int contp;
 unsigned short ie;
-const short delay_p = 150;
+const short delay_p = 114;
 const short np = 5;
 
 void Interrupt(){
