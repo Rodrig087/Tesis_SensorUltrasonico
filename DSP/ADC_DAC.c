@@ -10,11 +10,11 @@ Descripcion:
 4.Realiza la deteccion de envolvente de la senal muestreada.
 5.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR Paso-Bajo (Fs=200KHz, Fc=6KHz)
-const float ca1 = 0.007820208033497;
-const float ca2 = 0.015640416066994;
-const float cb2 = -1.734725768809275;
-const float cb3 = 0.766006600943264;
+//Coeficientes filtro IIR Paso-Bajo (Fs=200KHz, Fc=5.54KHz)
+const float ca1 = 0.006729715343936;
+const float ca2 = 0.013459430687873;
+const float cb2 = -1.754901698487196;
+const float cb3 = 0.781820559862941;
 
 //Conexiones módulo LCD
 sbit LCD_RS at LATB0_bit;
@@ -37,7 +37,7 @@ unsigned int contp;
 //Variables para el calculo de la Velocidad del sonido:
 float DSTemp, VSnd;
 //Variables para el almacenamiento de la señal muestreada:
-const unsigned int nm = 300;
+const unsigned int nm = 260;
 unsigned int M[nm];
 unsigned int R[nm];
 unsigned int i;
@@ -60,9 +60,10 @@ float nx;
 float dx;
 float tmax;
 //Variables para calcular el TOF
-unsigned int T1_e;
+unsigned int *puntT1, lsw, msw;
+unsigned long T1_e;
 float T1, T2;
-float TOF;
+float TOF, Dst;
 //Variables para la visualizacion de datos en el LCD
 char txt1[6], txt2[6], txt3[6], txt4[6] ;
 
@@ -102,7 +103,10 @@ void Velocidad(){
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
 //Interrupcion externa
 void Ext_interrupt0() iv IVT_ADDR_INT0INTERRUPT{
-     T1_e = TMR2;
+     *(puntT1) = TMR2;                              //Almacena el valor de TMR2 en la palabra menos significativa de la variable T1_e
+     *(puntT1+1) = TMR3HLD;                            //Almacena el valor de TMR3HLD en la palabra mas significativa de la variable T1_e
+     TMR3HLD = 0;
+     TMR2 = 0;
      LATA4_bit = ~LATA4_bit;
      IEC0.T1IE = 1;                                //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
      TMR1 = 0;                                     //Encera el TMR1
@@ -141,9 +145,22 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
           INT0IF_bit = 0;                          //Limpia la bandera de interrupcion de INT0
           IEC0.AD1IE = 1;                          //Habilita la interrupcion por conversion completa del ADC
           
-          IEC0.T2IE = 0;                           //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
-          PR2 = 0xFFFF;
-          TMR2  = 0;                               //Encera el TMR2
+          T3CON.TON = 0;                           //Apaga el TMR3
+          T2CON.TON = 0;                           //Apaga el TMR2
+          T2CON.T32 = 1;                           //Enable 32-bit Timer mode
+          T2CON.TCS = 0;                           //Select internal instruction cycle clock
+          T2CON.TGATE = 0;                         //Disable Gated Timer mode
+          T2CONbits.TCKPS = 0b00;                  //Select 1:1 Prescaler
+          TMR3 = 0;                                //Limpia el MSW del contador de 32-bit
+          TMR2 = 0;                                //Limpia el LSW del contador de 32-bit
+          //TMR3HLD = 0;
+          
+          //Precarga del periodo para 240000 ciclos (6ms):
+          PR3 = 0xFFFF;                            // Load 32-bit period value (msw)
+          PR2 = 0xFFFF;                            // Load 32-bit period value (lsw)
+
+          T2CON.TON = 1;                           //Inicializa el contador de 32 bits
+          
           LATA4_bit = ~LATA4_bit;
      }
      contp++;                                      //Aumenta el contador en una unidad.
@@ -223,20 +240,24 @@ void main() {
 
      Configuracion();
      
+     puntT1 = &T1_e;                             //Asocia el puntero "puntT1" con la direccion de memoria de la variable T1_e de tipo long
+     
      Lcd_init();                                 //Inicializa el LCD
      Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
      Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
      
      while(1){
-              bm=2;
+              //bm=0;
               // Generacion de pulsos y captura de la señal de retorno //
               if (bm==0){
               
                   contp = 0;                                               //Limpia la variable del contador de pulsos
                   RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
-                  IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
+                  T2CON.TON = 0;                                           //Apaga el TMR2
+                  T2CON = 0x0000;                                          //Configura el contador en modo de 16 bits
                   TMR2 = 0;                                                //Encera el TMR2
                   PR2 = 500;                                               //Genera una interrupcion cada 12.5us
+                  IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
                   T2CON.TON = 1;                                           //Enciende el TMR2
                   
                   i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
@@ -305,18 +326,18 @@ void main() {
               
               if (bm==3){
 
+                 //T1_e = 75000;
                  T1 = T1_e * 0.025;
                  TOF = T1 + T2;
+                 Dst = VSnd * (TOF / 20000.0);
 
-                 FloatToStr(T1, txt1);
-                 FloatToStr(T2, txt2);
-                 FloatToStr(DSTemp, txt3);
-                 FloatToStr(VSnd, txt4);
+                 FloatToStr(TOF, txt1);
+                 FloatToStr(Dst, txt2);
 
-                 Lcd_Out(1,1,"Tmp: ");
-                 Lcd_Out_Cp(txt3);
-                 Lcd_Out(2,1,"Vsn: ");
-                 Lcd_Out_Cp(txt4);
+                 Lcd_Out(1,1,"TOF: ");
+                 Lcd_Out_Cp(txt1);
+                 Lcd_Out(2,1,"Dst: ");
+                 Lcd_Out_Cp(txt2);
 
                  Delay_ms(1);
               

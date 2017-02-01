@@ -1662,6 +1662,7 @@ doze2
 dozen
 dozen
 dozen_bit
+dst
 dstemp
 dta
 dta
@@ -2951,6 +2952,7 @@ lpback_bit
 lposcen
 lposcen
 lposcen_bit
+lsw
 ltrim
 m
 main
@@ -3030,6 +3032,7 @@ modf
 msten
 msten
 msten_bit
+msw
 n
 n
 n_bit
@@ -4122,6 +4125,7 @@ ptsidl
 ptsidl_bit
 ptsidl_p1tcon_bit
 ptsidl_p2tcon_bit
+puntt1
 pwm1con1
 pwm1con1bits
 pwm1con2

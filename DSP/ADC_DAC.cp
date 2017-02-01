@@ -1,9 +1,9 @@
 #line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 #line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-const float ca1 = 0.007820208033497;
-const float ca2 = 0.015640416066994;
-const float cb2 = -1.734725768809275;
-const float cb3 = 0.766006600943264;
+const float ca1 = 0.006729715343936;
+const float ca2 = 0.013459430687873;
+const float cb2 = -1.754901698487196;
+const float cb3 = 0.781820559862941;
 
 
 sbit LCD_RS at LATB0_bit;
@@ -26,7 +26,7 @@ unsigned int contp;
 
 float DSTemp, VSnd;
 
-const unsigned int nm = 300;
+const unsigned int nm = 260;
 unsigned int M[nm];
 unsigned int R[nm];
 unsigned int i;
@@ -49,9 +49,10 @@ float nx;
 float dx;
 float tmax;
 
-unsigned int T1_e;
+unsigned int *puntT1, lsw, msw;
+unsigned long T1_e;
 float T1, T2;
-float TOF;
+float TOF, Dst;
 
 char txt1[6], txt2[6], txt3[6], txt4[6] ;
 
@@ -91,7 +92,10 @@ void Velocidad(){
 
 
 void Ext_interrupt0() iv IVT_ADDR_INT0INTERRUPT{
- T1_e = TMR2;
+ *(puntT1) = TMR2;
+ *(puntT1+1) = TMR3HLD;
+ TMR3HLD = 0;
+ TMR2 = 0;
  LATA4_bit = ~LATA4_bit;
  IEC0.T1IE = 1;
  TMR1 = 0;
@@ -130,9 +134,22 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  INT0IF_bit = 0;
  IEC0.AD1IE = 1;
 
- IEC0.T2IE = 0;
- PR2 = 0xFFFF;
+ T3CON.TON = 0;
+ T2CON.TON = 0;
+ T2CON.T32 = 1;
+ T2CON.TCS = 0;
+ T2CON.TGATE = 0;
+ T2CONbits.TCKPS = 0b00;
+ TMR3 = 0;
  TMR2 = 0;
+
+
+
+ PR3 = 0xFFFF;
+ PR2 = 0xFFFF;
+
+ T2CON.TON = 1;
+
  LATA4_bit = ~LATA4_bit;
  }
  contp++;
@@ -212,20 +229,24 @@ void main() {
 
  Configuracion();
 
+ puntT1 = &T1_e;
+
  Lcd_init();
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
 
  while(1){
- bm=2;
+
 
  if (bm==0){
 
  contp = 0;
  RB14_bit = 0;
- IEC0.T2IE = 1;
+ T2CON.TON = 0;
+ T2CON = 0x0000;
  TMR2 = 0;
  PR2 = 500;
+ IEC0.T2IE = 1;
  T2CON.TON = 1;
 
  i = 0;
@@ -294,18 +315,18 @@ void main() {
 
  if (bm==3){
 
+
  T1 = T1_e * 0.025;
  TOF = T1 + T2;
+ Dst = VSnd * (TOF / 20000.0);
 
- FloatToStr(T1, txt1);
- FloatToStr(T2, txt2);
- FloatToStr(DSTemp, txt3);
- FloatToStr(VSnd, txt4);
+ FloatToStr(TOF, txt1);
+ FloatToStr(Dst, txt2);
 
- Lcd_Out(1,1,"Tmp: ");
- Lcd_Out_Cp(txt3);
- Lcd_Out(2,1,"Vsn: ");
- Lcd_Out_Cp(txt4);
+ Lcd_Out(1,1,"TOF: ");
+ Lcd_Out_Cp(txt1);
+ Lcd_Out(2,1,"Dst: ");
+ Lcd_Out_Cp(txt2);
 
  Delay_ms(1);
 
