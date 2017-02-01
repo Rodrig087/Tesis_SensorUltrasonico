@@ -529,49 +529,58 @@ _main:
 ;ADC_DAC.c,247 :: 		Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
 	MOV.B	#12, W10
 	CALL	_Lcd_Cmd
-;ADC_DAC.c,249 :: 		while(1){
+;ADC_DAC.c,248 :: 		Lcd_Out(1,1,"Iniciando... ");
+	MOV	#lo_addr(?lstr1_ADC_DAC), W12
+	MOV	#1, W11
+	MOV	#1, W10
+	CALL	_Lcd_Out
+;ADC_DAC.c,250 :: 		bm=0;
+	MOV	#lo_addr(_bm), W1
+	CLR	W0
+	MOV.B	W0, [W1]
+;ADC_DAC.c,252 :: 		while(1){
 L_main10:
-;ADC_DAC.c,252 :: 		if (bm==0){
+;ADC_DAC.c,255 :: 		if (bm==0){
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
 	BRA Z	L__main35
 	GOTO	L_main12
 L__main35:
-;ADC_DAC.c,254 :: 		contp = 0;                                               //Limpia la variable del contador de pulsos
+;ADC_DAC.c,257 :: 		contp = 0;                                               //Limpia la variable del contador de pulsos
 	CLR	W0
 	MOV	W0, _contp
-;ADC_DAC.c,255 :: 		RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
+;ADC_DAC.c,258 :: 		RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
 	BCLR	RB14_bit, BitPos(RB14_bit+0)
-;ADC_DAC.c,256 :: 		T2CON.TON = 0;                                           //Apaga el TMR2
+;ADC_DAC.c,259 :: 		T2CON.TON = 0;                                           //Apaga el TMR2
 	BCLR	T2CON, #15
-;ADC_DAC.c,257 :: 		T2CON = 0x0000;                                          //Configura el contador en modo de 16 bits
+;ADC_DAC.c,260 :: 		T2CON = 0x0000;                                          //Configura el contador en modo de 16 bits
 	CLR	T2CON
-;ADC_DAC.c,258 :: 		TMR2 = 0;                                                //Encera el TMR2
+;ADC_DAC.c,261 :: 		TMR2 = 0;                                                //Encera el TMR2
 	CLR	TMR2
-;ADC_DAC.c,259 :: 		PR2 = 500;                                               //Genera una interrupcion cada 12.5us
+;ADC_DAC.c,262 :: 		PR2 = 500;                                               //Genera una interrupcion cada 12.5us
 	MOV	#500, W0
 	MOV	WREG, PR2
-;ADC_DAC.c,260 :: 		IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
+;ADC_DAC.c,263 :: 		IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
 	BSET	IEC0, #7
-;ADC_DAC.c,261 :: 		T2CON.TON = 1;                                           //Enciende el TMR2
+;ADC_DAC.c,264 :: 		T2CON.TON = 1;                                           //Enciende el TMR2
 	BSET	T2CON, #15
-;ADC_DAC.c,263 :: 		i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
+;ADC_DAC.c,266 :: 		i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
 	CLR	W0
 	MOV	W0, _i
-;ADC_DAC.c,264 :: 		j = 0;
+;ADC_DAC.c,267 :: 		j = 0;
 	CLR	W0
 	MOV	W0, _j
-;ADC_DAC.c,266 :: 		}
+;ADC_DAC.c,269 :: 		}
 L_main12:
-;ADC_DAC.c,269 :: 		if (bm==1){
+;ADC_DAC.c,272 :: 		if (bm==1){
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
 	BRA Z	L__main36
 	GOTO	L_main13
 L__main36:
-;ADC_DAC.c,271 :: 		for (k=0;k<nm;k++){
+;ADC_DAC.c,274 :: 		for (k=0;k<nm;k++){
 	CLR	W0
 	MOV	W0, _k
 L_main14:
@@ -581,7 +590,7 @@ L_main14:
 	BRA LTU	L__main37
 	GOTO	L_main15
 L__main37:
-;ADC_DAC.c,274 :: 		value = M[k]&0x01FF;                                 //Establece los datos en mod 512
+;ADC_DAC.c,277 :: 		value = M[k]&0x01FF;                                 //Establece los datos en mod 512
 	MOV	_k, W0
 	SL	W0, #1, W1
 	MOV	#lo_addr(_M), W0
@@ -590,14 +599,14 @@ L__main37:
 	MOV	#511, W1
 	MOV	#lo_addr(_value), W0
 	AND	W2, W1, [W0]
-;ADC_DAC.c,275 :: 		if (M[k]<512){
+;ADC_DAC.c,278 :: 		if (M[k]<512){
 	MOV	[W3], W1
 	MOV	#512, W0
 	CP	W1, W0
 	BRA LTU	L__main38
 	GOTO	L_main17
 L__main38:
-;ADC_DAC.c,276 :: 		value = (M[k]+((512-M[k])*2))&0x01FE;             //Invierte la señal y establece los datos en mod 511
+;ADC_DAC.c,279 :: 		value = (M[k]+((512-M[k])*2))&0x01FE;             //Invierte la señal y establece los datos en mod 511
 	MOV	_k, W0
 	SL	W0, #1, W1
 	MOV	#lo_addr(_M), W0
@@ -609,27 +618,27 @@ L__main38:
 	MOV	#510, W1
 	MOV	#lo_addr(_value), W0
 	AND	W2, W1, [W0]
-;ADC_DAC.c,277 :: 		}
+;ADC_DAC.c,280 :: 		}
 L_main17:
-;ADC_DAC.c,280 :: 		x0 = (float)(value);                                 //Adquisición de una muestra de 10 bits en, x[0].
+;ADC_DAC.c,283 :: 		x0 = (float)(value);                                 //Adquisición de una muestra de 10 bits en, x[0].
 	MOV	_value, W0
 	CLR	W1
 	CALL	__Long2Float
 	MOV	W0, _x0
 	MOV	W1, _x0+2
-;ADC_DAC.c,281 :: 		y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
+;ADC_DAC.c,284 :: 		y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
 	MOV	_x2, W2
 	MOV	_x2+2, W3
 	CALL	__AddSub_FP
-	MOV	#34034, W2
-	MOV	#15324, W3
+	MOV	#58496, W2
+	MOV	#15250, W3
 	CALL	__Mul_FP
 	MOV	W0, [W14+0]
 	MOV	W1, [W14+2]
 	MOV	_x1, W0
 	MOV	_x1+2, W1
-	MOV	#34034, W2
-	MOV	#15452, W3
+	MOV	#58496, W2
+	MOV	#15378, W3
 	CALL	__Mul_FP
 	MOV	[W14+0], W2
 	MOV	[W14+2], W3
@@ -638,8 +647,8 @@ L_main17:
 	MOV	W1, [W14+6]
 	MOV	_y1, W0
 	MOV	_y1+2, W1
-	MOV	#41118, W2
-	MOV	#49120, W3
+	MOV	#41926, W2
+	MOV	#49126, W3
 	CALL	__Mul_FP
 	MOV	W0, [W14+0]
 	MOV	W1, [W14+2]
@@ -654,8 +663,8 @@ L_main17:
 	MOV	W1, [W14+6]
 	MOV	_y2, W0
 	MOV	_y2+2, W1
-	MOV	#9572, W2
-	MOV	#16200, W3
+	MOV	#57007, W2
+	MOV	#16209, W3
 	CALL	__Mul_FP
 	MOV	W0, [W14+0]
 	MOV	W1, [W14+2]
@@ -668,91 +677,91 @@ L_main17:
 	POP.D	W2
 	MOV	W0, _y0
 	MOV	W1, _y0+2
-;ADC_DAC.c,283 :: 		y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
+;ADC_DAC.c,286 :: 		y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
 	MOV	_y1, W2
 	MOV	_y1+2, W3
 	MOV	W2, _y2
 	MOV	W3, _y2+2
-;ADC_DAC.c,284 :: 		y1 = y0;
+;ADC_DAC.c,287 :: 		y1 = y0;
 	MOV	W0, _y1
 	MOV	W1, _y1+2
-;ADC_DAC.c,285 :: 		x2 = x1;
+;ADC_DAC.c,288 :: 		x2 = x1;
 	MOV	_x1, W2
 	MOV	_x1+2, W3
 	MOV	W2, _x2
 	MOV	W3, _x2+2
-;ADC_DAC.c,286 :: 		x1 = x0;
+;ADC_DAC.c,289 :: 		x1 = x0;
 	MOV	_x0, W2
 	MOV	_x0+2, W3
 	MOV	W2, _x1
 	MOV	W3, _x1+2
-;ADC_DAC.c,288 :: 		YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
+;ADC_DAC.c,291 :: 		YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
 	CALL	__Float2Longint
 	MOV	W0, _YY
-;ADC_DAC.c,289 :: 		R[k] = YY;
+;ADC_DAC.c,292 :: 		R[k] = YY;
 	MOV	_k, W1
 	SL	W1, #1, W2
 	MOV	#lo_addr(_R), W1
 	ADD	W1, W2, W1
 	MOV	W0, [W1]
-;ADC_DAC.c,291 :: 		bm = 2;                                              //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
+;ADC_DAC.c,294 :: 		bm = 2;                                              //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
 	MOV	#lo_addr(_bm), W1
 	MOV.B	#2, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,271 :: 		for (k=0;k<nm;k++){
+;ADC_DAC.c,274 :: 		for (k=0;k<nm;k++){
 	MOV	#1, W1
 	MOV	#lo_addr(_k), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,293 :: 		}
+;ADC_DAC.c,296 :: 		}
 	GOTO	L_main14
 L_main15:
-;ADC_DAC.c,295 :: 		}
+;ADC_DAC.c,298 :: 		}
 L_main13:
-;ADC_DAC.c,298 :: 		if (bm==2){
+;ADC_DAC.c,301 :: 		if (bm==2){
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #2
 	BRA Z	L__main39
 	GOTO	L_main18
 L__main39:
-;ADC_DAC.c,300 :: 		DSTemp = 0.0;
+;ADC_DAC.c,303 :: 		DSTemp = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _DSTemp
 	MOV	W1, _DSTemp+2
-;ADC_DAC.c,301 :: 		VSnd = 0.0;
+;ADC_DAC.c,304 :: 		VSnd = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _VSnd
 	MOV	W1, _VSnd+2
-;ADC_DAC.c,302 :: 		Velocidad();                                                //Llama a la funcion para calcular la Velocidad del sonido
+;ADC_DAC.c,305 :: 		Velocidad();                                                //Llama a la funcion para calcular la Velocidad del sonido
 	CALL	_Velocidad
-;ADC_DAC.c,304 :: 		yy0 = 0.0;
+;ADC_DAC.c,307 :: 		yy0 = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _yy0
 	MOV	W1, _yy0+2
-;ADC_DAC.c,305 :: 		yy1 = 0.0;
+;ADC_DAC.c,308 :: 		yy1 = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _yy1
 	MOV	W1, _yy1+2
-;ADC_DAC.c,306 :: 		yy2 = 0.0;
+;ADC_DAC.c,309 :: 		yy2 = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _yy2
 	MOV	W1, _yy2+2
-;ADC_DAC.c,307 :: 		nx = 0.0;
+;ADC_DAC.c,310 :: 		nx = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _nx
 	MOV	W1, _nx+2
-;ADC_DAC.c,308 :: 		dx = 0.0;
+;ADC_DAC.c,311 :: 		dx = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _dx
 	MOV	W1, _dx+2
-;ADC_DAC.c,310 :: 		yy1 = Vector_Max(R, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
+;ADC_DAC.c,313 :: 		yy1 = Vector_Max(R, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
 	MOV	#lo_addr(_maxIndex), W0
 	PUSH	W0
 	MOV	#260, W0
@@ -767,19 +776,19 @@ L__main39:
 	MOV	W1, [W14+10]
 	MOV	W0, _yy1
 	MOV	W1, _yy1+2
-;ADC_DAC.c,311 :: 		i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
+;ADC_DAC.c,314 :: 		i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
 	MOV	_maxIndex, W0
 	MOV	W0, _i1
-;ADC_DAC.c,312 :: 		i0 = i1 - 10;
+;ADC_DAC.c,315 :: 		i0 = i1 - 10;
 	MOV	_maxIndex, W0
 	SUB	W0, #10, W1
 	MOV	W1, _i0
-;ADC_DAC.c,313 :: 		i2 = i1 + 10;
+;ADC_DAC.c,316 :: 		i2 = i1 + 10;
 	MOV	_maxIndex, W0
 	ADD	W0, #10, W0
 	MOV	W0, [W14+0]
 	MOV	W0, _i2
-;ADC_DAC.c,314 :: 		yy0 = R[i0];
+;ADC_DAC.c,317 :: 		yy0 = R[i0];
 	SL	W1, #1, W1
 	MOV	#lo_addr(_R), W0
 	ADD	W0, W1, W2
@@ -790,7 +799,7 @@ L__main39:
 	MOV	W1, [W14+6]
 	MOV	W0, _yy0
 	MOV	W1, _yy0+2
-;ADC_DAC.c,315 :: 		yy2 = R[i2];
+;ADC_DAC.c,318 :: 		yy2 = R[i2];
 	MOV	[W14+0], W0
 	SL	W0, #1, W1
 	MOV	#lo_addr(_R), W0
@@ -806,7 +815,7 @@ L__main39:
 	MOV	W0, _yy2
 	MOV	W1, _yy2+2
 	POP.D	W0
-;ADC_DAC.c,317 :: 		nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));                   //Factor de ajuste determinado por interpolacion parabolica
+;ADC_DAC.c,320 :: 		nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));                   //Factor de ajuste determinado por interpolacion parabolica
 	MOV	[W14+4], W0
 	MOV	[W14+6], W1
 	PUSH.D	W2
@@ -847,13 +856,13 @@ L__main39:
 	POP.D	W2
 	MOV	W0, _nx
 	MOV	W1, _nx+2
-;ADC_DAC.c,318 :: 		dx = nx * 50.0;
+;ADC_DAC.c,321 :: 		dx = nx * 50.0;
 	MOV	#0, W2
 	MOV	#16968, W3
 	CALL	__Mul_FP
 	MOV	W0, _dx
 	MOV	W1, _dx+2
-;ADC_DAC.c,319 :: 		tmax = ((float)(i1))*5.0;
+;ADC_DAC.c,322 :: 		tmax = ((float)(i1))*5.0;
 	MOV	_i1, W0
 	CLR	W1
 	CALL	__Long2Float
@@ -862,26 +871,26 @@ L__main39:
 	CALL	__Mul_FP
 	MOV	W0, _tmax
 	MOV	W1, _tmax+2
-;ADC_DAC.c,321 :: 		T2 = (tmax)+dx;
+;ADC_DAC.c,324 :: 		T2 = (tmax)+dx;
 	MOV	_dx, W2
 	MOV	_dx+2, W3
 	CALL	__AddSub_FP
 	MOV	W0, _T2
 	MOV	W1, _T2+2
-;ADC_DAC.c,323 :: 		bm = 3;
+;ADC_DAC.c,326 :: 		bm = 3;
 	MOV	#lo_addr(_bm), W1
 	MOV.B	#3, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,325 :: 		}
+;ADC_DAC.c,328 :: 		}
 L_main18:
-;ADC_DAC.c,327 :: 		if (bm==3){
+;ADC_DAC.c,330 :: 		if (bm==3){
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
 	BRA Z	L__main40
 	GOTO	L_main19
 L__main40:
-;ADC_DAC.c,330 :: 		T1 = T1_e * 0.025;
+;ADC_DAC.c,333 :: 		T1 = T1_e * 0.025;
 	MOV	_T1_e, W0
 	MOV	_T1_e+2, W1
 	CALL	__Long2Float
@@ -890,13 +899,13 @@ L__main40:
 	CALL	__Mul_FP
 	MOV	W0, _T1
 	MOV	W1, _T1+2
-;ADC_DAC.c,331 :: 		TOF = T1 + T2;
+;ADC_DAC.c,334 :: 		TOF = T1 + T2;
 	MOV	_T2, W2
 	MOV	_T2+2, W3
 	CALL	__AddSub_FP
 	MOV	W0, _TOF
 	MOV	W1, _TOF+2
-;ADC_DAC.c,332 :: 		Dst = VSnd * (TOF / 20000.0);
+;ADC_DAC.c,335 :: 		Dst = VSnd * (TOF / 20000.0);
 	MOV	#16384, W2
 	MOV	#18076, W3
 	CALL	__Div_FP
@@ -905,45 +914,45 @@ L__main40:
 	CALL	__Mul_FP
 	MOV	W0, _Dst
 	MOV	W1, _Dst+2
-;ADC_DAC.c,334 :: 		FloatToStr(TOF, txt1);
+;ADC_DAC.c,337 :: 		FloatToStr(T1, txt1);
 	MOV	#lo_addr(_txt1), W12
-	MOV	_TOF, W10
-	MOV	_TOF+2, W11
+	MOV	_T1, W10
+	MOV	_T1+2, W11
 	CALL	_FloatToStr
-;ADC_DAC.c,335 :: 		FloatToStr(Dst, txt2);
+;ADC_DAC.c,338 :: 		FloatToStr(T2, txt2);
 	MOV	#lo_addr(_txt2), W12
-	MOV	_Dst, W10
-	MOV	_Dst+2, W11
+	MOV	_T2, W10
+	MOV	_T2+2, W11
 	CALL	_FloatToStr
-;ADC_DAC.c,337 :: 		Lcd_Out(1,1,"TOF: ");
-	MOV	#lo_addr(?lstr1_ADC_DAC), W12
+;ADC_DAC.c,340 :: 		Lcd_Out(1,1,"T1: ");
+	MOV	#lo_addr(?lstr2_ADC_DAC), W12
 	MOV	#1, W11
 	MOV	#1, W10
 	CALL	_Lcd_Out
-;ADC_DAC.c,338 :: 		Lcd_Out_Cp(txt1);
+;ADC_DAC.c,341 :: 		Lcd_Out_Cp(txt1);
 	MOV	#lo_addr(_txt1), W10
 	CALL	_Lcd_Out_CP
-;ADC_DAC.c,339 :: 		Lcd_Out(2,1,"Dst: ");
-	MOV	#lo_addr(?lstr2_ADC_DAC), W12
+;ADC_DAC.c,342 :: 		Lcd_Out(2,1,"T2: ");
+	MOV	#lo_addr(?lstr3_ADC_DAC), W12
 	MOV	#1, W11
 	MOV	#2, W10
 	CALL	_Lcd_Out
-;ADC_DAC.c,340 :: 		Lcd_Out_Cp(txt2);
+;ADC_DAC.c,343 :: 		Lcd_Out_Cp(txt2);
 	MOV	#lo_addr(_txt2), W10
 	CALL	_Lcd_Out_CP
-;ADC_DAC.c,342 :: 		Delay_ms(1);
+;ADC_DAC.c,345 :: 		Delay_ms(1);
 	MOV	#13333, W7
 L_main20:
 	DEC	W7
 	BRA NZ	L_main20
 	NOP
-;ADC_DAC.c,344 :: 		bm = 0;
+;ADC_DAC.c,347 :: 		bm = 0;
 	MOV	#lo_addr(_bm), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,346 :: 		}
+;ADC_DAC.c,349 :: 		}
 L_main19:
-;ADC_DAC.c,347 :: 		Delay_ms(10);
+;ADC_DAC.c,350 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
 L_main22:
@@ -951,9 +960,9 @@ L_main22:
 	BRA NZ	L_main22
 	DEC	W8
 	BRA NZ	L_main22
-;ADC_DAC.c,348 :: 		}
+;ADC_DAC.c,351 :: 		}
 	GOTO	L_main10
-;ADC_DAC.c,350 :: 		}
+;ADC_DAC.c,353 :: 		}
 L_end_main:
 	POP	W12
 	POP	W11

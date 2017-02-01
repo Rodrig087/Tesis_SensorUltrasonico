@@ -9,6 +9,10 @@ main
 		Strobe
 		Delay_5500us
 		Delay_50us
+	Lcd_Out
+		Lcd_Cmd
+		Lcd_Chr_CP
+			Lcd_Cmd
 	Velocidad
 		Ow_Reset
 			Delay_500us
@@ -39,10 +43,6 @@ main
 		_Compare_Ge_Fp
 			_Compare_Fp
 		_Mul_FP
-	Lcd_Out
-		Lcd_Cmd
-		Lcd_Chr_CP
-			Lcd_Cmd
 	Lcd_Out_CP
 		Lcd_Chr_CP
 	_Long2Float

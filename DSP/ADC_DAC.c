@@ -10,11 +10,11 @@ Descripcion:
 4.Realiza la deteccion de envolvente de la senal muestreada.
 5.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR Paso-Bajo (Fs=200KHz, Fc=5.54KHz)
-const float ca1 = 0.006729715343936;
-const float ca2 = 0.013459430687873;
-const float cb2 = -1.754901698487196;
-const float cb3 = 0.781820559862941;
+//Coeficientes filtro IIR Paso-Bajo (Fs=200KHz, T/2=1000us)
+const float ca1 = 0.004482805534581;
+const float ca2 = 0.008965611069163;
+const float cb2 = -1.801872917973333;
+const float cb3 = 0.819804140111658;
 
 //Conexiones módulo LCD
 sbit LCD_RS at LATB0_bit;
@@ -245,6 +245,9 @@ void main() {
      Lcd_init();                                 //Inicializa el LCD
      Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
      Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
+     Lcd_Out(1,1,"Iniciando... ");
+     
+     bm=0;
      
      while(1){
               //bm=0;
@@ -326,17 +329,16 @@ void main() {
               
               if (bm==3){
 
-                 //T1_e = 75000;
                  T1 = T1_e * 0.025;
                  TOF = T1 + T2;
                  Dst = VSnd * (TOF / 20000.0);
 
-                 FloatToStr(TOF, txt1);
-                 FloatToStr(Dst, txt2);
+                 FloatToStr(T1, txt1);
+                 FloatToStr(T2, txt2);
 
-                 Lcd_Out(1,1,"TOF: ");
+                 Lcd_Out(1,1,"T1: ");
                  Lcd_Out_Cp(txt1);
-                 Lcd_Out(2,1,"Dst: ");
+                 Lcd_Out(2,1,"T2: ");
                  Lcd_Out_Cp(txt2);
 
                  Delay_ms(1);
