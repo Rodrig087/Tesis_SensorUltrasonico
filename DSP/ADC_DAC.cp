@@ -1,9 +1,9 @@
 #line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 #line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-const float ca1 = 0.007820208033497;
-const float ca2 = 0.015640416066994;
-const float cb2 = -1.734725768809275;
-const float cb3 = 0.766006600943264;
+const float ca1 = 0.006745773600345;
+const float ca2 = 0.013491547200690;
+const float cb2 = -1.754594315763869;
+const float cb3 = 0.781577410165250;
 
 
 
@@ -11,7 +11,7 @@ unsigned int contp;
 
 float DSTemp, VSnd;
 
-const unsigned int nm = 300;
+const unsigned int nm = 365;
 unsigned int M[nm];
 unsigned int R[nm];
 unsigned int i;
@@ -24,7 +24,13 @@ unsigned int aux_value = 0;
 
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
 unsigned int YY = 0;
-#line 42 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+
+unsigned int VMmax=0;
+unsigned int VMmin=0;
+unsigned int VMmed=0;
+unsigned int IndexMax;
+unsigned int IndexMin;
+
 short int0_en = 0;
 
 
@@ -66,15 +72,6 @@ void Velocidad(){
 
 
 
-void Ext_interrupt0() iv IVT_ADDR_INT0INTERRUPT{
- LATA4_bit = ~LATA4_bit;
- IEC0.T1IE = 1;
- TMR1 = 0;
- T1CON.TON = 1;
- INT0IF_bit = 0;
-
-}
-
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
  IEC0.INT0IE = 0;
  if (i<nm){
@@ -95,7 +92,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  }
  if (bm==1) {
  if (j<nm){
- LATB = (R[j]&0x7F)|((R[j]<<1)&0x700);
+ LATB = (R[j]&0x7F)|((r[j]<<1)&0x700);
  j++;
  } else {
  bm = 0;
@@ -109,15 +106,17 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
 
  if (contp<10){
  RB14_bit = ~RB14_bit;
- }else {
+ } else {
  RB14_bit = 0;
-
+ if (contp==104){
+ LATA4_bit = ~LATA4_bit;
  IEC0.T2IE = 0;
  T2CON.TON = 0;
-
- IEC0.INT0IE = 1;
- INT0IF_bit = 0;
  IEC0.AD1IE = 1;
+ IEC0.T1IE = 1;
+ TMR1 = 0;
+ T1CON.TON = 1;
+ }
  }
  contp++;
  T2IF_bit = 0;
@@ -216,16 +215,20 @@ void main() {
 
  Velocidad();
 
+
+ VMmax = Vector_Max(M, nm, &IndexMax);
+ VMmin = Vector_Min(M, nm, &IndexMin);
+ VMmed = VMmax-((VMmax-VMmin)/2);
+
  for (k=0;k<nm;k++){
 
 
- value = M[k]&0x01FF;
- if (M[k]<512){
- value = (M[k]+((512-M[k])*2))&0x01FE;
+
+ value = M[k]-VMmed;
+ if (M[k]<VMmed){
+ value = (M[k]+((VMmed-M[k])*2))-(VMmed);
  }
-
-
-
+#line 249 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
  x0 = (float)(value);
  y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);
 

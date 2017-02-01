@@ -23,6 +23,8 @@ main
 		_Div_FP
 		_AddSub_FP
 		_Mul_FP
+	Vector_Max
+	Vector_Min
 	_Long2Float
 	_AddSub_FP
 	_Mul_FP
@@ -32,4 +34,3 @@ main
 ADC1Int
 Timer2Interrupt
 Timer1Interrupt
-Ext_interrupt0
