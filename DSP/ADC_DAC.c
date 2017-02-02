@@ -163,7 +163,6 @@ void Configuracion(){
      //Configuracion de puertos
      AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
      TRISA0_bit = 1;                             //Set RA0 pin as input
-     //TRISA1_bit = 0;                             //Set RA1 pin as output
      TRISA4_bit = 1;                             //Set RA4 pin as input
      TRISB14_bit = 0;                            //Set RB14 pin as output
      TRISB7_bit = 1;                             //Set RB7 pin as input
@@ -231,9 +230,16 @@ void main() {
      Delay_ms(100);
      Lcd_Cmd(_LCD_CLEAR);
      
-     bm=0;
+     bp=0;
+     bm=5;
+     RA4_bit = 1;
      
      while(1){
+
+              if ((RA4_bit==0)&&(bp==0)){
+                 bp=1;
+                 bm=0;
+              }
 
               // Generacion de pulsos y captura de la señal de retorno //
               if (bm==0){
@@ -319,7 +325,7 @@ void main() {
                  FloatToStr(TOF, txt1);
                  FloatToStr(Dst, txt2);
 
-                 bm = 0;
+                 bm = 5;
 
               }
 
@@ -328,7 +334,7 @@ void main() {
               Lcd_Out(2,1,"Dst: ");
               Lcd_Out_Cp(txt2);
 
-
+              bp = 0;
               Delay_ms(10);
               
      }

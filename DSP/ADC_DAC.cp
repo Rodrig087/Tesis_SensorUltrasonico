@@ -152,7 +152,6 @@ void Configuracion(){
 
  AD1PCFGL = 0xFFFE;
  TRISA0_bit = 1;
-
  TRISA4_bit = 1;
  TRISB14_bit = 0;
  TRISB7_bit = 1;
@@ -220,9 +219,16 @@ void main() {
  Delay_ms(100);
  Lcd_Cmd(_LCD_CLEAR);
 
- bm=0;
+ bp=0;
+ bm=5;
+ RA4_bit = 1;
 
  while(1){
+
+ if ((RA4_bit==0)&&(bp==0)){
+ bp=1;
+ bm=0;
+ }
 
 
  if (bm==0){
@@ -308,7 +314,7 @@ void main() {
  FloatToStr(TOF, txt1);
  FloatToStr(Dst, txt2);
 
- bm = 0;
+ bm = 5;
 
  }
 
@@ -317,7 +323,7 @@ void main() {
  Lcd_Out(2,1,"Dst: ");
  Lcd_Out_Cp(txt2);
 
-
+ bp = 0;
  Delay_ms(10);
 
  }
