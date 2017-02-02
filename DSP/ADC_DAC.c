@@ -10,11 +10,11 @@ Descripcion:
 4.Realiza la deteccion de envolvente de la senal muestreada.
 5.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR (Fs=333.333KHz, T/2=650us)
-const float ca1 = 0.002542967903510;
-const float ca2 = 0.005085935807020;
-const float cb2 = -1.852373275346248;
-const float cb3 = 0.862545146960289;
+//Coeficientes filtro IIR (Fs=200KHz, T/2=1000us)
+const float ca1 = 0.004482805534581;
+const float ca2 = 0.008965611069163;
+const float cb2 = -1.801872917973333;
+const float cb3 = 0.819804140111658;
 
 //Conexiones módulo LCD
 sbit LCD_RS at LATB0_bit;
@@ -37,7 +37,7 @@ unsigned int contp;
 //Variables para el calculo de la Velocidad del sonido:
 float DSTemp, VSnd;
 //Variables para el almacenamiento de la señal muestreada:
-const unsigned int nm = 530;
+const unsigned int nm = 350;
 unsigned int M[nm];
 unsigned int i;
 unsigned int j;
@@ -60,7 +60,7 @@ unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2;
 const short dix=5;
-const float tx=2.5;
+const float tx=5.0;
 float yy0, yy1, yy2;
 float nx;
 float dx;
@@ -117,14 +117,12 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
         bm = 1;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
         T1CON.TON = 0;                             //Apaga el TMR1
         IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
-        T1IF_bit = 1;                               //  !!!!
      }
 
      AD1IF_bit = 0;                                //Limpia la bandera de interrupcion del ADC
 }
 //Interrupcion por desbordamiento del TMR1
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
-     LATA4_bit = ~LATA4_bit;
      SAMP_bit = 0;                                 //Limpia el bit SAMP para iniciar la conversion del ADC
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 }
@@ -136,7 +134,6 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
           RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
 
           if (contp==104){
-              //LATA4_bit = ~LATA4_bit;
               IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
               T2CON.TON = 0;                       //Apaga el TMR2
               IEC0.AD1IE = 1;                      //Habilita la interrupcion por conversion completa del ADC
@@ -184,7 +181,7 @@ void Configuracion(){
 
      AD1CON3.ADRC = 0;                           //Selecciona el reloj de conversion del ADC derivado del reloj del sistema
      AD1CON3bits.ADCS = 0x02;                    //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
-     AD1CON3bits.SAMC = 0x00;                    //Auto Sample Time bits, 2 -> 2*TAD (minimo periodo de muestreo para 10 bits)
+     AD1CON3bits.SAMC = 0x02;                    //Auto Sample Time bits, 2 -> 2*TAD (minimo periodo de muestreo para 10 bits)
 
      AD1CHS0 = 0;                                //ADC1 INPUT CHANNEL 0 SELECT REGISTER
      AD1CHS123 = 0;                              //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
@@ -199,7 +196,7 @@ void Configuracion(){
      T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
      IEC0.T1IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR1 desabilitada para no interferir con la lectura del sensor de temperatura
      T1IF_bit = 0;                               //Limpia la bandera de interrupcion
-     PR1 = 120;                                  //Genera una interrupcion cada 3us (Fs=333.333KHz)
+     PR1 = 200;                                  //Genera una interrupcion cada 5us (Fs=200KHz)
      
      ////Configuracion del TMR2
      T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
@@ -231,15 +228,17 @@ void main() {
      Lcd_Cmd(_LCD_CLEAR);
      
      bp=0;
-     bm=5;
+     bm=0;
      RA4_bit = 1;
      
      while(1){
 
-              if ((RA4_bit==0)&&(bp==0)){
+              /*if ((RA4_bit==0)&&(bp==0)){
                  bp=1;
                  bm=0;
-              }
+              }*/
+              
+              
 
               // Generacion de pulsos y captura de la señal de retorno //
               if (bm==0){
@@ -295,7 +294,6 @@ void main() {
               // Cálculo del punto maximo y TOF
               if (bm==2){
               
-                 DSTemp = 0.0;
                  VSnd = 0.0;
                  Velocidad();                                                //Llama a la funcion para calcular la Velocidad del sonido
 
@@ -317,6 +315,7 @@ void main() {
                  tmax = ((float)(i1))*tx;
                  
                  T2 = (tmax)+dx;
+                 //T2 = tmax;
                  T1 = 94 * 12.5;
                  
                  TOF = T1 + T2;
@@ -325,7 +324,7 @@ void main() {
                  FloatToStr(TOF, txt1);
                  FloatToStr(Dst, txt2);
 
-                 bm = 5;
+                 bm = 0;
 
               }
 
