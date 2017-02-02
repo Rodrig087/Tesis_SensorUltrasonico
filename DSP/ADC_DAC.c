@@ -10,11 +10,11 @@ Descripcion:
 4.Realiza la deteccion de envolvente de la senal muestreada.
 5.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR Paso-Bajo (Fs=200KHz, T/2=1000us)
-const float ca1 = 0.004482805534581;
-const float ca2 = 0.008965611069163;
-const float cb2 = -1.801872917973333;
-const float cb3 = 0.819804140111658;
+//Coeficientes filtro IIR (Fs=400KHz, T/2=650us)
+const float ca1 = 0.001782473524754;
+const float ca2 = 0.003564947049508;
+const float cb2 = -1.877073922968542;
+const float cb3 = 0.884203817067559;
 
 //Conexiones módulo LCD
 sbit LCD_RS at LATB0_bit;
@@ -37,14 +37,12 @@ unsigned int contp;
 //Variables para el calculo de la Velocidad del sonido:
 float DSTemp, VSnd;
 //Variables para el almacenamiento de la señal muestreada:
-const unsigned int nm = 365;
+const unsigned int nm = 730;
 unsigned int M[nm];
-unsigned int R[nm];
 unsigned int i;
 unsigned int j;
 unsigned int k;
 short bm;
-//unsigned int V[10]={1,2,3,4,50,50,50,7,8,9};
 //Variables para la deteccion de la Envolvente de la señal
 unsigned int value = 0;
 unsigned int aux_value = 0;
@@ -196,7 +194,7 @@ void Configuracion(){
      T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
      IEC0.T1IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR1 desabilitada para no interferir con la lectura del sensor de temperatura
      T1IF_bit = 0;                               //Limpia la bandera de interrupcion
-     PR1 = 200;                                  //Genera una interrupcion cada 5us (Fs=00KHz)
+     PR1 = 100;                                  //Genera una interrupcion cada 2.5us (Fs=400KHz)
      
      ////Configuracion del TMR2
      T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
@@ -224,6 +222,8 @@ void main() {
      Lcd_Cmd(_LCD_CLEAR);                        //Limpia el LCD
      Lcd_Cmd(_LCD_CURSOR_OFF);                   //Apaga el cursor del LCD
      Lcd_Out(1,1,"Iniciando... ");
+     Delay_ms(100);
+     Lcd_Cmd(_LCD_CLEAR);
      
      bm=0;
      
@@ -272,7 +272,7 @@ void main() {
                       x1 = x0;
 
                       YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
-                      R[k] = YY;
+                      M[k] = YY;
 
                       bm = 2;                                              //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
                       
@@ -293,16 +293,16 @@ void main() {
                  nx = 0.0;
                  dx = 0.0;
 
-                 yy1 = Vector_Max(R, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
+                 yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
                  i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
                  i0 = i1 - 5;
                  i2 = i1 + 5;
-                 yy0 = R[i0];
-                 yy2 = R[i2];
+                 yy0 = M[i0];
+                 yy2 = M[i2];
                  
                  nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));                   //Factor de ajuste determinado por interpolacion parabolica
-                 dx = nx * 25.0;
-                 tmax = ((float)(i1))*5.0;
+                 dx = nx * 12.5;
+                 tmax = ((float)(i1))*2.5;
                  
                  T2 = (tmax)+dx;
 

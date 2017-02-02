@@ -1,9 +1,9 @@
 #line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 #line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-const float ca1 = 0.004482805534581;
-const float ca2 = 0.008965611069163;
-const float cb2 = -1.801872917973333;
-const float cb3 = 0.819804140111658;
+const float ca1 = 0.001782473524754;
+const float ca2 = 0.003564947049508;
+const float cb2 = -1.877073922968542;
+const float cb3 = 0.884203817067559;
 
 
 sbit LCD_RS at LATB0_bit;
@@ -26,14 +26,12 @@ unsigned int contp;
 
 float DSTemp, VSnd;
 
-const unsigned int nm = 365;
+const unsigned int nm = 730;
 unsigned int M[nm];
-unsigned int R[nm];
 unsigned int i;
 unsigned int j;
 unsigned int k;
 short bm;
-
 
 unsigned int value = 0;
 unsigned int aux_value = 0;
@@ -185,7 +183,7 @@ void Configuracion(){
  T1CON = 0x8000;
  IEC0.T1IE = 0;
  T1IF_bit = 0;
- PR1 = 200;
+ PR1 = 100;
 
 
  T2CON = 0x8000;
@@ -213,6 +211,8 @@ void main() {
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
  Lcd_Out(1,1,"Iniciando... ");
+ Delay_ms(100);
+ Lcd_Cmd(_LCD_CLEAR);
 
  bm=0;
 
@@ -261,7 +261,7 @@ void main() {
  x1 = x0;
 
  YY = (unsigned int)(y0);
- R[k] = YY;
+ M[k] = YY;
 
  bm = 2;
 
@@ -282,16 +282,16 @@ void main() {
  nx = 0.0;
  dx = 0.0;
 
- yy1 = Vector_Max(R, nm, &maxIndex);
+ yy1 = Vector_Max(M, nm, &maxIndex);
  i1 = maxIndex;
  i0 = i1 - 5;
  i2 = i1 + 5;
- yy0 = R[i0];
- yy2 = R[i2];
+ yy0 = M[i0];
+ yy2 = M[i2];
 
  nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));
- dx = nx * 25.0;
- tmax = ((float)(i1))*5.0;
+ dx = nx * 12.5;
+ tmax = ((float)(i1))*2.5;
 
  T2 = (tmax)+dx;
 

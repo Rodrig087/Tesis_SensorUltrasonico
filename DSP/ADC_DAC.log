@@ -7,6 +7,6 @@ diagnostics: 335	123	Compiled Successfully	ADC_DAC.c
 warning: 230	1519	Logical expression is always: 'False'	ADC_DAC.c
 diagnostics: 0	127	All files Compiled in 109 ms	 
 diagnostics: 0	125	Project Linked Successfully	ADC_DAC.mcpds
-diagnostics: 0	128	Linked in 187 ms	 
-diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 468 ms	 
-diagnostics: 0	103	Finished successfully: 01 feb. 2017, 17:24:54	ADC_DAC.mcpds
+diagnostics: 0	128	Linked in 172 ms	 
+diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 438 ms	 
+diagnostics: 0	103	Finished successfully: 02 feb. 2017, 12:28:23	ADC_DAC.mcpds
