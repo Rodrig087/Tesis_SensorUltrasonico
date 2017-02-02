@@ -1085,6 +1085,7 @@ bm
 bor
 bor
 bor_bit
+bp
 bren
 bren
 bren_bit
@@ -1544,6 +1545,7 @@ disslw_bit
 div0err
 div0err
 div0err_bit
+dix
 dl
 dl_0
 dl_0_bit
@@ -5747,6 +5749,7 @@ tun2
 tun3
 tun4
 tun5
+tx
 txt1
 txt2
 txt3

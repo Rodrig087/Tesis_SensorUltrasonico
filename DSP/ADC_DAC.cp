@@ -1,9 +1,9 @@
 #line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 #line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-const float ca1 = 0.001782473524754;
-const float ca2 = 0.003564947049508;
-const float cb2 = -1.877073922968542;
-const float cb3 = 0.884203817067559;
+const float ca1 = 0.002542967903510;
+const float ca2 = 0.005085935807020;
+const float cb2 = -1.852373275346248;
+const float cb3 = 0.862545146960289;
 
 
 sbit LCD_RS at LATB0_bit;
@@ -26,7 +26,7 @@ unsigned int contp;
 
 float DSTemp, VSnd;
 
-const unsigned int nm = 730;
+const unsigned int nm = 530;
 unsigned int M[nm];
 unsigned int i;
 unsigned int j;
@@ -48,6 +48,8 @@ unsigned int MIndexMin;
 unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2;
+const short dix=5;
+const float tx=2.5;
 float yy0, yy1, yy2;
 float nx;
 float dx;
@@ -57,6 +59,8 @@ float T1, T2;
 float TOF, Dst;
 
 char txt1[6], txt2[6], txt3[6], txt4[6] ;
+
+short bp;
 
 
 
@@ -97,19 +101,20 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
  if (i<nm){
  M[i] = ADC1BUF0;
  i++;
- } else {
- LATA4_bit = ~LATA4_bit;
+ }
+ else{
  bm = 1;
  T1CON.TON = 0;
  IEC0.T1IE = 0;
+ T1IF_bit = 1;
  }
+
  AD1IF_bit = 0;
 }
 
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
- if (bm==0){
+ LATA4_bit = ~LATA4_bit;
  SAMP_bit = 0;
- }
  T1IF_bit = 0;
 }
 
@@ -120,12 +125,13 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  RB14_bit = 0;
 
  if (contp==104){
- LATA4_bit = ~LATA4_bit;
+
  IEC0.T2IE = 0;
  T2CON.TON = 0;
  IEC0.AD1IE = 1;
  IEC0.T1IE = 1;
  TMR1 = 0;
+ T1IF_bit = 0;
  T1CON.TON = 1;
  }
 
@@ -147,7 +153,7 @@ void Configuracion(){
  AD1PCFGL = 0xFFFE;
  TRISA0_bit = 1;
 
- TRISA4_bit = 0;
+ TRISA4_bit = 1;
  TRISB14_bit = 0;
  TRISB7_bit = 1;
 
@@ -168,7 +174,7 @@ void Configuracion(){
 
  AD1CON3.ADRC = 0;
  AD1CON3bits.ADCS = 0x02;
- AD1CON3bits.SAMC = 0x02;
+ AD1CON3bits.SAMC = 0x00;
 
  AD1CHS0 = 0;
  AD1CHS123 = 0;
@@ -183,7 +189,7 @@ void Configuracion(){
  T1CON = 0x8000;
  IEC0.T1IE = 0;
  T1IF_bit = 0;
- PR1 = 100;
+ PR1 = 120;
 
 
  T2CON = 0x8000;
@@ -284,41 +290,36 @@ void main() {
 
  yy1 = Vector_Max(M, nm, &maxIndex);
  i1 = maxIndex;
- i0 = i1 - 5;
- i2 = i1 + 5;
+ i0 = i1 - dix;
+ i2 = i1 + dix;
  yy0 = M[i0];
  yy2 = M[i2];
 
  nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));
- dx = nx * 12.5;
- tmax = ((float)(i1))*2.5;
+ dx = nx * dix * tx;
+ tmax = ((float)(i1))*tx;
 
  T2 = (tmax)+dx;
-
- bm = 3;
-
- }
-
- if (bm==3){
-
  T1 = 94 * 12.5;
+
  TOF = T1 + T2;
  Dst = VSnd * (TOF / 20000.0);
 
  FloatToStr(TOF, txt1);
  FloatToStr(Dst, txt2);
 
+ bm = 0;
+
+ }
+
  Lcd_Out(1,1,"TOF: ");
  Lcd_Out_Cp(txt1);
  Lcd_Out(2,1,"Dst: ");
  Lcd_Out_Cp(txt2);
 
- Delay_ms(1);
 
- bm = 0;
-
- }
  Delay_ms(10);
+
  }
 
 }
