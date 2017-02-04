@@ -73,6 +73,7 @@ char txt1[6], txt2[6], txt3[6], txt4[6] ;
 //Variables para peticion de datos
 short bp;
 short conts;
+float T2sum,T2prom;
 
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
@@ -310,17 +311,21 @@ void main() {
 
               TOF = 0.0;
               Dst = 0.0;
+              T2sum = 0.0;
+              T2prom = 0.0;
               conts = 0;
 
               while (conts<5){
                     Pulse();
+                    T2sum = T2sum + T2;
                     conts++;
               }
               
+              T2prom=(T2sum/5);
               Velocidad();
               
-              T1 = 94 * 12.5;
-              TOF = T1 + T2;
+              T1 = 100 * 12.5;
+              TOF = T1 + T2prom;
               Dst = VSnd * (TOF / 20000.0);
 
               FloatToStr(TOF, txt1);

@@ -54,8 +54,8 @@ main
 		_Mul_FP
 	Lcd_Out_CP
 		Lcd_Chr_CP
-	_AddSub_FP
 	_Div_FP
+	_AddSub_FP
 	_Mul_FP
 ADC1Int
 Timer2Interrupt

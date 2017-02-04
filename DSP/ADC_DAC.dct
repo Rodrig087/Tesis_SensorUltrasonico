@@ -5320,6 +5320,8 @@ t2ip2
 t2md
 t2md
 t2md_bit
+t2prom
+t2sum
 t32
 t32
 t32_bit
