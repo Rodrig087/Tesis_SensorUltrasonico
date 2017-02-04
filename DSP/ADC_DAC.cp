@@ -1,5 +1,5 @@
-#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-#line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/ADC_DAC.c"
+#line 14 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/ADC_DAC.c"
 const float ca1 = 0.004482805534581;
 const float ca2 = 0.008965611069163;
 const float cb2 = -1.801872917973333;
@@ -61,6 +61,7 @@ float TOF, Dst;
 char txt1[6], txt2[6], txt3[6], txt4[6] ;
 
 short bp;
+short conts;
 
 
 
@@ -95,6 +96,83 @@ void Velocidad(){
 }
 
 
+void Pulse(){
+
+
+ contp = 0;
+ RB14_bit = 0;
+ T2CON.TON = 0;
+ T2CON = 0x0000;
+ TMR2 = 0;
+ PR2 = 500;
+ IEC0.T2IE = 1;
+ T2CON.TON = 1;
+
+ i = 0;
+ j = 0;
+
+ while(bm!=1);
+
+
+ if (bm==1){
+
+
+ Mmax = Vector_Max(M, nm, &MIndexMax);
+ Mmin = Vector_Min(M, nm, &MIndexMin);
+ Mmed = Mmax-((Mmax-Mmin)/2);
+
+ for (k=0;k<nm;k++){
+
+
+ value = M[k]-Mmed;
+ if (M[k]<Mmed){
+ value = (M[k]+((Mmed-M[k])*2))-(Mmed);
+ }
+
+
+ x0 = (float)(value);
+ y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);
+
+ y2 = y1;
+ y1 = y0;
+ x2 = x1;
+ x1 = x0;
+
+ YY = (unsigned int)(y0);
+ M[k] = YY;
+
+ bm = 2;
+
+ }
+
+ }
+
+
+ if (bm==2){
+
+ yy0 = 0.0;
+ yy1 = 0.0;
+ yy2 = 0.0;
+ nx = 0.0;
+ dx = 0.0;
+
+ yy1 = Vector_Max(M, nm, &maxIndex);
+ i1 = maxIndex;
+ i0 = i1 - dix;
+ i2 = i1 + dix;
+ yy0 = M[i0];
+ yy2 = M[i2];
+
+ nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));
+ dx = nx * dix * tx;
+ tmax = ((float)(i1))*tx;
+
+ T2 = (tmax)+dx;
+
+ }
+
+}
+
 
 
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
@@ -112,6 +190,7 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
 }
 
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+ RB15_bit = ~RB15_bit;
  SAMP_bit = 0;
  T1IF_bit = 0;
 }
@@ -151,6 +230,7 @@ void Configuracion(){
  TRISA0_bit = 1;
  TRISA4_bit = 1;
  TRISB14_bit = 0;
+ TRISB15_bit = 0;
  TRISB7_bit = 1;
 
 
@@ -176,8 +256,6 @@ void Configuracion(){
  AD1CHS123 = 0;
 
  AD1CSSL = 0x00;
-
-
 
  AD1CON1.ADON = 1;
 
@@ -216,105 +294,32 @@ void main() {
  Delay_ms(100);
  Lcd_Cmd(_LCD_CLEAR);
 
- bp=0;
- bm=0;
- RA4_bit = 1;
 
  while(1){
-#line 244 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
- if (bm==0){
 
- contp = 0;
- RB14_bit = 0;
- T2CON.TON = 0;
- T2CON = 0x0000;
- TMR2 = 0;
- PR2 = 500;
- IEC0.T2IE = 1;
- T2CON.TON = 1;
+ TOF = 0.0;
+ Dst = 0.0;
+ conts = 0;
 
- i = 0;
- j = 0;
-
+ while (conts<5){
+ Pulse();
+ conts++;
  }
 
-
- if (bm==1){
-
-
- Mmax = Vector_Max(M, nm, &MIndexMax);
- Mmin = Vector_Min(M, nm, &MIndexMin);
- Mmed = Mmax-((Mmax-Mmin)/2);
-
- for (k=0;k<nm;k++){
-
-
- value = M[k]-Mmed;
- if (M[k]<Mmed){
- value = (M[k]+((Mmed-M[k])*2))-(Mmed);
- }
-
-
- x0 = (float)(value);
- y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);
-
- y2 = y1;
- y1 = y0;
- x2 = x1;
- x1 = x0;
-
- YY = (unsigned int)(y0);
- M[k] = YY;
-
- bm = 2;
-
- }
-
- }
-
-
- if (bm==2){
-
- VSnd = 0.0;
  Velocidad();
 
- yy0 = 0.0;
- yy1 = 0.0;
- yy2 = 0.0;
- nx = 0.0;
- dx = 0.0;
-
- yy1 = Vector_Max(M, nm, &maxIndex);
- i1 = maxIndex;
- i0 = i1 - dix;
- i2 = i1 + dix;
- yy0 = M[i0];
- yy2 = M[i2];
-
- nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));
- dx = nx * dix * tx;
- tmax = ((float)(i1))*tx;
-
- T2 = (tmax)+dx;
-
  T1 = 94 * 12.5;
-
  TOF = T1 + T2;
  Dst = VSnd * (TOF / 20000.0);
 
  FloatToStr(TOF, txt1);
  FloatToStr(Dst, txt2);
 
- bm = 0;
-
- }
-
  Lcd_Out(1,1,"TOF: ");
  Lcd_Out_Cp(txt1);
  Lcd_Out(2,1,"Dst: ");
  Lcd_Out_Cp(txt2);
 
- bp = 0;
  Delay_ms(10);
 
  }

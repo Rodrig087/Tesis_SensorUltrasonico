@@ -72,6 +72,7 @@ float TOF, Dst;
 char txt1[6], txt2[6], txt3[6], txt4[6] ;
 //Variables para peticion de datos
 short bp;
+short conts;
 
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
@@ -105,6 +106,83 @@ void Velocidad(){
      VSnd = 331.45 * sqrt(1+(DsTemp/273));       //Expresa la temperatura en punto flotante
 }
 
+//Funcion para la generacion y procesamiento de la señal
+void Pulse(){
+
+            // Generacion de pulsos y captura de la señal de retorno //
+            contp = 0;                                               //Limpia la variable del contador de pulsos
+            RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
+            T2CON.TON = 0;                                           //Apaga el TMR2
+            T2CON = 0x0000;                                          //Configura el contador en modo de 16 bits
+            TMR2 = 0;                                                //Encera el TMR2
+            PR2 = 500;                                               //Genera una interrupcion cada 12.5us
+            IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
+            T2CON.TON = 1;                                           //Enciende el TMR2
+
+            i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
+            j = 0;
+            
+            while(bm!=1);                                            //Espera hasta que haya terminado de enviar y recibir todas las muestras
+
+            // Procesamiento de la señal capturada //
+            if (bm==1){
+
+                //Determinacion de la amplitud media de la señal
+                Mmax = Vector_Max(M, nm, &MIndexMax);
+                Mmin = Vector_Min(M, nm, &MIndexMin);
+                Mmed = Mmax-((Mmax-Mmin)/2);
+
+                for (k=0;k<nm;k++){
+
+                    //Valor absoluto
+                    value = M[k]-Mmed;
+                    if (M[k]<Mmed){
+                       value = (M[k]+((Mmed-M[k])*2))-(Mmed);
+                    }
+
+                    //Filtrado
+                    x0 = (float)(value);                                 //Adquisición de una muestra de 10 bits en, x[0].
+                    y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
+
+                    y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
+                    y1 = y0;
+                    x2 = x1;
+                    x1 = x0;
+
+                    YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
+                    M[k] = YY;
+
+                    bm = 2;                                              //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
+
+                }
+
+            }
+
+            // Cálculo del punto maximo y TOF
+            if (bm==2){
+
+               yy0 = 0.0;
+               yy1 = 0.0;
+               yy2 = 0.0;
+               nx = 0.0;
+               dx = 0.0;
+
+               yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
+               i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
+               i0 = i1 - dix;
+               i2 = i1 + dix;
+               yy0 = M[i0];
+               yy2 = M[i2];
+
+               nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));                   //Factor de ajuste determinado por interpolacion parabolica
+               dx = nx * dix * tx;
+               tmax = ((float)(i1))*tx;
+
+               T2 = (tmax)+dx;
+
+            }
+
+}
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
 //Interrupcion por conversion completada del ADC
@@ -123,6 +201,7 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
 }
 //Interrupcion por desbordamiento del TMR1
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+     RB15_bit = ~RB15_bit;
      SAMP_bit = 0;                                 //Limpia el bit SAMP para iniciar la conversion del ADC
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 }
@@ -162,6 +241,7 @@ void Configuracion(){
      TRISA0_bit = 1;                             //Set RA0 pin as input
      TRISA4_bit = 1;                             //Set RA4 pin as input
      TRISB14_bit = 0;                            //Set RB14 pin as output
+     TRISB15_bit = 0;                            //Set RB15 pin as output
      TRISB7_bit = 1;                             //Set RB7 pin as input
 
      //Configuracion del ADC
@@ -187,8 +267,6 @@ void Configuracion(){
      AD1CHS123 = 0;                              //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
 
      AD1CSSL = 0x00;                             //Se salta todos los puertos ANx para los escaneos de entrada
-
-     //IEC0.AD1IE = 0x00;                          //Activa la interrupcion por conversion completa del ADC
 
      AD1CON1.ADON = 1;                           //Enciende el modulo ADC
 
@@ -227,113 +305,32 @@ void main() {
      Delay_ms(100);
      Lcd_Cmd(_LCD_CLEAR);
      
-     bp=0;
-     bm=0;
-     RA4_bit = 1;
      
      while(1){
 
-              /*if ((RA4_bit==0)&&(bp==0)){
-                 bp=1;
-                 bm=0;
-              }*/
-              
-              
+              TOF = 0.0;
+              Dst = 0.0;
+              conts = 0;
 
-              // Generacion de pulsos y captura de la señal de retorno //
-              if (bm==0){
-              
-                  contp = 0;                                               //Limpia la variable del contador de pulsos
-                  RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
-                  T2CON.TON = 0;                                           //Apaga el TMR2
-                  T2CON = 0x0000;                                          //Configura el contador en modo de 16 bits
-                  TMR2 = 0;                                                //Encera el TMR2
-                  PR2 = 500;                                               //Genera una interrupcion cada 12.5us
-                  IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
-                  T2CON.TON = 1;                                           //Enciende el TMR2
-                  
-                  i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
-                  j = 0;
-
+              while (conts<5){
+                    Pulse();
+                    conts++;
               }
               
-              // Procesamiento de la señal capturada //
-              if (bm==1){
+              Velocidad();
               
-                  //Determinacion punto medio señal
-                  Mmax = Vector_Max(M, nm, &MIndexMax);
-                  Mmin = Vector_Min(M, nm, &MIndexMin);
-                  Mmed = Mmax-((Mmax-Mmin)/2);
+              T1 = 94 * 12.5;
+              TOF = T1 + T2;
+              Dst = VSnd * (TOF / 20000.0);
 
-                  for (k=0;k<nm;k++){
-                  
-                      //Valor absoluto
-                      value = M[k]-Mmed;
-                      if (M[k]<Mmed){
-                         value = (M[k]+((Mmed-M[k])*2))-(Mmed);
-                      }
-                      
-                      //Filtrado
-                      x0 = (float)(value);                                 //Adquisición de una muestra de 10 bits en, x[0].
-                      y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
-
-                      y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
-                      y1 = y0;
-                      x2 = x1;
-                      x1 = x0;
-
-                      YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
-                      M[k] = YY;
-
-                      bm = 2;                                              //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
-                      
-                  }
-                  
-              }
+              FloatToStr(TOF, txt1);
+              FloatToStr(Dst, txt2);
               
-              // Cálculo del punto maximo y TOF
-              if (bm==2){
-              
-                 VSnd = 0.0;
-                 Velocidad();                                                //Llama a la funcion para calcular la Velocidad del sonido
-
-                 yy0 = 0.0;
-                 yy1 = 0.0;
-                 yy2 = 0.0;
-                 nx = 0.0;
-                 dx = 0.0;
-
-                 yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
-                 i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
-                 i0 = i1 - dix;
-                 i2 = i1 + dix;
-                 yy0 = M[i0];
-                 yy2 = M[i2];
-                 
-                 nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));                   //Factor de ajuste determinado por interpolacion parabolica
-                 dx = nx * dix * tx;
-                 tmax = ((float)(i1))*tx;
-                 
-                 T2 = (tmax)+dx;
-                 //T2 = tmax;
-                 T1 = 94 * 12.5;
-                 
-                 TOF = T1 + T2;
-                 Dst = VSnd * (TOF / 20000.0);
-
-                 FloatToStr(TOF, txt1);
-                 FloatToStr(Dst, txt2);
-
-                 bm = 0;
-
-              }
-
               Lcd_Out(1,1,"TOF: ");
               Lcd_Out_Cp(txt1);
               Lcd_Out(2,1,"Dst: ");
               Lcd_Out_Cp(txt2);
 
-              bp = 0;
               Delay_ms(10);
               
      }

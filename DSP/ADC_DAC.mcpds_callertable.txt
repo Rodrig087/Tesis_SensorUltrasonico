@@ -13,8 +13,16 @@ main
 		Lcd_Cmd
 		Lcd_Chr_CP
 			Lcd_Cmd
-	Vector_Max
-	Vector_Min
+	Pulse
+		Vector_Max
+		Vector_Min
+		_Long2Float
+		_Sub_FP
+			_AddSub_FP
+		_Mul_FP
+		_AddSub_FP
+		_Div_FP
+		_Float2Longint
 	Velocidad
 		Ow_Reset
 			Delay_500us
@@ -46,13 +54,9 @@ main
 		_Mul_FP
 	Lcd_Out_CP
 		Lcd_Chr_CP
-	_Long2Float
-	_Sub_FP
-		_AddSub_FP
-	_Mul_FP
 	_AddSub_FP
 	_Div_FP
-	_Float2Longint
+	_Mul_FP
 ADC1Int
 Timer2Interrupt
 Timer1Interrupt
