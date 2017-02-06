@@ -64,13 +64,13 @@ L_Velocidad2:
 	MOV	W0, W2
 ;ADC_DAC.c,84 :: 		if (Temp & 0x8000) {
 	BTSS	W0, #15
-	GOTO	L__Velocidad24
+	GOTO	L__Velocidad26
 ;ADC_DAC.c,85 :: 		Temp = 0;                                //Si la temperatura es negativa la establece como cero.
 	CLR	W2
 ; Temp end address is: 4 (W2)
 ;ADC_DAC.c,86 :: 		}
 	GOTO	L_Velocidad4
-L__Velocidad24:
+L__Velocidad26:
 ;ADC_DAC.c,84 :: 		if (Temp & 0x8000) {
 ;ADC_DAC.c,86 :: 		}
 L_Velocidad4:
@@ -159,18 +159,18 @@ L_Pulse5:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA NZ	L__Pulse27
+	BRA NZ	L__Pulse29
 	GOTO	L_Pulse6
-L__Pulse27:
+L__Pulse29:
 	GOTO	L_Pulse5
 L_Pulse6:
 ;ADC_DAC.c,114 :: 		if (bm==1){
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA Z	L__Pulse28
+	BRA Z	L__Pulse30
 	GOTO	L_Pulse7
-L__Pulse28:
+L__Pulse30:
 ;ADC_DAC.c,117 :: 		Mmax = Vector_Max(M, nm, &MIndexMax);
 	MOV	#lo_addr(_MIndexMax), W0
 	PUSH	W0
@@ -205,9 +205,9 @@ L_Pulse8:
 	MOV	_k, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__Pulse29
+	BRA LTU	L__Pulse31
 	GOTO	L_Pulse9
-L__Pulse29:
+L__Pulse31:
 ;ADC_DAC.c,124 :: 		value = M[k]-Mmed;
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -221,9 +221,9 @@ L__Pulse29:
 	MOV	[W3], W1
 	MOV	#lo_addr(_Mmed), W0
 	CP	W1, [W0]
-	BRA LTU	L__Pulse30
+	BRA LTU	L__Pulse32
 	GOTO	L_Pulse11
-L__Pulse30:
+L__Pulse32:
 ;ADC_DAC.c,126 :: 		value = (M[k]+((Mmed-M[k])*2))-(Mmed);
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -339,9 +339,9 @@ L_Pulse7:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #2
-	BRA Z	L__Pulse31
+	BRA Z	L__Pulse33
 	GOTO	L_Pulse12
-L__Pulse31:
+L__Pulse33:
 ;ADC_DAC.c,150 :: 		yy0 = 0.0;
 	CLR	W0
 	CLR	W1
@@ -507,9 +507,9 @@ _ADC1Int:
 	MOV	_i, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__ADC1Int33
+	BRA LTU	L__ADC1Int35
 	GOTO	L_ADC1Int13
-L__ADC1Int33:
+L__ADC1Int35:
 ;ADC_DAC.c,177 :: 		M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
 	MOV	_i, W0
 	SL	W0, #1, W1
@@ -585,9 +585,9 @@ _Timer2Interrupt:
 ;ADC_DAC.c,196 :: 		if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
 	MOV	_contp, W0
 	CP	W0, #10
-	BRA LTU	L__Timer2Interrupt36
+	BRA LTU	L__Timer2Interrupt38
 	GOTO	L_Timer2Interrupt15
-L__Timer2Interrupt36:
+L__Timer2Interrupt38:
 ;ADC_DAC.c,197 :: 		RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
 	BTG	RB14_bit, BitPos(RB14_bit+0)
 ;ADC_DAC.c,198 :: 		}else {
@@ -599,9 +599,9 @@ L_Timer2Interrupt15:
 	MOV	#104, W1
 	MOV	#lo_addr(_contp), W0
 	CP	W1, [W0]
-	BRA Z	L__Timer2Interrupt37
+	BRA Z	L__Timer2Interrupt39
 	GOTO	L_Timer2Interrupt17
-L__Timer2Interrupt37:
+L__Timer2Interrupt39:
 ;ADC_DAC.c,202 :: 		IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
 	BCLR	IEC0, #7
 ;ADC_DAC.c,203 :: 		T2CON.TON = 0;                       //Apaga el TMR2
@@ -799,7 +799,27 @@ _Configuracion:
 	XOR.B	W1, [W0], W1
 	MOV	#lo_addr(IPC0bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,279 :: 		}
+;ADC_DAC.c,280 :: 		RPINR18bits.U1RXR = 0x0C;                   //Asisgna Rx a RP12
+	MOV.B	#12, W0
+	MOV.B	W0, W1
+	MOV	#lo_addr(RPINR18bits), W0
+	XOR.B	W1, [W0], W1
+	AND.B	W1, #31, W1
+	MOV	#lo_addr(RPINR18bits), W0
+	XOR.B	W1, [W0], W1
+	MOV	#lo_addr(RPINR18bits), W0
+	MOV.B	W1, [W0]
+;ADC_DAC.c,281 :: 		RPOR6bits.RP13R = 0x03;                     //Asigna Tx a RP13
+	MOV	#768, W0
+	MOV	W0, W1
+	MOV	#lo_addr(RPOR6bits), W0
+	XOR	W1, [W0], W1
+	MOV	#7936, W0
+	AND	W1, W0, W1
+	MOV	#lo_addr(RPOR6bits), W0
+	XOR	W1, [W0], W1
+	MOV	W1, RPOR6bits
+;ADC_DAC.c,283 :: 		}
 L_end_Configuracion:
 	RETURN
 ; end of _Configuracion
@@ -813,49 +833,64 @@ _main:
 	MOV	#4, W0
 	IOR	68
 
-;ADC_DAC.c,283 :: 		void main() {
-;ADC_DAC.c,285 :: 		Configuracion();
+;ADC_DAC.c,287 :: 		void main() {
+;ADC_DAC.c,289 :: 		Configuracion();
 	PUSH	W10
 	PUSH	W11
 	PUSH	W12
 	CALL	_Configuracion
-;ADC_DAC.c,287 :: 		while(1){
+;ADC_DAC.c,291 :: 		UART1_Init(9600);               // Initialize UART module at 9600 bps
+	MOV	#9600, W10
+	MOV	#0, W11
+	CALL	_UART1_Init
+;ADC_DAC.c,292 :: 		Delay_ms(100);                  // Wait for UART module to stabilize
+	MOV	#21, W8
+	MOV	#22619, W7
 L_main18:
-;ADC_DAC.c,289 :: 		TOF = 0.0;
+	DEC	W7
+	BRA NZ	L_main18
+	DEC	W8
+	BRA NZ	L_main18
+;ADC_DAC.c,293 :: 		UART_Write_Text("Start");
+	MOV	#lo_addr(?lstr1_ADC_DAC), W10
+	CALL	_UART_Write_Text
+;ADC_DAC.c,295 :: 		while(1){
+L_main20:
+;ADC_DAC.c,297 :: 		TOF = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _TOF
 	MOV	W1, _TOF+2
-;ADC_DAC.c,290 :: 		Dst = 0.0;
+;ADC_DAC.c,298 :: 		Dst = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _Dst
 	MOV	W1, _Dst+2
-;ADC_DAC.c,291 :: 		T2sum = 0.0;
+;ADC_DAC.c,299 :: 		T2sum = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _T2sum
 	MOV	W1, _T2sum+2
-;ADC_DAC.c,292 :: 		T2prom = 0.0;
+;ADC_DAC.c,300 :: 		T2prom = 0.0;
 	CLR	W0
 	CLR	W1
 	MOV	W0, _T2prom
 	MOV	W1, _T2prom+2
-;ADC_DAC.c,293 :: 		conts = 0;
+;ADC_DAC.c,301 :: 		conts = 0;
 	MOV	#lo_addr(_conts), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,295 :: 		while (conts<5){
-L_main20:
+;ADC_DAC.c,303 :: 		while (conts<5){
+L_main22:
 	MOV	#lo_addr(_conts), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #5
-	BRA LT	L__main40
-	GOTO	L_main21
-L__main40:
-;ADC_DAC.c,296 :: 		Pulse();
+	BRA LT	L__main42
+	GOTO	L_main23
+L__main42:
+;ADC_DAC.c,304 :: 		Pulse();
 	CALL	_Pulse
-;ADC_DAC.c,297 :: 		T2sum = T2sum + T2;
+;ADC_DAC.c,305 :: 		T2sum = T2sum + T2;
 	MOV	_T2sum, W2
 	MOV	_T2sum+2, W3
 	MOV	_T2, W0
@@ -863,14 +898,14 @@ L__main40:
 	CALL	__AddSub_FP
 	MOV	W0, _T2sum
 	MOV	W1, _T2sum+2
-;ADC_DAC.c,298 :: 		conts++;
+;ADC_DAC.c,306 :: 		conts++;
 	MOV.B	#1, W1
 	MOV	#lo_addr(_conts), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,299 :: 		}
-	GOTO	L_main20
-L_main21:
-;ADC_DAC.c,301 :: 		T2prom=(T2sum/5);
+;ADC_DAC.c,307 :: 		}
+	GOTO	L_main22
+L_main23:
+;ADC_DAC.c,309 :: 		T2prom=(T2sum/5);
 	MOV	#0, W2
 	MOV	#16544, W3
 	MOV	_T2sum, W0
@@ -878,14 +913,14 @@ L_main21:
 	CALL	__Div_FP
 	MOV	W0, _T2prom
 	MOV	W1, _T2prom+2
-;ADC_DAC.c,302 :: 		Velocidad();
+;ADC_DAC.c,310 :: 		Velocidad();
 	CALL	_Velocidad
-;ADC_DAC.c,304 :: 		T1 = 100 * 12.5;
+;ADC_DAC.c,312 :: 		T1 = 100 * 12.5;
 	MOV	#16384, W0
 	MOV	#17564, W1
 	MOV	W0, _T1
 	MOV	W1, _T1+2
-;ADC_DAC.c,305 :: 		TOF = T1 + T2prom;
+;ADC_DAC.c,313 :: 		TOF = T1 + T2prom;
 	MOV	#16384, W2
 	MOV	#17564, W3
 	MOV	_T2prom, W0
@@ -893,7 +928,7 @@ L_main21:
 	CALL	__AddSub_FP
 	MOV	W0, _TOF
 	MOV	W1, _TOF+2
-;ADC_DAC.c,306 :: 		Dst = VSnd * (TOF / 20000.0);
+;ADC_DAC.c,314 :: 		Dst = VSnd * (TOF / 20000.0);
 	MOV	#16384, W2
 	MOV	#18076, W3
 	CALL	__Div_FP
@@ -902,27 +937,27 @@ L_main21:
 	CALL	__Mul_FP
 	MOV	W0, _Dst
 	MOV	W1, _Dst+2
-;ADC_DAC.c,308 :: 		FloatToStr(TOF, txt1);
+;ADC_DAC.c,316 :: 		FloatToStr(TOF, txt1);
 	MOV	#lo_addr(_txt1), W12
 	MOV	_TOF, W10
 	MOV	_TOF+2, W11
 	CALL	_FloatToStr
-;ADC_DAC.c,309 :: 		FloatToStr(Dst, txt2);
+;ADC_DAC.c,317 :: 		FloatToStr(Dst, txt2);
 	MOV	#lo_addr(_txt2), W12
 	MOV	_Dst, W10
 	MOV	_Dst+2, W11
 	CALL	_FloatToStr
-;ADC_DAC.c,311 :: 		Delay_ms(10);
+;ADC_DAC.c,319 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
-L_main22:
+L_main24:
 	DEC	W7
-	BRA NZ	L_main22
+	BRA NZ	L_main24
 	DEC	W8
-	BRA NZ	L_main22
-;ADC_DAC.c,313 :: 		}
-	GOTO	L_main18
-;ADC_DAC.c,315 :: 		}
+	BRA NZ	L_main24
+;ADC_DAC.c,321 :: 		}
+	GOTO	L_main20
+;ADC_DAC.c,323 :: 		}
 L_end_main:
 	POP	W12
 	POP	W11

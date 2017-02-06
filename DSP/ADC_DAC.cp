@@ -1,5 +1,5 @@
-#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/ADC_DAC.c"
-#line 14 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/ADC_DAC.c"
+#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+#line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
 const float ca1 = 0.004482805534581;
 const float ca2 = 0.008965611069163;
 const float cb2 = -1.801872917973333;
@@ -266,7 +266,8 @@ void Configuracion(){
  IPC0bits.INT0IP = 0x04;
 
 
- RPINR18.
+ RPINR18bits.U1RXR = 0x0C;
+ RPOR6bits.RP13R = 0x03;
 
 }
 
@@ -275,6 +276,10 @@ void Configuracion(){
 void main() {
 
  Configuracion();
+
+ UART1_Init(9600);
+ Delay_ms(100);
+ UART_Write_Text("Start");
 
  while(1){
 

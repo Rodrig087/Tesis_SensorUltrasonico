@@ -277,7 +277,8 @@ void Configuracion(){
      IPC0bits.INT0IP = 0x04;                     //Nivel de prioridad de la interrupcion INT0
      
      //Configuracion UART
-     RPINR18.
+     RPINR18bits.U1RXR = 0x0C;                   //Asisgna Rx a RP12
+     RPOR6bits.RP13R = 0x03;                     //Asigna Tx a RP13
      
 }
 
@@ -286,6 +287,10 @@ void Configuracion(){
 void main() {
 
      Configuracion();
+     
+     UART1_Init(9600);               // Initialize UART module at 9600 bps
+     Delay_ms(100);                  // Wait for UART module to stabilize
+     UART_Write_Text("Start");
 
      while(1){
 

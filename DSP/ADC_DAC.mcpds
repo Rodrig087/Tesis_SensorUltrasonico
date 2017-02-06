@@ -36,8 +36,8 @@ Count=0
 Count=7
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\uses\
-Path2=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\
-Path3=D:\Git\Tesis_SensorUltrasonico\DSP\
+Path2=D:\Git\Tesis_SensorUltrasonico\DSP\
+Path3=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\
 Path4=D:\Git\Tesis_Test\ADC_DAC_dsPIC\
 Path5=E:\Milton\Github\Tesis\Test\ADC_DAC_dsPIC\
 Path6=E:\Milton\Tesis\Programas\MikroC\Ejemplos\ADC_DAC_dsPIC\
@@ -48,7 +48,7 @@ Count=0
 [PLDS]
 Count=0
 [Useses]
-Count=7
+Count=8
 File0=C_Math
 File1=One_Wire
 File2=Vectors
@@ -56,6 +56,7 @@ File3=Lcd
 File4=Lcd_Constants
 File5=Conversions
 File6=C_String
+File7=UART
 [EXPANDED NODES]
 Node1=Sources
 Node2=Output Files
