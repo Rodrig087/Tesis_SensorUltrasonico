@@ -222,10 +222,10 @@
      <ITEM name="TopLineAddress">00000000</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="450" x="733" flags="00008023" y="273" h="250" pid="0" iid="23">
+   <POPUP w="450" x="963" flags="00008023" y="299" h="250" pid="0" iid="23">
     <PROPERTIES>
      <ITEM name="AutoEcho">0</ITEM>
-     <ITEM name="HexMode">1</ITEM>
+     <ITEM name="HexMode">0</ITEM>
     </PROPERTIES>
    </POPUP>
    <POPUP w="52" x="88" flags="00000008" y="149" h="12" pid="3" iid="15">
@@ -251,7 +251,7 @@
      <ITEM name="TopLineAddress">00000000</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="8" x="148" flags="80000002" y="209" h="16" pid="12" iid="15">
+   <POPUP w="8" x="148" flags="00000002" y="209" h="16" pid="12" iid="15">
     <PROPERTIES>
      <ITEM name="DataType">2</ITEM>
      <ITEM name="DispChars">Yes</ITEM>
@@ -294,7 +294,7 @@
    <POPUP w="18" x="228" flags="00000008" y="289" h="32" pid="10" iid="15">
     <PROPERTIES/>
    </POPUP>
-   <POPUP w="8" x="248" flags="80000002" y="309" h="8" pid="13" iid="15">
+   <POPUP w="8" x="248" flags="00000002" y="309" h="8" pid="13" iid="15">
     <PROPERTIES>
      <ITEM name="DataType">2</ITEM>
      <ITEM name="DispChars">Yes</ITEM>
