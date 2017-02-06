@@ -33,14 +33,15 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=7
+Count=8
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\uses\
-Path2=D:\Git\Tesis_SensorUltrasonico\DSP\
-Path3=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\
-Path4=D:\Git\Tesis_Test\ADC_DAC_dsPIC\
-Path5=E:\Milton\Github\Tesis\Test\ADC_DAC_dsPIC\
-Path6=E:\Milton\Tesis\Programas\MikroC\Ejemplos\ADC_DAC_dsPIC\
+Path2=D:\Git\Tesis_SensorUltrasonico\DSP\dsPIC\
+Path3=D:\Git\Tesis_SensorUltrasonico\DSP\
+Path4=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\
+Path5=D:\Git\Tesis_Test\ADC_DAC_dsPIC\
+Path6=E:\Milton\Github\Tesis\Test\ADC_DAC_dsPIC\
+Path7=E:\Milton\Tesis\Programas\MikroC\Ejemplos\ADC_DAC_dsPIC\
 [HEADER_PATH]
 Count=0
 [HEADERS]

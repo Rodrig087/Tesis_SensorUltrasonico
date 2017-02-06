@@ -124,6 +124,8 @@ b7
 banked
 baudcon
 baudctl
+bcd2dec
+bcd2dec16
 bclie
 bclie_bit
 bclif
@@ -150,6 +152,8 @@ btsee_bit
 btsef
 btsef_bit
 byte2double
+bytetohex
+bytetostr
 c
 c_bit
 c1inv
@@ -243,6 +247,7 @@ cmip
 cmip_bit
 comfrem
 compare_double
+configuracion
 crc16ee
 crc16ee_bit
 crc16ef
@@ -294,6 +299,8 @@ dc2b0
 dc2b0_bit
 dc2b1
 dc2b1_bit
+dec2bcd
+dec2bcd16
 delay_100ms
 delay_10ms
 delay_10us
@@ -451,6 +458,7 @@ fast
 ferr
 ferr_bit
 fixsign32
+floattostr
 flts
 flts_bit
 free
@@ -594,8 +602,12 @@ intedg1
 intedg1_bit
 intedg2
 intedg2_bit
+interrupt
 intsrc
 intsrc_bit
+inttohex
+inttostr
+inttostrwithzeros
 iofs
 iofs_bit
 ipen
@@ -612,6 +624,7 @@ irvst
 irvst_bit
 ivrst
 ivrst_bit
+j
 lata
 lata0
 lata0_bit
@@ -698,8 +711,15 @@ lcd_out_cp
 lcd_rs
 lcd_rs_direction
 longint2double
+longinttohex
+longinttostrwithzeros
 longjmp
+longtostr
 longword2double
+longwordtohex
+longwordtostr
+longwordtostrwithzeros
+ltrim
 lvdcon
 lvden
 lvden_bit
@@ -728,6 +748,11 @@ lvv2_bit
 lvv3
 lvv3_bit
 main
+memchr
+memcmp
+memcpy
+memmove
+memset
 mul_16x16_s
 mul_16x16_u
 mul_32x32_fp
@@ -895,6 +920,7 @@ pssbd0
 pssbd0_bit
 pssbd1
 pssbd1_bit
+ptrtt2
 r
 r_bit
 r_not_w
@@ -1032,6 +1058,7 @@ ri
 ri_bit
 rsen
 rsen_bit
+rtrim
 rx_
 rx__bit
 rx9
@@ -1062,6 +1089,8 @@ setfov32
 setfun32
 setiov3224
 setjmp
+shorttohex
+shorttostr
 smp
 smp_bit
 sofie
@@ -1151,6 +1180,20 @@ stkptr4
 stkptr4_bit
 stkunf
 stkunf_bit
+strcat
+strchr
+strcmp
+strcpy
+strcspn
+strlen
+strncat
+strncmp
+strncpy
+strpbrk
+strrchr
+strspn
+strstr
+strtok
 sub_32x32_fp
 suspnd
 suspnd_bit
@@ -1199,6 +1242,7 @@ t1run
 t1run_bit
 t1sync
 t1sync_bit
+t2
 t2ckps0
 t2ckps0_bit
 t2ckps1
@@ -1286,6 +1330,7 @@ toutps2
 toutps2_bit
 toutps3
 toutps3_bit
+trama
 trisa
 trisa0
 trisa0_bit
@@ -1359,6 +1404,7 @@ trnie
 trnie_bit
 trnif
 trnif_bit
+tt2
 tun0
 tun0_bit
 tun1
@@ -1387,6 +1433,8 @@ txip
 txip_bit
 txreg
 txsta
+txt1
+txt2
 ua
 ua_bit
 uaddr
@@ -1475,6 +1523,9 @@ wcol
 wcol_bit
 wdtcon
 word2double
+wordtohex
+wordtostr
+wordtostrwithzeros
 wr
 wr_bit
 wreg

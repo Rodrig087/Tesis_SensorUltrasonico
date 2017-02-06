@@ -1200,6 +1200,7 @@ chps_1
 chps_1_bit
 chps0
 chps1
+cht2
 cke
 cke
 cke_bit
@@ -2826,6 +2827,7 @@ iwcol
 iwcol_bit
 j
 k
+l
 lata
 lata0
 lata0
@@ -5578,6 +5580,7 @@ tqgate
 tqgate
 tqgate
 tqgate_bit
+trama
 trapr
 trapr
 trapr_bit
@@ -5666,6 +5669,7 @@ tsidl_t3con_bit
 tsync
 tsync
 tsync_bit
+tt2
 tun
 tun_0
 tun_0_bit

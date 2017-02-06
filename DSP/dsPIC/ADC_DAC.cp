@@ -1,9 +1,9 @@
-#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-#line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
-const float ca1 = 0.004482805534581;
-const float ca2 = 0.008965611069163;
-const float cb2 = -1.801872917973333;
-const float cb3 = 0.819804140111658;
+#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+const float ca1 = 0.006745773600345;
+const float ca2 = 0.013491547200690;
+const float cb2 = -1.754594315763869;
+const float cb3 = 0.781577410165250;
 
 
 
@@ -48,6 +48,10 @@ char txt1[6], txt2[6], txt3[6], txt4[6] ;
 short bp;
 short conts;
 float T2sum,T2prom;
+unsigned long TT2;
+unsigned char *chT2;
+unsigned char trama[4];
+short l;
 
 
 
@@ -295,15 +299,26 @@ void main() {
  conts++;
  }
 
- T2prom=(T2sum/5);
- Velocidad();
 
- T1 = 100 * 12.5;
- TOF = T1 + T2prom;
- Dst = VSnd * (TOF / 20000.0);
 
- FloatToStr(TOF, txt1);
- FloatToStr(Dst, txt2);
+
+
+
+
+
+ T2prom = 845.75;
+ TT2 = T2Prom * 100.0;
+
+ chT2 = (unsigned char *) & TT2;
+
+ for (l=0;l<4;l++){
+ trama[l]=(*chT2++);
+ }
+
+ for (l=0;l<4;l++){
+ UART1_Write(trama[l]);
+ }
+
 
  Delay_ms(10);
 

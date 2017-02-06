@@ -14,29 +14,70 @@ sbit LCD_D6_Direction at TRISD4_bit;
 sbit LCD_D7_Direction at TRISD5_bit;
 // End LCD module connections
 
-char uart_rd;
 
+// Declaracion de variables //
+//Variables para la lectura y almacenamiento del dato proveniente del UART
+char uart_rd;
+char txt1[6], txt2[6];
+unsigned char  *ptrTT2;
+float T2;
+unsigned long TT2;
+unsigned short j;
+unsigned char trama[4];
+
+// Interrupciones //
+void interrupt(void){
+      if (PIR1.F5){
+         //if (j<4){
+             trama[j] = UART1_Read();
+             j++;
+         //}
+         
+         PIR1.F5 = 0;
+     }
+}
+
+
+// Configuracion //
+void Configuracion(){
+
+      RCIE_bit = 0;                         // enable interrupt on UART1 receive
+      TXIE_bit = 0;                         // disable interrupt on UART1 transmit
+      PEIE_bit = 1;                         // enable peripheral interrupts
+      GIE_bit = 1;
+
+      UART1_Init(9600);                     // Inicializa el UART a 9600 bps
+      Delay_ms(100);
+
+      Lcd_Init();                           // Initialize LCD
+      Lcd_Cmd(_LCD_CLEAR);                  // Clear display
+      Lcd_Cmd(_LCD_CURSOR_OFF);             // Cursor off
+}
 
 
 void main() {
 
-     Lcd_Init();                        // Initialize LCD
-     Lcd_Cmd(_LCD_CLEAR);               // Clear display
-     Lcd_Cmd(_LCD_CURSOR_OFF);          // Cursor off
+     Configuracion();
      Lcd_Out(1, 1, "Hello!");
-     
-     UART1_Init(9600);               // Initialize UART module at 9600 bps
-     Delay_ms(100);                  // Wait for UART module to stabilize
+     ptrTT2 = &TT2;
+     //ptrT2 = (unsigned char *) & T2;
      
      while (1){
 
-            if (UART1_Data_Ready()) {     // If data is received,
-               uart_rd = UART1_Read();     // read the received data,
-               //UART1_Write(uart_rd);       // and send data via UART
-               Lcd_Out(1, 1, "TOF: ");
-               Lcd_Chr_Cp(uart_rd);
-               
-            }
+            
+            *(ptrTT2) = trama[3];
+            *(ptrTT2+1) = trama[2];
+            *(ptrTT2+2) = trama[1];
+            *(ptrTT2+3) = trama[0];
+            
+            j=0;
+            
+            T2 = TT2 / 100.0;
+            FloatToStr(T2,txt1);
+
+            Lcd_Out(1, 1, "T2: ");
+            Lcd_Out_Cp(txt1);
+            
 
      }
 
