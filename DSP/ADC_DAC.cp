@@ -6,21 +6,6 @@ const float cb2 = -1.801872917973333;
 const float cb3 = 0.819804140111658;
 
 
-sbit LCD_RS at LATB0_bit;
-sbit LCD_EN at LATB1_bit;
-sbit LCD_D4 at LATB2_bit;
-sbit LCD_D5 at LATB3_bit;
-sbit LCD_D6 at LATB4_bit;
-sbit LCD_D7 at LATB5_bit;
-sbit LCD_RS_Direction at TRISB0_bit;
-sbit LCD_EN_Direction at TRISB1_bit;
-sbit LCD_D4_Direction at TRISB2_bit;
-sbit LCD_D5_Direction at TRISB3_bit;
-sbit LCD_D6_Direction at TRISB4_bit;
-sbit LCD_D7_Direction at TRISB5_bit;
-
-
-
 
 unsigned int contp;
 
@@ -280,6 +265,9 @@ void Configuracion(){
  IPC1bits.T2IP = 0x05;
  IPC0bits.INT0IP = 0x04;
 
+
+ RPINR18.
+
 }
 
 
@@ -287,14 +275,6 @@ void Configuracion(){
 void main() {
 
  Configuracion();
-
- Lcd_init();
- Lcd_Cmd(_LCD_CLEAR);
- Lcd_Cmd(_LCD_CURSOR_OFF);
- Lcd_Out(1,1,"Iniciando... ");
- Delay_ms(100);
- Lcd_Cmd(_LCD_CLEAR);
-
 
  while(1){
 
@@ -319,11 +299,6 @@ void main() {
 
  FloatToStr(TOF, txt1);
  FloatToStr(Dst, txt2);
-
- Lcd_Out(1,1,"TOF: ");
- Lcd_Out_Cp(txt1);
- Lcd_Out(2,1,"Dst: ");
- Lcd_Out_Cp(txt2);
 
  Delay_ms(10);
 
