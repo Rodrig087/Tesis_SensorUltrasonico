@@ -40,16 +40,14 @@ unsigned int Mmin=0;
 unsigned int Mmed=0;
 unsigned int MIndexMax;
 unsigned int MIndexMin;
-
+//------------------------------------------------------------------------------
 unsigned int VP=0;
 unsigned int maxIndex;
-unsigned int i0, i1, i2;
+unsigned int i0, i1, i2, imax;
 const short dix=5;
 const float tx=5.0;
 float yy0, yy1, yy2;
-float nx;
-float dx;
-float tmax;
+float nx, dx, tmax;
 //Variables para calcular el TOF
 float T1, T2;
 float TOF, Dst;
@@ -100,17 +98,22 @@ void Velocidad(){
 void Pulse(){
 
             // Generacion de pulsos y captura de la señal de retorno //
-            contp = 0;                                               //Limpia la variable del contador de pulsos
-            RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
-            T2CON.TON = 0;                                           //Apaga el TMR2
-            T2CON = 0x0000;                                          //Configura el contador en modo de 16 bits
-            TMR2 = 0;                                                //Encera el TMR2
-            PR2 = 500;                                               //Genera una interrupcion cada 12.5us
-            IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
-            T2CON.TON = 1;                                           //Enciende el TMR2
+            //if (bm==0){
+            
+                contp = 0;                                               //Limpia la variable del contador de pulsos
+                RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
 
-            i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
-            j = 0;
+                T1CON.TON = 0;                                           //Apaga el TMR1
+                IEC0.T1IE = 0;                                           //Desabilita la interrupcion por desborde del TMR1
+
+                TMR2 = 0;                                                //Encera el TMR2
+                IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
+                T2CON.TON = 1;                                           //Enciende el TMR2
+
+                i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
+                j = 0;
+            
+            //}
             
             while(bm!=1);                                            //Espera hasta que haya terminado de enviar y recibir todas las muestras
 
@@ -142,36 +145,46 @@ void Pulse(){
                     YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
                     M[k] = YY;
 
-                    bm = 2;                                              //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
-
                 }
+
+                bm = 2;                                                  //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
 
             }
 
             // Cálculo del punto maximo y TOF
             if (bm==2){
 
-               yy0 = 0.0;
-               yy1 = 0.0;
-               yy2 = 0.0;
-               nx = 0.0;
-               dx = 0.0;
-
-               yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
+               yy1 = (float)(Vector_Max(M, nm, &maxIndex));                         //Encuentra el valor maximo del vector R
                i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
                i0 = i1 - dix;
                i2 = i1 + dix;
-               yy0 = M[i0];
-               yy2 = M[i2];
+               
+               yy0 = (float)(M[i0]);
+               yy2 = (float)(M[i2]);
 
                nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));                   //Factor de ajuste determinado por interpolacion parabolica
-               dx = nx * dix * tx;
-               tmax = ((float)(i1))*tx;
+               dx = nx*dix*tx;
+               tmax = i1*tx;
 
-               T2 = (tmax)+dx;
+               T2 = tmax+dx;
+               imax = (int)(T2);
+               
+               M[0]=500;
+               M[i0]=250;
+               M[i1]=350;
+               M[imax]=500;
+               M[i2]=250;
+               M[nm-2]=500;
+
+               IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
+               TMR1 = 0;                                                //Encera el TMR1
+               T1IF_bit = 0;                                            //Limpia la bandera de interrupcion por desbordamiento del TMR1
+               T1CON.TON = 1;                                           //Enciende el TMR1
+               bm = 3;
 
             }
 
+            while(bm!=4);
 }
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
@@ -192,7 +205,19 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
 //Interrupcion por desbordamiento del TMR1
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      RB15_bit = ~RB15_bit;
-     SAMP_bit = 0;                                 //Limpia el bit SAMP para iniciar la conversion del ADC
+     if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
+        SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
+     }
+     if (bm==3) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
+          if (j<nm){
+             LATB = (M[j]&0x03FF);
+             j++;
+          } else {
+             bm = 4;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
+             T1CON.TON = 0;                             //Apaga el TMR1
+             IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
+          }
+     }
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 }
 //Interrupcion por desbordamiento del TMR2
@@ -210,6 +235,7 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
               TMR1 = 0;                            //Encera el TMR1
               T1IF_bit = 0;                        //Limpia la bandera de interrupcion por desbordamiento del TMR1
               T1CON.TON = 1;                       //Enciende el TMR1
+              bm=0;
           }
 
      }
@@ -230,9 +256,7 @@ void Configuracion(){
      AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
      TRISA0_bit = 1;                             //Set RA0 pin as input
      TRISA4_bit = 1;                             //Set RA4 pin as input
-     TRISB14_bit = 0;                            //Set RB14 pin as output
-     TRISB15_bit = 0;                            //Set RB15 pin as output
-     TRISB7_bit = 1;                             //Set RB7 pin as input
+     TRISB = 0;                                  //Set RB14 pin as output
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
@@ -270,6 +294,7 @@ void Configuracion(){
      T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
      IEC0.T2IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR2 desabilitada para no interferir con la lectura del sensor de temperatura
      T2IF_bit = 0;                               //Limpia la bandera de interrupcion
+     PR2 = 500;                                  //Genera una interrupcion cada 12.5us
 
      //Configuracion INT0
      INTCON2.INT0EP = 0;                         //Interrupcion en flanco positivo
@@ -294,7 +319,7 @@ void main() {
      
      UART1_Init(9600);               // Initialize UART module at 9600 bps
      Delay_ms(100);                  // Wait for UART module to stabilize
-     UART_Write_Text("Start");
+     //UART_Write_Text("Start");
 
      while(1){
 
@@ -303,6 +328,7 @@ void main() {
               T2sum = 0.0;
               T2prom = 0.0;
               conts = 0;
+              //bm = 0;
 
               while (conts<5){
                     Pulse();
@@ -310,14 +336,13 @@ void main() {
                     conts++;
               }
               
-              //T2prom=(T2sum/5);
-              //Velocidad();
+              T2prom=(T2sum/5);
+              Velocidad();
               
               //T1 = 100 * 12.5;
               //TOF = T1 + T2prom;
               //Dst = VSnd * (TOF / 20000.0);
 
-              T2prom = 845.75;
               TT2 = T2Prom * 100.0;
 
               chT2 = (unsigned char *) & TT2;
@@ -325,6 +350,8 @@ void main() {
               for (l=0;l<4;l++){
                  trama[l]=(*chT2++);
               }
+              
+              UART1_Write(0xFA);
               
               for (l=0;l<4;l++){
                  UART1_Write(trama[l]);

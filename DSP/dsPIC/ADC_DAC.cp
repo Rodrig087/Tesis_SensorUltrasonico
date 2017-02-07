@@ -32,13 +32,11 @@ unsigned int MIndexMin;
 
 unsigned int VP=0;
 unsigned int maxIndex;
-unsigned int i0, i1, i2;
+unsigned int i0, i1, i2, imax;
 const short dix=5;
 const float tx=5.0;
 float yy0, yy1, yy2;
-float nx;
-float dx;
-float tmax;
+float nx, dx, tmax;
 
 float T1, T2;
 float TOF, Dst;
@@ -89,17 +87,22 @@ void Velocidad(){
 void Pulse(){
 
 
+
+
  contp = 0;
  RB14_bit = 0;
- T2CON.TON = 0;
- T2CON = 0x0000;
+
+ T1CON.TON = 0;
+ IEC0.T1IE = 0;
+
  TMR2 = 0;
- PR2 = 500;
  IEC0.T2IE = 1;
  T2CON.TON = 1;
 
  i = 0;
  j = 0;
+
+
 
  while(bm!=1);
 
@@ -131,36 +134,46 @@ void Pulse(){
  YY = (unsigned int)(y0);
  M[k] = YY;
 
- bm = 2;
-
  }
+
+ bm = 2;
 
  }
 
 
  if (bm==2){
 
- yy0 = 0.0;
- yy1 = 0.0;
- yy2 = 0.0;
- nx = 0.0;
- dx = 0.0;
-
- yy1 = Vector_Max(M, nm, &maxIndex);
+ yy1 = (float)(Vector_Max(M, nm, &maxIndex));
  i1 = maxIndex;
  i0 = i1 - dix;
  i2 = i1 + dix;
- yy0 = M[i0];
- yy2 = M[i2];
+
+ yy0 = (float)(M[i0]);
+ yy2 = (float)(M[i2]);
 
  nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));
- dx = nx * dix * tx;
- tmax = ((float)(i1))*tx;
+ dx = nx*dix*tx;
+ tmax = i1*tx;
 
- T2 = (tmax)+dx;
+ T2 = tmax+dx;
+ imax = (int)(T2);
+
+ M[0]=500;
+ M[i0]=250;
+ M[i1]=350;
+ M[imax]=500;
+ M[i2]=250;
+ M[nm-2]=500;
+
+ IEC0.T1IE = 1;
+ TMR1 = 0;
+ T1IF_bit = 0;
+ T1CON.TON = 1;
+ bm = 3;
 
  }
 
+ while(bm!=4);
 }
 
 
@@ -181,7 +194,19 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
 
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  RB15_bit = ~RB15_bit;
+ if (bm==0){
  SAMP_bit = 0;
+ }
+ if (bm==3) {
+ if (j<nm){
+ LATB = (M[j]&0x03FF);
+ j++;
+ } else {
+ bm = 4;
+ T1CON.TON = 0;
+ IEC0.T1IE = 0;
+ }
+ }
  T1IF_bit = 0;
 }
 
@@ -199,6 +224,7 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  TMR1 = 0;
  T1IF_bit = 0;
  T1CON.TON = 1;
+ bm=0;
  }
 
  }
@@ -219,9 +245,7 @@ void Configuracion(){
  AD1PCFGL = 0xFFFE;
  TRISA0_bit = 1;
  TRISA4_bit = 1;
- TRISB14_bit = 0;
- TRISB15_bit = 0;
- TRISB7_bit = 1;
+ TRISB = 0;
 
 
  AD1CON1.AD12B = 0;
@@ -259,6 +283,7 @@ void Configuracion(){
  T2CON = 0x8000;
  IEC0.T2IE = 0;
  T2IF_bit = 0;
+ PR2 = 500;
 
 
  INTCON2.INT0EP = 0;
@@ -283,7 +308,7 @@ void main() {
 
  UART1_Init(9600);
  Delay_ms(100);
- UART_Write_Text("Start");
+
 
  while(1){
 
@@ -293,20 +318,20 @@ void main() {
  T2prom = 0.0;
  conts = 0;
 
+
  while (conts<5){
  Pulse();
  T2sum = T2sum + T2;
  conts++;
  }
 
+ T2prom=(T2sum/5);
+ Velocidad();
 
 
 
 
 
-
-
- T2prom = 845.75;
  TT2 = T2Prom * 100.0;
 
  chT2 = (unsigned char *) & TT2;
@@ -314,6 +339,8 @@ void main() {
  for (l=0;l<4;l++){
  trama[l]=(*chT2++);
  }
+
+ UART1_Write(0xFA);
 
  for (l=0;l<4;l++){
  UART1_Write(trama[l]);

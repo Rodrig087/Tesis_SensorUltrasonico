@@ -122,6 +122,8 @@ b5
 b6
 b7
 banked
+banp
+bant
 baudcon
 baudctl
 bcd2dec
@@ -289,6 +291,7 @@ d_not_a
 d_not_a_bit
 data_address
 data_address_bit
+dato
 dc
 dc_bit
 dc1b0
@@ -535,6 +538,7 @@ hlvdl2
 hlvdl2_bit
 hlvdl3
 hlvdl3_bit
+i
 i2c_dat
 i2c_dat_bit
 i2c_read
@@ -1434,12 +1438,10 @@ txip_bit
 txreg
 txsta
 txt1
-txt2
 ua
 ua_bit
 uaddr
 uart_data_ready
-uart_rd
 uart_rd_ptr
 uart_rdy_ptr
 uart_read

@@ -7,9 +7,6 @@ main
 		_Multiply_32x32
 		_Modulus_32x32
 		_Divide_32x32
-	UART_Write_Text
-		UART_Write
-			UART1_Write
 	Pulse
 		Vector_Max
 		Vector_Min
@@ -20,7 +17,32 @@ main
 		_AddSub_FP
 		_Div_FP
 		_Float2Longint
+	Velocidad
+		Ow_Reset
+			Delay_500us
+			Delay_80us
+		Ow_Write
+			Delay_80us
+			Delay_1us
+			Delay_50us
+		Ow_Read
+			Delay_1us
+			Delay_50us
+		sqrt
+			frexp
+			ldexp
+				_Compare_Le_Fp
+					_Compare_Fp
+			_Compare_Le_Fp
+			_Div_FP
+			_AddSub_FP
+		_Long2Float
+		_Div_FP
+		_AddSub_FP
+		_Mul_FP
 	UART1_Write
+	_Div_FP
+	_Mul_FP
 	_Float2Longword
 	_AddSub_FP
 ADC1Int

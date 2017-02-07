@@ -17,23 +17,41 @@ sbit LCD_D7_Direction at TRISD5_bit;
 
 // Declaracion de variables //
 //Variables para la lectura y almacenamiento del dato proveniente del UART
-char uart_rd;
-char txt1[6], txt2[6];
-unsigned char  *ptrTT2;
-float T2;
-unsigned long TT2;
-unsigned short j;
+char Dato;
+unsigned short i, j;
 unsigned char trama[4];
+
+unsigned short BanP, BanT;
+char txt1[15];
+
+unsigned short  *ptrTT2;
+unsigned long TT2;
+float T2;
+
+
 
 // Interrupciones //
 void interrupt(void){
+
       if (PIR1.F5){
-         //if (j<4){
-             trama[j] = UART1_Read();
-             j++;
-         //}
+      
+         Dato = UART1_Read();                            //Lee el dato que llega por el modulo Uart1
+         if (Dato==0x0D){                                //Verifica si el dato que llego es la cabecera
+            BanP = 1;                                    //activa la bandera que permite almacenar los datos en el buffer
+            Dato = 0;                                    //Limpia la variable Dato
+            i=0;                                         //Limpia el subindice del vector de
+         }
          
-         PIR1.F5 = 0;
+         if (BanP == 1){
+            trama[i] = UART1_Read();                     //Almacena los datos de entrada byte a byte en el buffer de peticion
+            i++;
+            if (i==3){
+               BanT = 1;
+            }
+         }
+         
+         PIR1.F5 = 0;                                    //Limpia la bandera de interrupcion
+         
      }
 }
 
@@ -41,7 +59,7 @@ void interrupt(void){
 // Configuracion //
 void Configuracion(){
 
-      RCIE_bit = 0;                         // enable interrupt on UART1 receive
+      RCIE_bit = 1;                         // enable interrupt on UART1 receive
       TXIE_bit = 0;                         // disable interrupt on UART1 transmit
       PEIE_bit = 1;                         // enable peripheral interrupts
       GIE_bit = 1;
@@ -58,26 +76,31 @@ void Configuracion(){
 void main() {
 
      Configuracion();
-     Lcd_Out(1, 1, "Hello!");
+     //Lcd_Out(1, 1, "Hello!");
      ptrTT2 = &TT2;
-     //ptrT2 = (unsigned char *) & T2;
      
      while (1){
 
+            if (BanT==1){
             
-            *(ptrTT2) = trama[3];
-            *(ptrTT2+1) = trama[2];
-            *(ptrTT2+2) = trama[1];
-            *(ptrTT2+3) = trama[0];
+                for (j=0;j<4;j++){
+                    *(ptrTT2+j) = trama[j];
+                }
+                
+                BanP = 0;
+                BanT = 0;
+                
+            }
             
-            j=0;
-            
-            T2 = TT2 / 100.0;
+            T2 = TT2 * 1.0;
             FloatToStr(T2,txt1);
 
             Lcd_Out(1, 1, "T2: ");
-            Lcd_Out_Cp(txt1);
+            Lcd_Out(2,1,txt1);
             
+
+            
+            Delay_ms(10);
 
      }
 
