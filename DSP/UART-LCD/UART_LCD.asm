@@ -62,7 +62,7 @@ L_interrupt2:
 L_interrupt0:
 ;UART_LCD.c,56 :: 		}
 L_end_interrupt:
-L__interrupt13:
+L__interrupt14:
 	RETFIE      1
 ; end of _interrupt
 
@@ -141,26 +141,38 @@ _main:
 	MOVLW       hi_addr(?lstr1_UART_LCD+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;UART_LCD.c,87 :: 		ptrTT2 = &TT2;
+;UART_LCD.c,87 :: 		delay_ms(1);
+	MOVLW       3
+	MOVWF       R12, 0
+	MOVLW       151
+	MOVWF       R13, 0
+L_main5:
+	DECFSZ      R13, 1, 1
+	BRA         L_main5
+	DECFSZ      R12, 1, 1
+	BRA         L_main5
+	NOP
+	NOP
+;UART_LCD.c,88 :: 		ptrTT2 = &TT2;
 	MOVLW       _TT2+0
 	MOVWF       _ptrTT2+0 
 	MOVLW       hi_addr(_TT2+0)
 	MOVWF       _ptrTT2+1 
-;UART_LCD.c,89 :: 		while (1){
-L_main5:
-;UART_LCD.c,91 :: 		if (BanT==1){
+;UART_LCD.c,90 :: 		while (1){
+L_main6:
+;UART_LCD.c,92 :: 		if (BanT==1){
 	MOVF        _BanT+0, 0 
 	XORLW       1
 	BTFSS       STATUS+0, 2 
-	GOTO        L_main7
-;UART_LCD.c,93 :: 		for (j=0;j<4;j++){
+	GOTO        L_main8
+;UART_LCD.c,94 :: 		for (j=0;j<4;j++){
 	CLRF        _j+0 
-L_main8:
+L_main9:
 	MOVLW       4
 	SUBWF       _j+0, 0 
 	BTFSC       STATUS+0, 0 
-	GOTO        L_main9
-;UART_LCD.c,94 :: 		*(ptrTT2+j) = trama[j];
+	GOTO        L_main10
+;UART_LCD.c,95 :: 		*(ptrTT2+j) = trama[j];
 	MOVF        _j+0, 0 
 	ADDWF       _ptrTT2+0, 0 
 	MOVWF       FSR1 
@@ -177,18 +189,18 @@ L_main8:
 	INCF        FSR0H, 1 
 	MOVF        POSTINC0+0, 0 
 	MOVWF       POSTINC1+0 
-;UART_LCD.c,93 :: 		for (j=0;j<4;j++){
+;UART_LCD.c,94 :: 		for (j=0;j<4;j++){
 	INCF        _j+0, 1 
-;UART_LCD.c,95 :: 		}
-	GOTO        L_main8
-L_main9:
-;UART_LCD.c,97 :: 		BanP = 0;
+;UART_LCD.c,96 :: 		}
+	GOTO        L_main9
+L_main10:
+;UART_LCD.c,98 :: 		BanP = 0;
 	CLRF        _BanP+0 
-;UART_LCD.c,98 :: 		BanT = 0;
+;UART_LCD.c,99 :: 		BanT = 0;
 	CLRF        _BanT+0 
-;UART_LCD.c,100 :: 		}
-L_main7:
-;UART_LCD.c,102 :: 		T2 = TT2 * 1.0;
+;UART_LCD.c,101 :: 		}
+L_main8:
+;UART_LCD.c,103 :: 		T2 = TT2 * 1.0;
 	MOVF        _TT2+0, 0 
 	MOVWF       R0 
 	MOVF        _TT2+1, 0 
@@ -206,7 +218,7 @@ L_main7:
 	MOVWF       _T2+2 
 	MOVF        R3, 0 
 	MOVWF       _T2+3 
-;UART_LCD.c,103 :: 		FloatToStr(T2,txt1);
+;UART_LCD.c,104 :: 		FloatToStr(T2,txt1);
 	MOVF        R0, 0 
 	MOVWF       FARG_FloatToStr_fnum+0 
 	MOVF        R1, 0 
@@ -220,7 +232,7 @@ L_main7:
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_FloatToStr_str+1 
 	CALL        _FloatToStr+0, 0
-;UART_LCD.c,105 :: 		Lcd_Out(1, 1, "T2: ");
+;UART_LCD.c,106 :: 		Lcd_Out(1, 1, "T2: ");
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -230,7 +242,7 @@ L_main7:
 	MOVLW       hi_addr(?lstr2_UART_LCD+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;UART_LCD.c,106 :: 		Lcd_Out(2,1,txt1);
+;UART_LCD.c,107 :: 		Lcd_Out(2,1,txt1);
 	MOVLW       2
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -240,20 +252,20 @@ L_main7:
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;UART_LCD.c,110 :: 		Delay_ms(10);
+;UART_LCD.c,111 :: 		Delay_ms(10);
 	MOVLW       26
 	MOVWF       R12, 0
 	MOVLW       248
 	MOVWF       R13, 0
-L_main11:
+L_main12:
 	DECFSZ      R13, 1, 1
-	BRA         L_main11
+	BRA         L_main12
 	DECFSZ      R12, 1, 1
-	BRA         L_main11
+	BRA         L_main12
 	NOP
-;UART_LCD.c,112 :: 		}
-	GOTO        L_main5
-;UART_LCD.c,114 :: 		}
+;UART_LCD.c,113 :: 		}
+	GOTO        L_main6
+;UART_LCD.c,115 :: 		}
 L_end_main:
 	GOTO        $+0
 ; end of _main
