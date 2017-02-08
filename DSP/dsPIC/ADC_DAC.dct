@@ -1977,6 +1977,8 @@ get_fosc_per_cyc
 i
 i0
 i1
+i1a
+i1b
 i2
 i2c1add
 i2c1add_0
@@ -6713,6 +6715,9 @@ ye_8
 ye_8_bit
 ye_9
 ye_9_bit
+yf0
+yf1
+yf2
 ymoden
 ymoden
 ymoden_bit

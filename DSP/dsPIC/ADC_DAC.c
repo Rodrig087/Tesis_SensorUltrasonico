@@ -44,9 +44,11 @@ unsigned int MIndexMin;
 unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2, imax;
-const short dix=5;
+unsigned int i1a, i1b;
+const short dix=8;
 const float tx=5.0;
-float yy0, yy1, yy2;
+int yy0, yy1, yy2;
+float yf0, yf1, yf2;
 float nx, dx, tmax;
 //Variables para calcular el TOF
 float T1, T2;
@@ -154,25 +156,36 @@ void Pulse(){
             // Cálculo del punto maximo y TOF
             if (bm==2){
 
-               yy1 = (float)(Vector_Max(M, nm, &maxIndex));                         //Encuentra el valor maximo del vector R
-               i1 = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1
+               yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
+               i1b = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1a
+               i1a = 0;
+              
+               while (M[i1a]<yy1){
+                     i1a++;
+               }
+               
+               i1 = i1a+((i1b-i1a)/2);
                i0 = i1 - dix;
                i2 = i1 + dix;
                
-               yy0 = (float)(M[i0]);
-               yy2 = (float)(M[i2]);
+               yy0 = M[i0];
+               yy2 = M[i2];
+               
+               yf0 = (float)(yy0);
+               yf1 = (float)(yy1);
+               yf2 = (float)(yy2);
 
-               nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));                   //Factor de ajuste determinado por interpolacion parabolica
+               nx = (yf0-yf2)/(2.0*(yf0-(2.0*yf1)+yf2));                   //Factor de ajuste determinado por interpolacion parabolica
                dx = nx*dix*tx;
                tmax = i1*tx;
 
                T2 = tmax+dx;
-               imax = (int)(T2);
+               imax = (unsigned int)(T2/tx);
                
                M[0]=500;
                M[i0]=250;
                M[i1]=350;
-               M[imax]=500;
+               M[imax]=800;
                M[i2]=250;
                M[nm-2]=500;
 

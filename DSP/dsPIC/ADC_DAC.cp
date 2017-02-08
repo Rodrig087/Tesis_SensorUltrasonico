@@ -1,5 +1,5 @@
-#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
-#line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 14 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
 const float ca1 = 0.006745773600345;
 const float ca2 = 0.013491547200690;
 const float cb2 = -1.754594315763869;
@@ -33,9 +33,11 @@ unsigned int MIndexMin;
 unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2, imax;
-const short dix=5;
+unsigned int i1a, i1b;
+const short dix=8;
 const float tx=5.0;
-float yy0, yy1, yy2;
+int yy0, yy1, yy2;
+float yf0, yf1, yf2;
 float nx, dx, tmax;
 
 float T1, T2;
@@ -143,25 +145,36 @@ void Pulse(){
 
  if (bm==2){
 
- yy1 = (float)(Vector_Max(M, nm, &maxIndex));
- i1 = maxIndex;
+ yy1 = Vector_Max(M, nm, &maxIndex);
+ i1b = maxIndex;
+ i1a = 0;
+
+ while (M[i1a]<yy1){
+ i1a++;
+ }
+
+ i1 = i1a+((i1b-i1a)/2);
  i0 = i1 - dix;
  i2 = i1 + dix;
 
- yy0 = (float)(M[i0]);
- yy2 = (float)(M[i2]);
+ yy0 = M[i0];
+ yy2 = M[i2];
 
- nx = (yy0-yy2)/(2.0*(yy0-(2.0*yy1)+yy2));
+ yf0 = (float)(yy0);
+ yf1 = (float)(yy1);
+ yf2 = (float)(yy2);
+
+ nx = (yf0-yf2)/(2.0*(yf0-(2.0*yf1)+yf2));
  dx = nx*dix*tx;
  tmax = i1*tx;
 
  T2 = tmax+dx;
- imax = (int)(T2);
+ imax = (unsigned int)(T2/tx);
 
  M[0]=500;
  M[i0]=250;
  M[i1]=350;
- M[imax]=500;
+ M[imax]=800;
  M[i2]=250;
  M[nm-2]=500;
 
