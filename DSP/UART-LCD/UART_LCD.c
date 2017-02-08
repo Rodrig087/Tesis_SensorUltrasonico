@@ -59,7 +59,14 @@ void interrupt(void){
 // Configuracion //
 void Configuracion(){
 
-      RCIE_bit = 1;                         // enable interrupt on UART1 receive
+      INTCON.GIE = 1;                             //Habilita las interrupciones globales
+      INTCON.PEIE = 1;                            //Habilita las interrupciones perifericas
+      INTCON2.RBPU = 0;
+      
+      ADCON1 = 0b00001111;                        //Configuracion ADCON1
+      CMCON = 0b00000111;
+
+      RCIE_bit = 0;                         // enable interrupt on UART1 receive
       TXIE_bit = 0;                         // disable interrupt on UART1 transmit
       PEIE_bit = 1;                         // enable peripheral interrupts
       GIE_bit = 1;
@@ -76,7 +83,7 @@ void Configuracion(){
 void main() {
 
      Configuracion();
-     //Lcd_Out(1, 1, "Hello!");
+     Lcd_Out(1, 1, "Hello!");
      ptrTT2 = &TT2;
      
      while (1){

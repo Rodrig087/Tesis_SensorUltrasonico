@@ -229,7 +229,7 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  }else {
  RB14_bit = 0;
 
- if (contp==104){
+ if (contp==110){
  IEC0.T2IE = 0;
  T2CON.TON = 0;
  IEC0.AD1IE = 1;

@@ -1,4 +1,4 @@
-#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/UART-LCD/UART_LCD.c"
+#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/UART-LCD/UART_LCD.c"
 
 sbit LCD_RS at RD0_bit;
 sbit LCD_EN at RD1_bit;
@@ -60,7 +60,14 @@ void interrupt(void){
 
 void Configuracion(){
 
- RCIE_bit = 1;
+ INTCON.GIE = 1;
+ INTCON.PEIE = 1;
+ INTCON2.RBPU = 0;
+
+ ADCON1 = 0b00001111;
+ CMCON = 0b00000111;
+
+ RCIE_bit = 0;
  TXIE_bit = 0;
  PEIE_bit = 1;
  GIE_bit = 1;
@@ -77,7 +84,7 @@ void Configuracion(){
 void main() {
 
  Configuracion();
-
+ Lcd_Out(1, 1, "Hello!");
  ptrTT2 = &TT2;
 
  while (1){

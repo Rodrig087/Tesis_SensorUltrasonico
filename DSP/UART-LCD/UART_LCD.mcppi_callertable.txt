@@ -9,6 +9,16 @@ main
 			Delay_1us
 			Delay_5500us
 			Delay_50us
+	Lcd_Out
+		Lcd_Cmd
+			Delay_1us
+			Delay_5500us
+			Delay_50us
+		Lcd_Chr_CP
+			Lcd_Cmd
+				Delay_1us
+				Delay_5500us
+				Delay_50us
 	longword2double
 		NRM4032
 			SETFUN32
@@ -23,15 +33,5 @@ main
 			SETFOV32
 			SETFUN32
 		Div_8X8_U
-	Lcd_Out
-		Lcd_Cmd
-			Delay_1us
-			Delay_5500us
-			Delay_50us
-		Lcd_Chr_CP
-			Lcd_Cmd
-				Delay_1us
-				Delay_5500us
-				Delay_50us
 interrupt
 	UART1_Read

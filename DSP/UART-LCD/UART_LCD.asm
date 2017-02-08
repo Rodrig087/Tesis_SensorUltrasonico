@@ -69,22 +69,34 @@ L__interrupt13:
 _Configuracion:
 
 ;UART_LCD.c,60 :: 		void Configuracion(){
-;UART_LCD.c,62 :: 		RCIE_bit = 1;                         // enable interrupt on UART1 receive
-	BSF         RCIE_bit+0, BitPos(RCIE_bit+0) 
-;UART_LCD.c,63 :: 		TXIE_bit = 0;                         // disable interrupt on UART1 transmit
+;UART_LCD.c,62 :: 		INTCON.GIE = 1;                             //Habilita las interrupciones globales
+	BSF         INTCON+0, 7 
+;UART_LCD.c,63 :: 		INTCON.PEIE = 1;                            //Habilita las interrupciones perifericas
+	BSF         INTCON+0, 6 
+;UART_LCD.c,64 :: 		INTCON2.RBPU = 0;
+	BCF         INTCON2+0, 7 
+;UART_LCD.c,66 :: 		ADCON1 = 0b00001111;                        //Configuracion ADCON1
+	MOVLW       15
+	MOVWF       ADCON1+0 
+;UART_LCD.c,67 :: 		CMCON = 0b00000111;
+	MOVLW       7
+	MOVWF       CMCON+0 
+;UART_LCD.c,69 :: 		RCIE_bit = 0;                         // enable interrupt on UART1 receive
+	BCF         RCIE_bit+0, BitPos(RCIE_bit+0) 
+;UART_LCD.c,70 :: 		TXIE_bit = 0;                         // disable interrupt on UART1 transmit
 	BCF         TXIE_bit+0, BitPos(TXIE_bit+0) 
-;UART_LCD.c,64 :: 		PEIE_bit = 1;                         // enable peripheral interrupts
+;UART_LCD.c,71 :: 		PEIE_bit = 1;                         // enable peripheral interrupts
 	BSF         PEIE_bit+0, BitPos(PEIE_bit+0) 
-;UART_LCD.c,65 :: 		GIE_bit = 1;
+;UART_LCD.c,72 :: 		GIE_bit = 1;
 	BSF         GIE_bit+0, BitPos(GIE_bit+0) 
-;UART_LCD.c,67 :: 		UART1_Init(9600);                     // Inicializa el UART a 9600 bps
+;UART_LCD.c,74 :: 		UART1_Init(9600);                     // Inicializa el UART a 9600 bps
 	BSF         BAUDCON+0, 3, 0
 	CLRF        SPBRGH+0 
 	MOVLW       207
 	MOVWF       SPBRG+0 
 	BSF         TXSTA+0, 2, 0
 	CALL        _UART1_Init+0, 0
-;UART_LCD.c,68 :: 		Delay_ms(100);
+;UART_LCD.c,75 :: 		Delay_ms(100);
 	MOVLW       2
 	MOVWF       R11, 0
 	MOVLW       4
@@ -99,46 +111,56 @@ L_Configuracion4:
 	DECFSZ      R11, 1, 1
 	BRA         L_Configuracion4
 	NOP
-;UART_LCD.c,70 :: 		Lcd_Init();                           // Initialize LCD
+;UART_LCD.c,77 :: 		Lcd_Init();                           // Initialize LCD
 	CALL        _Lcd_Init+0, 0
-;UART_LCD.c,71 :: 		Lcd_Cmd(_LCD_CLEAR);                  // Clear display
+;UART_LCD.c,78 :: 		Lcd_Cmd(_LCD_CLEAR);                  // Clear display
 	MOVLW       1
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
 	CALL        _Lcd_Cmd+0, 0
-;UART_LCD.c,72 :: 		Lcd_Cmd(_LCD_CURSOR_OFF);             // Cursor off
+;UART_LCD.c,79 :: 		Lcd_Cmd(_LCD_CURSOR_OFF);             // Cursor off
 	MOVLW       12
 	MOVWF       FARG_Lcd_Cmd_out_char+0 
 	CALL        _Lcd_Cmd+0, 0
-;UART_LCD.c,73 :: 		}
+;UART_LCD.c,80 :: 		}
 L_end_Configuracion:
 	RETURN      0
 ; end of _Configuracion
 
 _main:
 
-;UART_LCD.c,76 :: 		void main() {
-;UART_LCD.c,78 :: 		Configuracion();
+;UART_LCD.c,83 :: 		void main() {
+;UART_LCD.c,85 :: 		Configuracion();
 	CALL        _Configuracion+0, 0
-;UART_LCD.c,80 :: 		ptrTT2 = &TT2;
+;UART_LCD.c,86 :: 		Lcd_Out(1, 1, "Hello!");
+	MOVLW       1
+	MOVWF       FARG_Lcd_Out_row+0 
+	MOVLW       1
+	MOVWF       FARG_Lcd_Out_column+0 
+	MOVLW       ?lstr1_UART_LCD+0
+	MOVWF       FARG_Lcd_Out_text+0 
+	MOVLW       hi_addr(?lstr1_UART_LCD+0)
+	MOVWF       FARG_Lcd_Out_text+1 
+	CALL        _Lcd_Out+0, 0
+;UART_LCD.c,87 :: 		ptrTT2 = &TT2;
 	MOVLW       _TT2+0
 	MOVWF       _ptrTT2+0 
 	MOVLW       hi_addr(_TT2+0)
 	MOVWF       _ptrTT2+1 
-;UART_LCD.c,82 :: 		while (1){
+;UART_LCD.c,89 :: 		while (1){
 L_main5:
-;UART_LCD.c,84 :: 		if (BanT==1){
+;UART_LCD.c,91 :: 		if (BanT==1){
 	MOVF        _BanT+0, 0 
 	XORLW       1
 	BTFSS       STATUS+0, 2 
 	GOTO        L_main7
-;UART_LCD.c,86 :: 		for (j=0;j<4;j++){
+;UART_LCD.c,93 :: 		for (j=0;j<4;j++){
 	CLRF        _j+0 
 L_main8:
 	MOVLW       4
 	SUBWF       _j+0, 0 
 	BTFSC       STATUS+0, 0 
 	GOTO        L_main9
-;UART_LCD.c,87 :: 		*(ptrTT2+j) = trama[j];
+;UART_LCD.c,94 :: 		*(ptrTT2+j) = trama[j];
 	MOVF        _j+0, 0 
 	ADDWF       _ptrTT2+0, 0 
 	MOVWF       FSR1 
@@ -155,18 +177,18 @@ L_main8:
 	INCF        FSR0H, 1 
 	MOVF        POSTINC0+0, 0 
 	MOVWF       POSTINC1+0 
-;UART_LCD.c,86 :: 		for (j=0;j<4;j++){
+;UART_LCD.c,93 :: 		for (j=0;j<4;j++){
 	INCF        _j+0, 1 
-;UART_LCD.c,88 :: 		}
+;UART_LCD.c,95 :: 		}
 	GOTO        L_main8
 L_main9:
-;UART_LCD.c,90 :: 		BanP = 0;
+;UART_LCD.c,97 :: 		BanP = 0;
 	CLRF        _BanP+0 
-;UART_LCD.c,91 :: 		BanT = 0;
+;UART_LCD.c,98 :: 		BanT = 0;
 	CLRF        _BanT+0 
-;UART_LCD.c,93 :: 		}
+;UART_LCD.c,100 :: 		}
 L_main7:
-;UART_LCD.c,95 :: 		T2 = TT2 * 1.0;
+;UART_LCD.c,102 :: 		T2 = TT2 * 1.0;
 	MOVF        _TT2+0, 0 
 	MOVWF       R0 
 	MOVF        _TT2+1, 0 
@@ -184,7 +206,7 @@ L_main7:
 	MOVWF       _T2+2 
 	MOVF        R3, 0 
 	MOVWF       _T2+3 
-;UART_LCD.c,96 :: 		FloatToStr(T2,txt1);
+;UART_LCD.c,103 :: 		FloatToStr(T2,txt1);
 	MOVF        R0, 0 
 	MOVWF       FARG_FloatToStr_fnum+0 
 	MOVF        R1, 0 
@@ -198,17 +220,17 @@ L_main7:
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_FloatToStr_str+1 
 	CALL        _FloatToStr+0, 0
-;UART_LCD.c,98 :: 		Lcd_Out(1, 1, "T2: ");
+;UART_LCD.c,105 :: 		Lcd_Out(1, 1, "T2: ");
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_column+0 
-	MOVLW       ?lstr1_UART_LCD+0
+	MOVLW       ?lstr2_UART_LCD+0
 	MOVWF       FARG_Lcd_Out_text+0 
-	MOVLW       hi_addr(?lstr1_UART_LCD+0)
+	MOVLW       hi_addr(?lstr2_UART_LCD+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;UART_LCD.c,99 :: 		Lcd_Out(2,1,txt1);
+;UART_LCD.c,106 :: 		Lcd_Out(2,1,txt1);
 	MOVLW       2
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -218,7 +240,7 @@ L_main7:
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;UART_LCD.c,103 :: 		Delay_ms(10);
+;UART_LCD.c,110 :: 		Delay_ms(10);
 	MOVLW       26
 	MOVWF       R12, 0
 	MOVLW       248
@@ -229,9 +251,9 @@ L_main11:
 	DECFSZ      R12, 1, 1
 	BRA         L_main11
 	NOP
-;UART_LCD.c,105 :: 		}
+;UART_LCD.c,112 :: 		}
 	GOTO        L_main5
-;UART_LCD.c,107 :: 		}
+;UART_LCD.c,114 :: 		}
 L_end_main:
 	GOTO        $+0
 ; end of _main

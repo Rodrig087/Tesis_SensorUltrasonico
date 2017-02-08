@@ -719,8 +719,8 @@ L__Timer2Interrupt57:
 L_Timer2Interrupt23:
 ;ADC_DAC.c,241 :: 		RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
 	BCLR	RB14_bit, BitPos(RB14_bit+0)
-;ADC_DAC.c,243 :: 		if (contp==104){
-	MOV	#104, W1
+;ADC_DAC.c,243 :: 		if (contp==110){
+	MOV	#110, W1
 	MOV	#lo_addr(_contp), W0
 	CP	W1, [W0]
 	BRA Z	L__Timer2Interrupt58

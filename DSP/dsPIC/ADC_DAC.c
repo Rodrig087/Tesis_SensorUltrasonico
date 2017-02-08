@@ -240,7 +240,7 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
      }else {
           RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
 
-          if (contp==104){
+          if (contp==110){
               IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
               T2CON.TON = 0;                       //Apaga el TMR2
               IEC0.AD1IE = 1;                      //Habilita la interrupcion por conversion completa del ADC
