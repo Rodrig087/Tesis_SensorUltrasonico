@@ -19,12 +19,18 @@ main
 				Delay_1us
 				Delay_5500us
 				Delay_50us
+	UART1_Write
 	longword2double
 		NRM4032
 			SETFUN32
 			FIXSIGN32
 			SETFOV32
 			RES032
+	Div_32x32_FP
+		SETFDZ32
+		RES032
+		SETFOV32
+		SETFUN32
 	FloatToStr
 		strcpy
 		Compare_Double

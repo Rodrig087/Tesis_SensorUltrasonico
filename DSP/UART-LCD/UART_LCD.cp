@@ -20,9 +20,10 @@ sbit LCD_D7_Direction at TRISB5_bit;
 
 char Dato;
 unsigned short i, j;
-unsigned char trama[4];
+unsigned char trama[5];
+unsigned char trama2[4];
 
-unsigned short BanP, BanT;
+unsigned short BanP, BanL;
 char txt1[15];
 
 unsigned short *ptrTT2;
@@ -35,30 +36,21 @@ float T2;
 void interrupt(void){
 
  if (PIR1.F5){
-
- Dato = UART1_Read();
- if (Dato==0x0D){
- BanP = 1;
- Dato = 0;
- i=0;
- }
-
- if (BanP == 1){
+ LATD0_bit = ~LATD0_bit;
  trama[i] = UART1_Read();
  i++;
- if (i==3){
- BanT = 1;
+ if (i==4){
+ BanL = 1;
  }
- }
-
  PIR1.F5 = 0;
-
  }
 }
 
 
 
 void Configuracion(){
+
+ TRISD0_bit = 0;
 
  INTCON.GIE = 1;
  INTCON.PEIE = 1;
@@ -67,7 +59,7 @@ void Configuracion(){
  ADCON1 = 0b00001111;
  CMCON = 0b00000111;
 
- RCIE_bit = 0;
+ RCIE_bit = 1;
  TXIE_bit = 0;
  PEIE_bit = 1;
  GIE_bit = 1;
@@ -90,24 +82,28 @@ void main() {
 
  while (1){
 
- if (BanT==1){
 
+ if (BanL==1){
+
+ for (j=1;j<5;j++){
+
+ trama2[j-1]= trama[j];
+ }
  for (j=0;j<4;j++){
- *(ptrTT2+j) = trama[j];
+ UART1_WRITE(trama2[j]);
+ *(ptrTT2+j) = trama2[j];
  }
 
- BanP = 0;
- BanT = 0;
+ BanL = 0;
+ i=0;
 
  }
 
- T2 = TT2 * 1.0;
+ T2 = TT2 / 100.0;
  FloatToStr(T2,txt1);
 
  Lcd_Out(1, 1, "T2: ");
  Lcd_Out(2,1,txt1);
-
-
 
  Delay_ms(10);
 

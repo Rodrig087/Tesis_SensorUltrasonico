@@ -1,5 +1,5 @@
-#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
-#line 14 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
 const float ca1 = 0.006745773600345;
 const float ca2 = 0.013491547200690;
 const float cb2 = -1.754594315763869;

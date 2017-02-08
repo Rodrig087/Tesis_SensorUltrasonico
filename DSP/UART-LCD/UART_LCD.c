@@ -19,9 +19,10 @@ sbit LCD_D7_Direction at TRISB5_bit;
 //Variables para la lectura y almacenamiento del dato proveniente del UART
 char Dato;
 unsigned short i, j;
-unsigned char trama[4];
+unsigned char trama[5];
+unsigned char trama2[4];
 
-unsigned short BanP, BanT;
+unsigned short BanP, BanL;
 char txt1[15];
 
 unsigned short  *ptrTT2;
@@ -34,24 +35,13 @@ float T2;
 void interrupt(void){
 
       if (PIR1.F5){
-      
-         Dato = UART1_Read();                            //Lee el dato que llega por el modulo Uart1
-         if (Dato==0x0D){                                //Verifica si el dato que llego es la cabecera
-            BanP = 1;                                    //activa la bandera que permite almacenar los datos en el buffer
-            Dato = 0;                                    //Limpia la variable Dato
-            i=0;                                         //Limpia el subindice del vector de
+         LATD0_bit = ~LATD0_bit;
+         trama[i] = UART1_Read();                     //Almacena los datos de entrada byte a byte en el buffer de peticion
+         i++;
+         if (i==4){                                   //Verifica que se haya terminado de llenar la trama de datos
+            BanL = 1;                                 //Habilita la bandera de lectura de datos
          }
-         
-         if (BanP == 1){
-            trama[i] = UART1_Read();                     //Almacena los datos de entrada byte a byte en el buffer de peticion
-            i++;
-            if (i==3){
-               BanT = 1;
-            }
-         }
-         
-         PIR1.F5 = 0;                                    //Limpia la bandera de interrupcion
-         
+         PIR1.F5 = 0;                                 //Limpia la bandera de interrupcion
      }
 }
 
@@ -59,6 +49,8 @@ void interrupt(void){
 // Configuracion //
 void Configuracion(){
 
+      TRISD0_bit = 0;
+      
       INTCON.GIE = 1;                             //Habilita las interrupciones globales
       INTCON.PEIE = 1;                            //Habilita las interrupciones perifericas
       INTCON2.RBPU = 0;
@@ -66,7 +58,7 @@ void Configuracion(){
       ADCON1 = 0b00001111;                        //Configuracion ADCON1
       CMCON = 0b00000111;
 
-      RCIE_bit = 0;                         // enable interrupt on UART1 receive
+      RCIE_bit = 1;                         // enable interrupt on UART1 receive
       TXIE_bit = 0;                         // disable interrupt on UART1 transmit
       PEIE_bit = 1;                         // enable peripheral interrupts
       GIE_bit = 1;
@@ -89,24 +81,28 @@ void main() {
      
      while (1){
 
-            if (BanT==1){
+
+            if (BanL==1){
             
-                for (j=0;j<4;j++){
-                    *(ptrTT2+j) = trama[j];
+                for (j=1;j<5;j++){
+                    //*(ptrTT2+j) = trama[j];
+                    trama2[j-1]= trama[j];
                 }
-                
-                BanP = 0;
-                BanT = 0;
+                for (j=0;j<4;j++){
+                    UART1_WRITE(trama2[j]);
+                    *(ptrTT2+j) = trama2[j];
+                }
+
+                BanL = 0;
+                i=0;
                 
             }
             
-            T2 = TT2 * 1.0;
+            T2 = TT2 / 100.0;
             FloatToStr(T2,txt1);
 
             Lcd_Out(1, 1, "T2: ");
             Lcd_Out(2,1,txt1);
-            
-
             
             Delay_ms(10);
 

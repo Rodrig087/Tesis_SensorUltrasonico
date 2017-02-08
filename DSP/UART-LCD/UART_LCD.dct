@@ -122,8 +122,8 @@ b5
 b6
 b7
 banked
+banl
 banp
-bant
 baudcon
 baudctl
 bcd2dec
@@ -1335,6 +1335,7 @@ toutps2_bit
 toutps3
 toutps3_bit
 trama
+trama2
 trisa
 trisa0
 trisa0_bit
