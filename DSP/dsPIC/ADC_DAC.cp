@@ -178,6 +178,12 @@ void Pulse(){
 
 
 
+void UART1_Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
+
+ U1RXIF_bit = 0;
+}
+
+
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
  if (i<nm){
  M[i] = ADC1BUF0;
@@ -276,17 +282,17 @@ void Configuracion(){
  PR2 = 500;
 
 
- INTCON2.INT0EP = 0;
+ RPINR18bits.U1RXR = 0x0C;
+ RPOR6bits.RP13R = 0x03;
+ IEC0.U1RXIE = 1;
 
 
  IPC3bits.AD1IP = 0x06;
  IPC0bits.T1IP = 0x07;
  IPC1bits.T2IP = 0x05;
- IPC0bits.INT0IP = 0x04;
+ IPC2bits.U1RXIP = 0x04;
 
 
- RPINR18bits.U1RXR = 0x0C;
- RPOR6bits.RP13R = 0x03;
 
 }
 

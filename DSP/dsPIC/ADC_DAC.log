@@ -4,17 +4,18 @@ warning: 0	1501	Specified search path does not exist: 'D:\Git\Tesis_SensorUltras
 warning: 0	1501	Specified search path does not exist: 'D:\Git\Tesis_Test\ADC_DAC_dsPIC'	 
 diagnostics: 0	121	Loading...	 
 diagnostics: 0	122	Compilation Started	ADC_DAC.c
+hint: 0	1004	interrupt handler (UART1_Interrupt at 0x002A)	ADC_DAC.c
 hint: 0	1004	interrupt handler (ADC1Int at 0x002E)	ADC_DAC.c
 hint: 0	1004	interrupt handler (Timer1Interrupt at 0x001A)	ADC_DAC.c
 hint: 0	1004	interrupt handler (Timer2Interrupt at 0x0022)	ADC_DAC.c
-diagnostics: 355	123	Compiled Successfully	ADC_DAC.c
-warning: 313	1519	Logical expression is always: 'False'	ADC_DAC.c
+diagnostics: 361	123	Compiled Successfully	ADC_DAC.c
+warning: 319	1519	Logical expression is always: 'False'	ADC_DAC.c
 hint: 74	1164	Variable 'Rfrac' has been eliminated by optimizer	ADC_DAC.c
 diagnostics: 0	127	All files Compiled in 172 ms	 
 hint: 0	1144	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)
 hint: 0	1144	Static RAM (bytes): 830   Dynamic RAM (bytes): 1218	Static RAM (bytes): 830   Dynamic RAM (bytes): 1218
-hint: 0	1144	Used ROM (bytes): 3804 (17%)  Free ROM (bytes): 18724 (83%)	Used ROM (bytes): 3804 (17%)  Free ROM (bytes): 18724 (83%)
+hint: 0	1144	Used ROM (bytes): 3832 (17%)  Free ROM (bytes): 18696 (83%)	Used ROM (bytes): 3832 (17%)  Free ROM (bytes): 18696 (83%)
 diagnostics: 0	125	Project Linked Successfully	ADC_DAC.mcpds
-diagnostics: 0	128	Linked in 250 ms	 
-diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 594 ms	 
-diagnostics: 0	103	Finished successfully: 09 feb. 2017, 02:50:21	ADC_DAC.mcpds
+diagnostics: 0	128	Linked in 218 ms	 
+diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 578 ms	 
+diagnostics: 0	103	Finished successfully: 09 feb. 2017, 03:29:26	ADC_DAC.mcpds

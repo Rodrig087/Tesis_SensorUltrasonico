@@ -14,8 +14,8 @@ const float cb3 = 0.781577410165250;
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la peticion y respuesta de datos
 short TpId;
-short TP;
-short Id;
+short TP;                                               //Identificador de tipo de sensor
+short Id;                                               //Identificador de numero de esclavo
 const short Psize = 4;                                  //Constante de longitud de trama de Peticion
 const short Rsize = 6;                                  //Constante de longitud de trama de Respuesta
 const short Hdr = 0xEE;                                 //Constante de delimitador de inicio de trama (0x20)
@@ -183,6 +183,12 @@ void Pulse(){
 }
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
+//Interrupcion por recepcion de datos a travez de UART
+void UART1_Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
+
+     U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
+}
+
 //Interrupcion por conversion completada del ADC
 void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
      if (i<nm){
@@ -281,18 +287,18 @@ void Configuracion(){
      T2IF_bit = 0;                               //Limpia la bandera de interrupcion
      PR2 = 500;                                  //Genera una interrupcion cada 12.5us
 
-     //Configuracion INT0
-     INTCON2.INT0EP = 0;                         //Interrupcion en flanco positivo
+      //Configuracion UART
+     RPINR18bits.U1RXR = 0x0C;                   //Asisgna Rx a RP12
+     RPOR6bits.RP13R = 0x03;                     //Asigna Tx a RP13
+     IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato po UART
      
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
      IPC3bits.AD1IP = 0x06;                      //Nivel de prioridad de interrupcion del ADC
      IPC0bits.T1IP = 0x07;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
      IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
-     IPC0bits.INT0IP = 0x04;                     //Nivel de prioridad de la interrupcion INT0
+     IPC2bits.U1RXIP = 0x04;                     //Nivel de prioridad de la interrupcion UARTRX
      
-     //Configuracion UART
-     RPINR18bits.U1RXR = 0x0C;                   //Asisgna Rx a RP12
-     RPOR6bits.RP13R = 0x03;                     //Asigna Tx a RP13
+
      
 }
 

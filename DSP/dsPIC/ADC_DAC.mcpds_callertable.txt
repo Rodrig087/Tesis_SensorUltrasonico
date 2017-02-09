@@ -23,5 +23,6 @@ main
 	_Float2Longword
 	_AddSub_FP
 ADC1Int
+UART1_Interrupt
 Timer2Interrupt
 Timer1Interrupt
