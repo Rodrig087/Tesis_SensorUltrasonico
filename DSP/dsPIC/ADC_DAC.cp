@@ -323,6 +323,7 @@ void main() {
  Delay_ms(100);
 
 
+
  while(1){
 
  TOF = 0.0;
@@ -331,32 +332,28 @@ void main() {
  T2b = 0.0;
  dT2 = 0.0;
  conts = 0;
+#line 346 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+ UART1_Write(0xEE);
+ UART1_Write(0x0D);
 
+ while (conts<61){
+ while(UART_Tx_Idle()==0);
  Pulse();
- T2b = T2;
- dT2 = T2b - T2a;
-
- while (dT2>=3.0){
- Pulse();
- T2b = T2;
- dT2 = T2b - T2a;
- T2a = T2b;
- }
-
- TT2 = T2a * 100.0;
-
+ TT2 = T2 * 100.0;
  chT2 = (unsigned char *) & TT2;
 
  for (l=0;l<4;l++){
  trama[l]=(*chT2++);
  }
-
- UART1_Write(0xFA);
-#line 366 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
- for (l=0;l<4;l++){
+ for (l=3;l>=0;l--){
  UART1_Write(trama[l]);
  }
 
+ UART1_Write(0x0D);
+ conts++;
+ }
+#line 384 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+ UART1_Write(0xFF);
  UART1_Write(0x0D);
 
  Delay_ms(10);

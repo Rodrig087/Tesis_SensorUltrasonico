@@ -7,6 +7,11 @@ main
 		_Multiply_32x32
 		_Modulus_32x32
 		_Divide_32x32
+	UART1_Write
+	UART_Tx_Idle
+		UART1_Read
+		UART1_Data_Ready
+		UART1_Tx_Idle
 	Pulse
 		Vector_Max
 		Vector_Min
@@ -17,10 +22,6 @@ main
 		_AddSub_FP
 		_Div_FP
 		_Float2Longint
-	UART1_Write
-	_Sub_FP
-	_Compare_Ge_Fp
-		_Compare_Fp
 	_Mul_FP
 	_Float2Longword
 ADC1Int

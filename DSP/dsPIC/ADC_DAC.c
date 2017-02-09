@@ -327,6 +327,7 @@ void main() {
      
      UART1_Init(9600);               // Initialize UART module at 9600 bps
      Delay_ms(100);                  // Wait for UART module to stabilize
+
      //UART_Write_Text("Start");
 
      while(1){
@@ -338,35 +339,49 @@ void main() {
               dT2 = 0.0;
               conts = 0;
 
-              Pulse();
+              /*Pulse();
               T2b = T2;
-              dT2 = T2b - T2a;
+              dT2 = T2b - T2a;*/
+              
+              UART1_Write(0xEE);
+              UART1_Write(0x0D);
 
-              while (dT2>=3.0){
+              while (conts<61){
+                    while(UART_Tx_Idle()==0);                //Espera hasta que se haya terminado de enviar todo el dato antes de continuar
                     Pulse();
-                    T2b = T2;
-                    dT2 = T2b - T2a;
-                    T2a = T2b;
+                    TT2 = T2 * 100.0;
+                    chT2 = (unsigned char *) & TT2;
+                    
+                    for (l=0;l<4;l++){
+                          trama[l]=(*chT2++);
+                    }
+                    for (l=3;l>=0;l--){
+                        UART1_Write(trama[l]);
+                    }
+                    
+                    UART1_Write(0x0D);
+                    conts++;
               }
 
-              TT2 = T2a * 100.0;
+              /*TT2 = T2a * 100.0;
 
-              chT2 = (unsigned char *) & TT2;
+              chT2 = (unsigned char *) & TT2;*/
 
-              for (l=0;l<4;l++){
+              /*for (l=0;l<4;l++){
                  trama[l]=(*chT2++);
-              }
-              
-              UART1_Write(0xFA);
-              
-             /*for (l=3;l>=0;l--){
-                 UART1_Write(trama[l]);
               }*/
               
+              /*for (l=3;l>=0;l--){
+                 UART1_Write(trama[l]);
+              }
+
               for (l=0;l<4;l++){
                  UART1_Write(trama[l]);
               }
+
+              UART1_Write(0x0D);*/
               
+              UART1_Write(0xFF);
               UART1_Write(0x0D);
               
               Delay_ms(10);
