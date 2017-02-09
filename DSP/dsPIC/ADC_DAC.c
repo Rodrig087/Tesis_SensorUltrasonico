@@ -3,18 +3,13 @@ Autor: Milton Munoz
 Fecha de creacion: 13/01/2017
 Configuracion: dsPIC P33FJ32MC202, XT=8MHz, PLL=80MHz
 Descripcion:
-1.Realiza la lectura del sensor de temperatura DS18B20 para estimar la velocidad del sonido.
-2.Genera los pulsos de exitacion para el transductor ultrasonico mediante interrupciones por desbordamiento del TMR2.
-3.Realiza la conversion analogica-digital de la senal de eco recibida por del receptor ultrasonico a una frecuencia de muestreo determinada
-  por el desbordamiento del TMR1.
-4.Realiza la deteccion de envolvente de la senal muestreada.
-5.
+1.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR (Fs=200KHz, T/2=650us)
-const float ca1 = 0.006745773600345;
-const float ca2 = 0.013491547200690;
-const float cb2 = -1.754594315763869;
-const float cb3 = 0.781577410165250;
+//Coeficientes filtro IIR (Fs=200KHz, T/2=1000us)
+const float ca1 = 0.004482805534581;
+const float ca2 = 0.008965611069163;
+const float cb2 = -1.801872917973333;
+const float cb3 = 0.819804140111658;
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
@@ -181,7 +176,7 @@ void Pulse(){
 
                T2 = tmax+dx;
                imax = (unsigned int)(T2/tx);
-               
+
                M[0]=500;
                M[i0]=250;
                M[i1]=350;
@@ -341,7 +336,6 @@ void main() {
               T2sum = 0.0;
               T2prom = 0.0;
               conts = 0;
-              //bm = 0;
 
               while (conts<5){
                     Pulse();
@@ -350,7 +344,7 @@ void main() {
               }
               
               T2prom=(T2sum/5);
-              Velocidad();
+              //Velocidad();
               
               //T1 = 100 * 12.5;
               //TOF = T1 + T2prom;
@@ -366,10 +360,11 @@ void main() {
               
               UART1_Write(0xFA);
               
-              for (l=0;l<4;l++){
+              for (l=3;l>=0;l--){
                  UART1_Write(trama[l]);
               }
               
+              UART1_Write(0x0D);
               
               Delay_ms(10);
               

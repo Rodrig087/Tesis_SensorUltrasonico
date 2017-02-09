@@ -1,9 +1,9 @@
-#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
-#line 14 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
-const float ca1 = 0.006745773600345;
-const float ca2 = 0.013491547200690;
-const float cb2 = -1.754594315763869;
-const float cb3 = 0.781577410165250;
+#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 9 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+const float ca1 = 0.004482805534581;
+const float ca2 = 0.008965611069163;
+const float cb2 = -1.801872917973333;
+const float cb3 = 0.819804140111658;
 
 
 
@@ -331,7 +331,6 @@ void main() {
  T2prom = 0.0;
  conts = 0;
 
-
  while (conts<5){
  Pulse();
  T2sum = T2sum + T2;
@@ -339,7 +338,7 @@ void main() {
  }
 
  T2prom=(T2sum/5);
- Velocidad();
+
 
 
 
@@ -355,10 +354,11 @@ void main() {
 
  UART1_Write(0xFA);
 
- for (l=0;l<4;l++){
+ for (l=3;l>=0;l--){
  UART1_Write(trama[l]);
  }
 
+ UART1_Write(0x0D);
 
  Delay_ms(10);
 
