@@ -1,9 +1,9 @@
 #line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
 #line 9 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
-const float ca1 = 0.004482805534581;
-const float ca2 = 0.008965611069163;
-const float cb2 = -1.801872917973333;
-const float cb3 = 0.819804140111658;
+const float ca1 = 0.006745773600345;
+const float ca2 = 0.013491547200690;
+const float cb2 = -1.754594315763869;
+const float cb3 = 0.781577410165250;
 
 
 
@@ -14,7 +14,6 @@ float DSTemp, VSnd;
 const unsigned int nm = 350;
 unsigned int M[nm];
 unsigned int i;
-unsigned int j;
 unsigned int k;
 short bm;
 
@@ -29,8 +28,6 @@ unsigned int Mmin=0;
 unsigned int Mmed=0;
 unsigned int MIndexMax;
 unsigned int MIndexMin;
-
-unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2, imax;
 unsigned int i1a, i1b;
@@ -89,8 +86,6 @@ void Velocidad(){
 void Pulse(){
 
 
-
-
  contp = 0;
  RB14_bit = 0;
 
@@ -102,8 +97,6 @@ void Pulse(){
  T2CON.TON = 1;
 
  i = 0;
- j = 0;
-
 
 
  while(bm!=1);
@@ -169,24 +162,9 @@ void Pulse(){
  tmax = i1*tx;
 
  T2 = tmax+dx;
- imax = (unsigned int)(T2/tx);
-
- M[0]=500;
- M[i0]=250;
- M[i1]=350;
- M[imax]=800;
- M[i2]=250;
- M[nm-2]=500;
-
- IEC0.T1IE = 1;
- TMR1 = 0;
- T1IF_bit = 0;
- T1CON.TON = 1;
- bm = 3;
 
  }
 
- while(bm!=4);
 }
 
 
@@ -205,23 +183,13 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
  AD1IF_bit = 0;
 }
 
+
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  RB15_bit = ~RB15_bit;
- if (bm==0){
  SAMP_bit = 0;
- }
- if (bm==3) {
- if (j<nm){
- LATB = (M[j]&0x03FF);
- j++;
- } else {
- bm = 4;
- T1CON.TON = 0;
- IEC0.T1IE = 0;
- }
- }
  T1IF_bit = 0;
 }
+
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  if (contp<10){
@@ -352,13 +320,13 @@ void main() {
  trama[l]=(*chT2++);
  }
 
- UART1_Write(0xFA);
+ UART1_Write(0xEE);
 
- for (l=3;l>=0;l--){
+ for (l=0;l<4;l++){
  UART1_Write(trama[l]);
  }
 
- UART1_Write(0x0D);
+
 
  Delay_ms(10);
 

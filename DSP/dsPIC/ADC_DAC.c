@@ -5,11 +5,11 @@ Configuracion: dsPIC P33FJ32MC202, XT=8MHz, PLL=80MHz
 Descripcion:
 1.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR (Fs=200KHz, T/2=1000us)
-const float ca1 = 0.004482805534581;
-const float ca2 = 0.008965611069163;
-const float cb2 = -1.801872917973333;
-const float cb3 = 0.819804140111658;
+//Coeficientes filtro IIR (Fs=200KHz, T/2=650us)
+const float ca1 = 0.006745773600345;
+const float ca2 = 0.013491547200690;
+const float cb2 = -1.754594315763869;
+const float cb3 = 0.781577410165250;
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
@@ -20,7 +20,6 @@ float DSTemp, VSnd;
 const unsigned int nm = 350;
 unsigned int M[nm];
 unsigned int i;
-unsigned int j;
 unsigned int k;
 short bm;
 //Variables para la deteccion de la Envolvente de la señal
@@ -35,8 +34,6 @@ unsigned int Mmin=0;
 unsigned int Mmed=0;
 unsigned int MIndexMax;
 unsigned int MIndexMin;
-//------------------------------------------------------------------------------
-unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2, imax;
 unsigned int i1a, i1b;
@@ -95,23 +92,19 @@ void Velocidad(){
 void Pulse(){
 
             // Generacion de pulsos y captura de la señal de retorno //
-            //if (bm==0){
-            
-                contp = 0;                                               //Limpia la variable del contador de pulsos
-                RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
+            contp = 0;                                               //Limpia la variable del contador de pulsos
+            RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
 
-                T1CON.TON = 0;                                           //Apaga el TMR1
-                IEC0.T1IE = 0;                                           //Desabilita la interrupcion por desborde del TMR1
+            T1CON.TON = 0;                                           //Apaga el TMR1
+            IEC0.T1IE = 0;                                           //Desabilita la interrupcion por desborde del TMR1
 
-                TMR2 = 0;                                                //Encera el TMR2
-                IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
-                T2CON.TON = 1;                                           //Enciende el TMR2
+            TMR2 = 0;                                                //Encera el TMR2
+            IEC0.T2IE = 1;                                           //Habilita la interrupcion por desborde del TMR2
+            T2CON.TON = 1;                                           //Enciende el TMR2
 
-                i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
-                j = 0;
-            
-            //}
-            
+            i = 0;                                                   //Limpia las variables asociadas al almacenamiento de la señal muestreada
+
+
             while(bm!=1);                                            //Espera hasta que haya terminado de enviar y recibir todas las muestras
 
             // Procesamiento de la señal capturada //
@@ -175,24 +168,9 @@ void Pulse(){
                tmax = i1*tx;
 
                T2 = tmax+dx;
-               imax = (unsigned int)(T2/tx);
-
-               M[0]=500;
-               M[i0]=250;
-               M[i1]=350;
-               M[imax]=800;
-               M[i2]=250;
-               M[nm-2]=500;
-
-               IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
-               TMR1 = 0;                                                //Encera el TMR1
-               T1IF_bit = 0;                                            //Limpia la bandera de interrupcion por desbordamiento del TMR1
-               T1CON.TON = 1;                                           //Enciende el TMR1
-               bm = 3;
 
             }
 
-            while(bm!=4);
 }
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
@@ -210,24 +188,14 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
 
      AD1IF_bit = 0;                                //Limpia la bandera de interrupcion del ADC
 }
+
 //Interrupcion por desbordamiento del TMR1
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      RB15_bit = ~RB15_bit;
-     if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
-        SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
-     }
-     if (bm==3) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
-          if (j<nm){
-             LATB = (M[j]&0x03FF);
-             j++;
-          } else {
-             bm = 4;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
-             T1CON.TON = 0;                             //Apaga el TMR1
-             IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
-          }
-     }
+     SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 }
+
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
      if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
@@ -358,13 +326,13 @@ void main() {
                  trama[l]=(*chT2++);
               }
               
-              UART1_Write(0xFA);
+              UART1_Write(0xEE);
               
-              for (l=3;l>=0;l--){
+              for (l=0;l<4;l++){
                  UART1_Write(trama[l]);
               }
               
-              UART1_Write(0x0D);
+              //UART1_Write(0xFF);
               
               Delay_ms(10);
               
