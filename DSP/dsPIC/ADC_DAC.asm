@@ -989,64 +989,92 @@ L_main28:
 	CLR	W1
 	MOV	W0, _Dst
 	MOV	W1, _Dst+2
-;ADC_DAC.c,336 :: 		T2sum = 0.0;
+;ADC_DAC.c,336 :: 		T2a = 0.0;
 	CLR	W0
 	CLR	W1
-	MOV	W0, _T2sum
-	MOV	W1, _T2sum+2
-;ADC_DAC.c,337 :: 		T2prom = 0.0;
+	MOV	W0, _T2a
+	MOV	W1, _T2a+2
+;ADC_DAC.c,337 :: 		T2b = 0.0;
 	CLR	W0
 	CLR	W1
-	MOV	W0, _T2prom
-	MOV	W1, _T2prom+2
-;ADC_DAC.c,338 :: 		conts = 0;
+	MOV	W0, _T2b
+	MOV	W1, _T2b+2
+;ADC_DAC.c,338 :: 		dT2 = 0.0;
+	CLR	W0
+	CLR	W1
+	MOV	W0, _dT2
+	MOV	W1, _dT2+2
+;ADC_DAC.c,339 :: 		conts = 0;
 	MOV	#lo_addr(_conts), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,340 :: 		while (conts<5){
-L_main30:
-	MOV	#lo_addr(_conts), W0
-	MOV.B	[W0], W0
-	CP.B	W0, #5
-	BRA LT	L__main61
-	GOTO	L_main31
-L__main61:
 ;ADC_DAC.c,341 :: 		Pulse();
 	CALL	_Pulse
-;ADC_DAC.c,342 :: 		T2sum = T2sum + T2;
-	MOV	_T2sum, W2
-	MOV	_T2sum+2, W3
+;ADC_DAC.c,342 :: 		T2b = T2;
 	MOV	_T2, W0
 	MOV	_T2+2, W1
-	CALL	__AddSub_FP
-	MOV	W0, _T2sum
-	MOV	W1, _T2sum+2
-;ADC_DAC.c,343 :: 		conts++;
-	MOV.B	#1, W1
-	MOV	#lo_addr(_conts), W0
-	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,344 :: 		}
+	MOV	W0, _T2b
+	MOV	W1, _T2b+2
+;ADC_DAC.c,343 :: 		dT2 = T2b - T2a;
+	MOV	_T2, W0
+	MOV	_T2+2, W1
+	MOV	_T2a, W2
+	MOV	_T2a+2, W3
+	CALL	__Sub_FP
+	MOV	W0, _dT2
+	MOV	W1, _dT2+2
+;ADC_DAC.c,345 :: 		while (dT2>=3.0){
+L_main30:
+	MOV	#0, W2
+	MOV	#16448, W3
+	MOV	_dT2, W0
+	MOV	_dT2+2, W1
+	CALL	__Compare_Ge_Fp
+	CP0	W0
+	CLR.B	W0
+	BRA LT	L__main61
+	INC.B	W0
+L__main61:
+	CP0.B	W0
+	BRA NZ	L__main62
+	GOTO	L_main31
+L__main62:
+;ADC_DAC.c,346 :: 		Pulse();
+	CALL	_Pulse
+;ADC_DAC.c,347 :: 		T2b = T2;
+	MOV	_T2, W0
+	MOV	_T2+2, W1
+	MOV	W0, _T2b
+	MOV	W1, _T2b+2
+;ADC_DAC.c,348 :: 		dT2 = T2b - T2a;
+	MOV	_T2, W0
+	MOV	_T2+2, W1
+	MOV	_T2a, W2
+	MOV	_T2a+2, W3
+	CALL	__Sub_FP
+	MOV	W0, _dT2
+	MOV	W1, _dT2+2
+;ADC_DAC.c,349 :: 		T2a = T2b;
+	MOV	_T2, W0
+	MOV	_T2+2, W1
+	MOV	W0, _T2a
+	MOV	W1, _T2a+2
+;ADC_DAC.c,350 :: 		}
 	GOTO	L_main30
 L_main31:
-;ADC_DAC.c,346 :: 		T2prom=(T2sum/5);
-	MOV	#0, W2
-	MOV	#16544, W3
-	MOV	_T2sum, W0
-	MOV	_T2sum+2, W1
-	CALL	__Div_FP
-	MOV	W0, _T2prom
-	MOV	W1, _T2prom+2
-;ADC_DAC.c,353 :: 		TT2 = T2Prom * 100.0;
+;ADC_DAC.c,352 :: 		TT2 = T2a * 100.0;
+	MOV	_T2a, W0
+	MOV	_T2a+2, W1
 	MOV	#0, W2
 	MOV	#17096, W3
 	CALL	__Mul_FP
 	CALL	__Float2Longword
 	MOV	W0, _TT2
 	MOV	W1, _TT2+2
-;ADC_DAC.c,355 :: 		chT2 = (unsigned char *) & TT2;
+;ADC_DAC.c,354 :: 		chT2 = (unsigned char *) & TT2;
 	MOV	#lo_addr(_TT2), W0
 	MOV	W0, _chT2
-;ADC_DAC.c,357 :: 		for (l=0;l<4;l++){
+;ADC_DAC.c,356 :: 		for (l=0;l<4;l++){
 	MOV	#lo_addr(_l), W1
 	CLR	W0
 	MOV.B	W0, [W1]
@@ -1054,10 +1082,10 @@ L_main32:
 	MOV	#lo_addr(_l), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #4
-	BRA LT	L__main62
+	BRA LT	L__main63
 	GOTO	L_main33
-L__main62:
-;ADC_DAC.c,358 :: 		trama[l]=(*chT2++);
+L__main63:
+;ADC_DAC.c,357 :: 		trama[l]=(*chT2++);
 	MOV	#lo_addr(_l), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_trama), W0
@@ -1067,45 +1095,45 @@ L__main62:
 	MOV	#1, W1
 	MOV	#lo_addr(_chT2), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,357 :: 		for (l=0;l<4;l++){
+;ADC_DAC.c,356 :: 		for (l=0;l<4;l++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_l), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,359 :: 		}
+;ADC_DAC.c,358 :: 		}
 	GOTO	L_main32
 L_main33:
-;ADC_DAC.c,361 :: 		UART1_Write(0xFA);
+;ADC_DAC.c,360 :: 		UART1_Write(0xFA);
 	MOV	#250, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,363 :: 		for (l=3;l>=0;l--){
+;ADC_DAC.c,366 :: 		for (l=0;l<4;l++){
 	MOV	#lo_addr(_l), W1
-	MOV.B	#3, W0
+	CLR	W0
 	MOV.B	W0, [W1]
 L_main35:
 	MOV	#lo_addr(_l), W0
 	MOV.B	[W0], W0
-	CP.B	W0, #0
-	BRA GE	L__main63
+	CP.B	W0, #4
+	BRA LT	L__main64
 	GOTO	L_main36
-L__main63:
-;ADC_DAC.c,364 :: 		UART1_Write(trama[l]);
+L__main64:
+;ADC_DAC.c,367 :: 		UART1_Write(trama[l]);
 	MOV	#lo_addr(_l), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_trama), W0
 	ADD	W0, W1, W0
 	ZE	[W0], W10
 	CALL	_UART1_Write
-;ADC_DAC.c,363 :: 		for (l=3;l>=0;l--){
+;ADC_DAC.c,366 :: 		for (l=0;l<4;l++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_l), W0
-	SUBR.B	W1, [W0], [W0]
-;ADC_DAC.c,365 :: 		}
+	ADD.B	W1, [W0], [W0]
+;ADC_DAC.c,368 :: 		}
 	GOTO	L_main35
 L_main36:
-;ADC_DAC.c,367 :: 		UART1_Write(0x0D);
+;ADC_DAC.c,370 :: 		UART1_Write(0x0D);
 	MOV	#13, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,369 :: 		Delay_ms(10);
+;ADC_DAC.c,372 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
 L_main38:
@@ -1113,9 +1141,9 @@ L_main38:
 	BRA NZ	L_main38
 	DEC	W8
 	BRA NZ	L_main38
-;ADC_DAC.c,371 :: 		}
+;ADC_DAC.c,374 :: 		}
 	GOTO	L_main28
-;ADC_DAC.c,373 :: 		}
+;ADC_DAC.c,376 :: 		}
 L_end_main:
 	POP	W11
 	POP	W10

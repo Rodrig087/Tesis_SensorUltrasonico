@@ -53,7 +53,7 @@ char txt1[6], txt2[6], txt3[6], txt4[6] ;
 //Variables para peticion de datos
 short bp;
 short conts;
-float T2sum,T2prom;
+float T2a,T2b,dT2;
 unsigned long TT2;
 unsigned char  *chT2;
 unsigned char trama[4];
@@ -333,24 +333,23 @@ void main() {
 
               TOF = 0.0;
               Dst = 0.0;
-              T2sum = 0.0;
-              T2prom = 0.0;
+              T2a = 0.0;
+              T2b = 0.0;
+              dT2 = 0.0;
               conts = 0;
 
-              while (conts<5){
-                    Pulse();
-                    T2sum = T2sum + T2;
-                    conts++;
-              }
-              
-              T2prom=(T2sum/5);
-              //Velocidad();
-              
-              //T1 = 100 * 12.5;
-              //TOF = T1 + T2prom;
-              //Dst = VSnd * (TOF / 20000.0);
+              Pulse();
+              T2b = T2;
+              dT2 = T2b - T2a;
 
-              TT2 = T2Prom * 100.0;
+              while (dT2>=3.0){
+                    Pulse();
+                    T2b = T2;
+                    dT2 = T2b - T2a;
+                    T2a = T2b;
+              }
+
+              TT2 = T2a * 100.0;
 
               chT2 = (unsigned char *) & TT2;
 
@@ -360,7 +359,11 @@ void main() {
               
               UART1_Write(0xFA);
               
-              for (l=3;l>=0;l--){
+             /*for (l=3;l>=0;l--){
+                 UART1_Write(trama[l]);
+              }*/
+              
+              for (l=0;l<4;l++){
                  UART1_Write(trama[l]);
               }
               

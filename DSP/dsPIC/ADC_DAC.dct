@@ -1643,6 +1643,7 @@ dozen
 dozen_bit
 dst
 dstemp
+dt2
 dta
 dta
 dta
@@ -5284,6 +5285,8 @@ t1md
 t1md
 t1md_bit
 t2
+t2a
+t2b
 t2ckr
 t2ckr_0
 t2ckr_0_bit
@@ -5321,8 +5324,6 @@ t2ip2
 t2md
 t2md
 t2md_bit
-t2prom
-t2sum
 t32
 t32
 t32_bit

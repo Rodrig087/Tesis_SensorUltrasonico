@@ -18,10 +18,11 @@ main
 		_Div_FP
 		_Float2Longint
 	UART1_Write
-	_Div_FP
+	_Sub_FP
+	_Compare_Ge_Fp
+		_Compare_Fp
 	_Mul_FP
 	_Float2Longword
-	_AddSub_FP
 ADC1Int
 Timer2Interrupt
 Timer1Interrupt
