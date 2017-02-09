@@ -1805,6 +1805,7 @@ dx
 edt
 edt
 edt_bit
+end
 erase
 erase_
 erase_bit
@@ -1974,6 +1975,7 @@ gcstat
 gcstat_bit
 get_fosc_khz
 get_fosc_per_cyc
+hdr
 i
 i0
 i1
@@ -2473,6 +2475,7 @@ icxcon
 icxcon
 icxcon
 icxcon
+id
 idle
 idle
 idle_bit
@@ -3851,6 +3854,7 @@ pr3_8
 pr3_8_bit
 pr3_9
 pr3_9_bit
+psize
 psv
 psv
 psv_bit
@@ -4779,6 +4783,7 @@ rsen
 rsen
 rsen
 rsen_bit
+rsize
 rtrim
 rtsmd
 rtsmd
@@ -5564,6 +5569,8 @@ ton_bit
 ton_t1con_bit
 ton_t2con_bit
 ton_t3con_bit
+tp
+tpid
 tqckps
 tqckps
 tqckps_0

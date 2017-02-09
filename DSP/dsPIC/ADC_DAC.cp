@@ -7,6 +7,15 @@ const float cb3 = 0.781577410165250;
 
 
 
+short TpId;
+short TP;
+short Id;
+const short Psize = 4;
+const short Rsize = 6;
+const short Hdr = 0xEE;
+const short End = 0xFF;
+
+
 unsigned int contp;
 
 float DSTemp, VSnd;
@@ -226,7 +235,7 @@ void Configuracion(){
  AD1PCFGL = 0xFFFE;
  TRISA0_bit = 1;
  TRISA4_bit = 1;
- TRISB = 0;
+ TRISB = 0xFF;
 
 
  AD1CON1.AD12B = 0;
@@ -291,6 +300,10 @@ void main() {
  Delay_ms(100);
 
 
+ TpId = PORTB&0xFF;
+ TP = TpId>>4;
+ Id = TPId&0xF;
+
  while(1){
 
  TOF = 0.0;
@@ -320,7 +333,8 @@ void main() {
  trama[l]=(*chT2++);
  }
 
- UART1_Write(0xEE);
+ UART1_Write(Tp);
+ UART1_Write(Id);
 
  for (l=0;l<4;l++){
  UART1_Write(trama[l]);

@@ -12,6 +12,15 @@ const float cb2 = -1.754594315763869;
 const float cb3 = 0.781577410165250;
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
+//Variables para la peticion y respuesta de datos
+short TpId;
+short TP;
+short Id;
+const short Psize = 4;                                  //Constante de longitud de trama de Peticion
+const short Rsize = 6;                                  //Constante de longitud de trama de Respuesta
+const short Hdr = 0xEE;                                 //Constante de delimitador de inicio de trama (0x20)
+const short End = 0xFF;                                 //Constante de delimitador de final de trama (0x0D)
+
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
 //Variables para el calculo de la Velocidad del sonido:
@@ -232,7 +241,7 @@ void Configuracion(){
      AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
      TRISA0_bit = 1;                             //Set RA0 pin as input
      TRISA4_bit = 1;                             //Set RA4 pin as input
-     TRISB = 0;                                  //Set RB14 pin as output
+     TRISB = 0xFF;
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
@@ -296,6 +305,10 @@ void main() {
      UART1_Init(9600);               // Initialize UART module at 9600 bps
      Delay_ms(100);                  // Wait for UART module to stabilize
      //UART_Write_Text("Start");
+     
+     TpId = PORTB&0xFF;
+     TP = TpId>>4;
+     Id = TPId&0xF;
 
      while(1){
 
@@ -326,7 +339,8 @@ void main() {
                  trama[l]=(*chT2++);
               }
               
-              UART1_Write(0xEE);
+              UART1_Write(Tp);
+              UART1_Write(Id);
               
               for (l=0;l<4;l++){
                  UART1_Write(trama[l]);
