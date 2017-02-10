@@ -64,13 +64,13 @@ L_Velocidad2:
 	MOV	W0, W2
 ;ADC_DAC.c,83 :: 		if (Temp & 0x8000) {
 	BTSS	W0, #15
-	GOTO	L__Velocidad37
+	GOTO	L__Velocidad43
 ;ADC_DAC.c,84 :: 		Temp = 0;                                //Si la temperatura es negativa la establece como cero.
 	CLR	W2
 ; Temp end address is: 4 (W2)
 ;ADC_DAC.c,85 :: 		}
 	GOTO	L_Velocidad4
-L__Velocidad37:
+L__Velocidad43:
 ;ADC_DAC.c,83 :: 		if (Temp & 0x8000) {
 ;ADC_DAC.c,85 :: 		}
 L_Velocidad4:
@@ -156,18 +156,18 @@ L_Pulse5:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA NZ	L__Pulse40
+	BRA NZ	L__Pulse46
 	GOTO	L_Pulse6
-L__Pulse40:
+L__Pulse46:
 	GOTO	L_Pulse5
 L_Pulse6:
 ;ADC_DAC.c,118 :: 		if (bm==1){
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA Z	L__Pulse41
+	BRA Z	L__Pulse47
 	GOTO	L_Pulse7
-L__Pulse41:
+L__Pulse47:
 ;ADC_DAC.c,121 :: 		Mmax = Vector_Max(M, nm, &MIndexMax);
 	MOV	#lo_addr(_MIndexMax), W0
 	PUSH	W0
@@ -202,9 +202,9 @@ L_Pulse8:
 	MOV	_k, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__Pulse42
+	BRA LTU	L__Pulse48
 	GOTO	L_Pulse9
-L__Pulse42:
+L__Pulse48:
 ;ADC_DAC.c,128 :: 		value = M[k]-Mmed;
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -218,9 +218,9 @@ L__Pulse42:
 	MOV	[W3], W1
 	MOV	#lo_addr(_Mmed), W0
 	CP	W1, [W0]
-	BRA LTU	L__Pulse43
+	BRA LTU	L__Pulse49
 	GOTO	L_Pulse11
-L__Pulse43:
+L__Pulse49:
 ;ADC_DAC.c,130 :: 		value = (M[k]+((Mmed-M[k])*2))-(Mmed);
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -336,9 +336,9 @@ L_Pulse7:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #2
-	BRA Z	L__Pulse44
+	BRA Z	L__Pulse50
 	GOTO	L_Pulse12
-L__Pulse44:
+L__Pulse50:
 ;ADC_DAC.c,154 :: 		yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
 	MOV	#lo_addr(_maxIndex), W0
 	PUSH	W0
@@ -364,9 +364,9 @@ L_Pulse13:
 	MOV	[W0], W1
 	MOV	#lo_addr(_yy1), W0
 	CP	W1, [W0]
-	BRA LTU	L__Pulse45
+	BRA LTU	L__Pulse51
 	GOTO	L_Pulse14
-L__Pulse45:
+L__Pulse51:
 ;ADC_DAC.c,159 :: 		i1a++;
 	MOV	#1, W1
 	MOV	#lo_addr(_i1a), W0
@@ -556,9 +556,9 @@ L_Pulse15:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #4
-	BRA NZ	L__Pulse46
+	BRA NZ	L__Pulse52
 	GOTO	L_Pulse16
-L__Pulse46:
+L__Pulse52:
 	GOTO	L_Pulse15
 L_Pulse16:
 ;ADC_DAC.c,196 :: 		}
@@ -580,9 +580,9 @@ _ADC1Int:
 	MOV	_i, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__ADC1Int48
+	BRA LTU	L__ADC1Int54
 	GOTO	L_ADC1Int17
-L__ADC1Int48:
+L__ADC1Int54:
 ;ADC_DAC.c,202 :: 		M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
 	MOV	_i, W0
 	SL	W0, #1, W1
@@ -635,9 +635,9 @@ _Timer1Interrupt:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
-	BRA Z	L__Timer1Interrupt50
+	BRA Z	L__Timer1Interrupt56
 	GOTO	L_Timer1Interrupt19
-L__Timer1Interrupt50:
+L__Timer1Interrupt56:
 ;ADC_DAC.c,217 :: 		SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
 	BCLR	SAMP_bit, BitPos(SAMP_bit+0)
 ;ADC_DAC.c,218 :: 		}
@@ -646,16 +646,16 @@ L_Timer1Interrupt19:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA Z	L__Timer1Interrupt51
+	BRA Z	L__Timer1Interrupt57
 	GOTO	L_Timer1Interrupt20
-L__Timer1Interrupt51:
+L__Timer1Interrupt57:
 ;ADC_DAC.c,220 :: 		if (j<nm){
 	MOV	_j, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__Timer1Interrupt52
+	BRA LTU	L__Timer1Interrupt58
 	GOTO	L_Timer1Interrupt21
-L__Timer1Interrupt52:
+L__Timer1Interrupt58:
 ;ADC_DAC.c,221 :: 		LATB = (M[j]&0x03FF);
 	MOV	_j, W0
 	SL	W0, #1, W1
@@ -709,9 +709,9 @@ _Timer2Interrupt:
 ;ADC_DAC.c,233 :: 		if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
 	MOV	_contp, W0
 	CP	W0, #10
-	BRA LTU	L__Timer2Interrupt54
+	BRA LTU	L__Timer2Interrupt60
 	GOTO	L_Timer2Interrupt23
-L__Timer2Interrupt54:
+L__Timer2Interrupt60:
 ;ADC_DAC.c,234 :: 		RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
 	BTG	RB14_bit, BitPos(RB14_bit+0)
 ;ADC_DAC.c,235 :: 		}else {
@@ -723,9 +723,9 @@ L_Timer2Interrupt23:
 	MOV	#110, W1
 	MOV	#lo_addr(_contp), W0
 	CP	W1, [W0]
-	BRA Z	L__Timer2Interrupt55
+	BRA Z	L__Timer2Interrupt61
 	GOTO	L_Timer2Interrupt25
-L__Timer2Interrupt55:
+L__Timer2Interrupt61:
 ;ADC_DAC.c,239 :: 		IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
 	BCLR	IEC0, #7
 ;ADC_DAC.c,240 :: 		T2CON.TON = 0;                       //Apaga el TMR2
@@ -977,43 +977,127 @@ L_main26:
 	BRA NZ	L_main26
 	DEC	W8
 	BRA NZ	L_main26
-;ADC_DAC.c,335 :: 		Pulse();
-	CALL	_Pulse
-;ADC_DAC.c,336 :: 		UART1_Write(0xEE);
+;ADC_DAC.c,331 :: 		while(1){
+L_main28:
+;ADC_DAC.c,333 :: 		UART1_Write(0xEE);                       //Indica el comienzo de una secuencia
 	MOV	#238, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,337 :: 		for (l=0;l<nm;l++){
-	MOV	#lo_addr(_l), W1
+;ADC_DAC.c,334 :: 		UART1_Write(0x0D);
+	MOV	#13, W10
+	CALL	_UART1_Write
+;ADC_DAC.c,336 :: 		Pulse();
+	CALL	_Pulse
+;ADC_DAC.c,338 :: 		for (j=0;j<nm;j++){
 	CLR	W0
-	MOV.B	W0, [W1]
+	MOV	W0, _j
 L_main30:
-;ADC_DAC.c,338 :: 		while(UART_Tx_Idle()==0);                //Espera hasta que se haya terminado de enviar todo el dato antes de continuar
+	MOV	_j, W1
+	MOV	#350, W0
+	CP	W1, W0
+	BRA LTU	L__main64
+	GOTO	L_main31
+L__main64:
+;ADC_DAC.c,339 :: 		while(UART_Tx_Idle()==0);           //Espera hasta que se haya terminado de enviar todos los datos antes de continuar
 L_main33:
 	CALL	_UART_Tx_Idle
 	CP	W0, #0
-	BRA Z	L__main58
+	BRA Z	L__main65
 	GOTO	L_main34
-L__main58:
+L__main65:
 	GOTO	L_main33
 L_main34:
-;ADC_DAC.c,339 :: 		UART1_Write(M[l]);
-	MOV	#lo_addr(_l), W0
-	SE	[W0], W0
+;ADC_DAC.c,340 :: 		TT2 = M[j];                         //Guarda cada uno de los valores de M en TT2
+	MOV	_j, W0
 	SL	W0, #1, W1
 	MOV	#lo_addr(_M), W0
 	ADD	W0, W1, W0
-	MOV	[W0], W10
-	CALL	_UART1_Write
-;ADC_DAC.c,340 :: 		UART1_Write(0x0D);
-	MOV	#13, W10
-	CALL	_UART1_Write
-;ADC_DAC.c,337 :: 		for (l=0;l<nm;l++){
+	MOV	[W0], W0
+	CLR	W1
+	MOV	W0, _TT2
+	MOV	W1, _TT2+2
+;ADC_DAC.c,341 :: 		chT2 = (unsigned char *) & TT2;
+	MOV	#lo_addr(_TT2), W0
+	MOV	W0, _chT2
+;ADC_DAC.c,342 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
+	MOV	#lo_addr(_l), W1
+	CLR	W0
+	MOV.B	W0, [W1]
+L_main35:
+	MOV	#lo_addr(_l), W0
+	MOV.B	[W0], W0
+	CP.B	W0, #2
+	BRA LT	L__main66
+	GOTO	L_main36
+L__main66:
+;ADC_DAC.c,343 :: 		trama[l]=(*chT2++);
+	MOV	#lo_addr(_l), W0
+	SE	[W0], W1
+	MOV	#lo_addr(_trama), W0
+	ADD	W0, W1, W1
+	MOV	_chT2, W0
+	MOV.B	[W0], [W1]
+	MOV	#1, W1
+	MOV	#lo_addr(_chT2), W0
+	ADD	W1, [W0], [W0]
+;ADC_DAC.c,342 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
 	MOV.B	#1, W1
 	MOV	#lo_addr(_l), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,341 :: 		}
+;ADC_DAC.c,344 :: 		}
+	GOTO	L_main35
+L_main36:
+;ADC_DAC.c,345 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
+	MOV	#lo_addr(_l), W1
+	MOV.B	#1, W0
+	MOV.B	W0, [W1]
+L_main38:
+	MOV	#lo_addr(_l), W0
+	MOV.B	[W0], W0
+	CP.B	W0, #0
+	BRA GE	L__main67
+	GOTO	L_main39
+L__main67:
+;ADC_DAC.c,346 :: 		UART1_Write(trama[l]);
+	MOV	#lo_addr(_l), W0
+	SE	[W0], W1
+	MOV	#lo_addr(_trama), W0
+	ADD	W0, W1, W0
+	ZE	[W0], W10
+	CALL	_UART1_Write
+;ADC_DAC.c,345 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
+	MOV.B	#1, W1
+	MOV	#lo_addr(_l), W0
+	SUBR.B	W1, [W0], [W0]
+;ADC_DAC.c,347 :: 		}
+	GOTO	L_main38
+L_main39:
+;ADC_DAC.c,348 :: 		UART1_Write(0x0D);                  //Salto de linea
+	MOV	#13, W10
+	CALL	_UART1_Write
+;ADC_DAC.c,338 :: 		for (j=0;j<nm;j++){
+	MOV	#1, W1
+	MOV	#lo_addr(_j), W0
+	ADD	W1, [W0], [W0]
+;ADC_DAC.c,349 :: 		}
 	GOTO	L_main30
-;ADC_DAC.c,348 :: 		}
+L_main31:
+;ADC_DAC.c,351 :: 		UART1_Write(0xEE);                       //Indica el fin de una secuencia
+	MOV	#238, W10
+	CALL	_UART1_Write
+;ADC_DAC.c,352 :: 		UART1_Write(0x0D);
+	MOV	#13, W10
+	CALL	_UART1_Write
+;ADC_DAC.c,354 :: 		Delay_ms(10);
+	MOV	#3, W8
+	MOV	#2261, W7
+L_main41:
+	DEC	W7
+	BRA NZ	L_main41
+	DEC	W8
+	BRA NZ	L_main41
+;ADC_DAC.c,356 :: 		}
+	GOTO	L_main28
+;ADC_DAC.c,358 :: 		}
 L_end_main:
 	POP	W11
 	POP	W10

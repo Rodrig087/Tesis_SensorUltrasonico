@@ -1,5 +1,5 @@
-#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
-#line 9 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 9 "D:/Git/Tesis_SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
 const float ca1 = 0.004482805534581;
 const float ca2 = 0.008965611069163;
 const float cb2 = -1.801872917973333;
@@ -322,18 +322,28 @@ void main() {
  UART1_Init(9600);
  Delay_ms(100);
 
-
-
  while(1){
 
- Pulse();
  UART1_Write(0xEE);
- for (l=0;l<nm;l++){
+ UART1_Write(0x0D);
+
+ Pulse();
+
+ for (j=0;j<nm;j++){
  while(UART_Tx_Idle()==0);
- UART1_Write(M[l]);
+ TT2 = M[j];
+ chT2 = (unsigned char *) & TT2;
+ for (l=0;l<2;l++){
+ trama[l]=(*chT2++);
+ }
+ for (l=1;l>=0;l--){
+ UART1_Write(trama[l]);
+ }
  UART1_Write(0x0D);
  }
+
  UART1_Write(0xEE);
+ UART1_Write(0x0D);
 
  Delay_ms(10);
 

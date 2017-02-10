@@ -328,19 +328,29 @@ void main() {
      UART1_Init(9600);               // Initialize UART module at 9600 bps
      Delay_ms(100);                  // Wait for UART module to stabilize
 
-     //UART_Write_Text("Start");
-
      while(1){
 
-              Pulse();
-              UART1_Write(0xEE);
-              for (l=0;l<nm;l++){
-                  while(UART_Tx_Idle()==0);                //Espera hasta que se haya terminado de enviar todo el dato antes de continuar
-                  UART1_Write(M[l]);
-                  UART1_Write(0x0D);
-              }
-              UART1_Write(0xEE);
+              UART1_Write(0xEE);                       //Indica el comienzo de una secuencia
+              UART1_Write(0x0D);
               
+              Pulse();
+              
+               for (j=0;j<nm;j++){
+                   while(UART_Tx_Idle()==0);           //Espera hasta que se haya terminado de enviar todos los datos antes de continuar
+                   TT2 = M[j];                         //Guarda cada uno de los valores de M en TT2
+                   chT2 = (unsigned char *) & TT2;
+                   for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
+                          trama[l]=(*chT2++);
+                   }
+                   for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
+                        UART1_Write(trama[l]);
+                   }
+                   UART1_Write(0x0D);                  //Salto de linea
+               }
+              
+              UART1_Write(0xEE);                       //Indica el fin de una secuencia
+              UART1_Write(0x0D);
+
               Delay_ms(10);
               
      }

@@ -7,6 +7,7 @@ main
 		_Multiply_32x32
 		_Modulus_32x32
 		_Divide_32x32
+	UART1_Write
 	Pulse
 		Vector_Max
 		Vector_Min
@@ -17,7 +18,6 @@ main
 		_AddSub_FP
 		_Div_FP
 		_Float2Longint
-	UART1_Write
 	UART_Tx_Idle
 		UART1_Read
 		UART1_Data_Ready
