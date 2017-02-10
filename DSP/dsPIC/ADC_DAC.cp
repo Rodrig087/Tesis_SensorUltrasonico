@@ -34,7 +34,7 @@ unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2, imax;
 unsigned int i1a, i1b;
-const short dix=8;
+const short dix=15;
 const float tx=5.0;
 int yy0, yy1, yy2;
 float yf0, yf1, yf2;
@@ -326,6 +326,7 @@ void main() {
 
  UART1_Write(0xEE);
  UART1_Write(0x0D);
+ UART1_Write(0x0A);
 
  Pulse();
 
@@ -340,10 +341,12 @@ void main() {
  UART1_Write(trama[l]);
  }
  UART1_Write(0x0D);
+ UART1_Write(0x0A);
  }
 
  UART1_Write(0xEE);
  UART1_Write(0x0D);
+ UART1_Write(0x0A);
 
  Delay_ms(10);
 

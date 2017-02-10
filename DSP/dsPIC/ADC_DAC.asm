@@ -383,10 +383,10 @@ L_Pulse14:
 	ADD	W1, [W0], W1
 	MOV	W1, _i1
 ;ADC_DAC.c,163 :: 		i0 = i1 - dix;
-	SUB	W1, #8, W0
+	SUB	W1, #15, W0
 	MOV	W0, _i0
 ;ADC_DAC.c,164 :: 		i2 = i1 + dix;
-	ADD	W1, #8, W3
+	ADD	W1, #15, W3
 	MOV	W3, _i2
 ;ADC_DAC.c,166 :: 		yy0 = M[i0];
 	SL	W0, #1, W1
@@ -475,7 +475,7 @@ L_Pulse14:
 	MOV	W1, _nx+2
 ;ADC_DAC.c,174 :: 		dx = nx*dix*tx;
 	MOV	#0, W2
-	MOV	#16640, W3
+	MOV	#16752, W3
 	CALL	__Mul_FP
 	MOV	#0, W2
 	MOV	#16544, W3
@@ -985,9 +985,12 @@ L_main28:
 ;ADC_DAC.c,334 :: 		UART1_Write(0x0D);
 	MOV	#13, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,336 :: 		Pulse();
+;ADC_DAC.c,335 :: 		UART1_Write(0x0A);
+	MOV	#10, W10
+	CALL	_UART1_Write
+;ADC_DAC.c,337 :: 		Pulse();
 	CALL	_Pulse
-;ADC_DAC.c,338 :: 		for (j=0;j<nm;j++){
+;ADC_DAC.c,339 :: 		for (j=0;j<nm;j++){
 	CLR	W0
 	MOV	W0, _j
 L_main30:
@@ -997,7 +1000,7 @@ L_main30:
 	BRA LTU	L__main64
 	GOTO	L_main31
 L__main64:
-;ADC_DAC.c,339 :: 		while(UART_Tx_Idle()==0);           //Espera hasta que se haya terminado de enviar todos los datos antes de continuar
+;ADC_DAC.c,340 :: 		while(UART_Tx_Idle()==0);           //Espera hasta que se haya terminado de enviar todos los datos antes de continuar
 L_main33:
 	CALL	_UART_Tx_Idle
 	CP	W0, #0
@@ -1006,7 +1009,7 @@ L_main33:
 L__main65:
 	GOTO	L_main33
 L_main34:
-;ADC_DAC.c,340 :: 		TT2 = M[j];                         //Guarda cada uno de los valores de M en TT2
+;ADC_DAC.c,341 :: 		TT2 = M[j];                         //Guarda cada uno de los valores de M en TT2
 	MOV	_j, W0
 	SL	W0, #1, W1
 	MOV	#lo_addr(_M), W0
@@ -1015,10 +1018,10 @@ L_main34:
 	CLR	W1
 	MOV	W0, _TT2
 	MOV	W1, _TT2+2
-;ADC_DAC.c,341 :: 		chT2 = (unsigned char *) & TT2;
+;ADC_DAC.c,342 :: 		chT2 = (unsigned char *) & TT2;
 	MOV	#lo_addr(_TT2), W0
 	MOV	W0, _chT2
-;ADC_DAC.c,342 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
+;ADC_DAC.c,343 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
 	MOV	#lo_addr(_l), W1
 	CLR	W0
 	MOV.B	W0, [W1]
@@ -1029,7 +1032,7 @@ L_main35:
 	BRA LT	L__main66
 	GOTO	L_main36
 L__main66:
-;ADC_DAC.c,343 :: 		trama[l]=(*chT2++);
+;ADC_DAC.c,344 :: 		trama[l]=(*chT2++);
 	MOV	#lo_addr(_l), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_trama), W0
@@ -1039,14 +1042,14 @@ L__main66:
 	MOV	#1, W1
 	MOV	#lo_addr(_chT2), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,342 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
+;ADC_DAC.c,343 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
 	MOV.B	#1, W1
 	MOV	#lo_addr(_l), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,344 :: 		}
+;ADC_DAC.c,345 :: 		}
 	GOTO	L_main35
 L_main36:
-;ADC_DAC.c,345 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
+;ADC_DAC.c,346 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
 	MOV	#lo_addr(_l), W1
 	MOV.B	#1, W0
 	MOV.B	W0, [W1]
@@ -1057,37 +1060,43 @@ L_main38:
 	BRA GE	L__main67
 	GOTO	L_main39
 L__main67:
-;ADC_DAC.c,346 :: 		UART1_Write(trama[l]);
+;ADC_DAC.c,347 :: 		UART1_Write(trama[l]);
 	MOV	#lo_addr(_l), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_trama), W0
 	ADD	W0, W1, W0
 	ZE	[W0], W10
 	CALL	_UART1_Write
-;ADC_DAC.c,345 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
+;ADC_DAC.c,346 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
 	MOV.B	#1, W1
 	MOV	#lo_addr(_l), W0
 	SUBR.B	W1, [W0], [W0]
-;ADC_DAC.c,347 :: 		}
+;ADC_DAC.c,348 :: 		}
 	GOTO	L_main38
 L_main39:
-;ADC_DAC.c,348 :: 		UART1_Write(0x0D);                  //Salto de linea
+;ADC_DAC.c,349 :: 		UART1_Write(0x0D);                  //Salto de linea
 	MOV	#13, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,338 :: 		for (j=0;j<nm;j++){
+;ADC_DAC.c,350 :: 		UART1_Write(0x0A);
+	MOV	#10, W10
+	CALL	_UART1_Write
+;ADC_DAC.c,339 :: 		for (j=0;j<nm;j++){
 	MOV	#1, W1
 	MOV	#lo_addr(_j), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,349 :: 		}
+;ADC_DAC.c,351 :: 		}
 	GOTO	L_main30
 L_main31:
-;ADC_DAC.c,351 :: 		UART1_Write(0xEE);                       //Indica el fin de una secuencia
+;ADC_DAC.c,353 :: 		UART1_Write(0xEE);                       //Indica el fin de una secuencia
 	MOV	#238, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,352 :: 		UART1_Write(0x0D);
+;ADC_DAC.c,354 :: 		UART1_Write(0x0D);
 	MOV	#13, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,354 :: 		Delay_ms(10);
+;ADC_DAC.c,355 :: 		UART1_Write(0x0A);
+	MOV	#10, W10
+	CALL	_UART1_Write
+;ADC_DAC.c,357 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
 L_main41:
@@ -1095,9 +1104,9 @@ L_main41:
 	BRA NZ	L_main41
 	DEC	W8
 	BRA NZ	L_main41
-;ADC_DAC.c,356 :: 		}
+;ADC_DAC.c,359 :: 		}
 	GOTO	L_main28
-;ADC_DAC.c,358 :: 		}
+;ADC_DAC.c,361 :: 		}
 L_end_main:
 	POP	W11
 	POP	W10
