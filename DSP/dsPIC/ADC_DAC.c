@@ -140,7 +140,7 @@ void Pulse(){
                     x1 = x0;
 
                     YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
-                    M[k] = YY;
+                    //M[k] = YY;
 
                 }
 

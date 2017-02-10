@@ -313,12 +313,6 @@ L_Pulse11:
 ;ADC_DAC.c,142 :: 		YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
 	CALL	__Float2Longint
 	MOV	W0, _YY
-;ADC_DAC.c,143 :: 		M[k] = YY;
-	MOV	_k, W1
-	SL	W1, #1, W2
-	MOV	#lo_addr(_M), W1
-	ADD	W1, W2, W1
-	MOV	W0, [W1]
 ;ADC_DAC.c,125 :: 		for (k=0;k<nm;k++){
 	MOV	#1, W1
 	MOV	#lo_addr(_k), W0

@@ -134,7 +134,7 @@ void Pulse(){
  x1 = x0;
 
  YY = (unsigned int)(y0);
- M[k] = YY;
+
 
  }
 
