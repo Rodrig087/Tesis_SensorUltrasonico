@@ -332,57 +332,14 @@ void main() {
 
      while(1){
 
-              TOF = 0.0;
-              Dst = 0.0;
-              T2a = 0.0;
-              T2b = 0.0;
-              dT2 = 0.0;
-              conts = 0;
-
-              /*Pulse();
-              T2b = T2;
-              dT2 = T2b - T2a;*/
-              
+              Pulse();
               UART1_Write(0xEE);
-              UART1_Write(0x0D);
-
-              while (conts<61){
-                    while(UART_Tx_Idle()==0);                //Espera hasta que se haya terminado de enviar todo el dato antes de continuar
-                    Pulse();
-                    TT2 = T2 * 100.0;
-                    chT2 = (unsigned char *) & TT2;
-                    
-                    for (l=0;l<4;l++){
-                          trama[l]=(*chT2++);
-                    }
-                    for (l=3;l>=0;l--){
-                        UART1_Write(trama[l]);
-                    }
-                    
-                    UART1_Write(0x0D);
-                    conts++;
+              for (l=0;l<nm;l++){
+                  while(UART_Tx_Idle()==0);                //Espera hasta que se haya terminado de enviar todo el dato antes de continuar
+                  UART1_Write(M[l]);
+                  UART1_Write(0x0D);
               }
-
-              /*TT2 = T2a * 100.0;
-
-              chT2 = (unsigned char *) & TT2;*/
-
-              /*for (l=0;l<4;l++){
-                 trama[l]=(*chT2++);
-              }*/
-              
-              /*for (l=3;l>=0;l--){
-                 UART1_Write(trama[l]);
-              }
-
-              for (l=0;l<4;l++){
-                 UART1_Write(trama[l]);
-              }
-
-              UART1_Write(0x0D);*/
-              
-              UART1_Write(0xFF);
-              UART1_Write(0x0D);
+              UART1_Write(0xEE);
               
               Delay_ms(10);
               
