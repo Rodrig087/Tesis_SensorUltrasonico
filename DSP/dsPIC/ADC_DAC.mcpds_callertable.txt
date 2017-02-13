@@ -22,6 +22,5 @@ main
 		UART1_Read
 		UART1_Data_Ready
 		UART1_Tx_Idle
-ADC1Int
 Timer2Interrupt
 Timer1Interrupt

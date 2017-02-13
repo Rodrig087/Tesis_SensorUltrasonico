@@ -171,13 +171,6 @@ void Pulse(){
  T2 = tmax+dx;
  imax = (unsigned int)(T2/tx);
 
- M[0]=500;
- M[i0]=250;
- M[i1]=350;
- M[imax]=800;
- M[i2]=250;
- M[nm-2]=500;
-
  IEC0.T1IE = 1;
  TMR1 = 0;
  T1IF_bit = 0;
@@ -191,25 +184,21 @@ void Pulse(){
 
 
 
-void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
- if (i<nm){
- M[i] = ADC1BUF0;
- i++;
- }
- else{
- bm = 1;
- T1CON.TON = 0;
- IEC0.T1IE = 0;
- }
-
- AD1IF_bit = 0;
-}
-
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  RB15_bit = ~RB15_bit;
  if (bm==0){
  SAMP_bit = 0;
+ while (!AD1CON1bits.DONE);
+ if (i<nm){
+ M[i] = ADC1BUF0;
+ i++;
+ } else {
+ bm = 1;
+ T1CON.TON = 0;
+ IEC0.T1IE = 0;
  }
+ }
+
  if (bm==3) {
  if (j<nm){
  LATB = (M[j]&0x03FF);
@@ -232,7 +221,6 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  if (contp==110){
  IEC0.T2IE = 0;
  T2CON.TON = 0;
- IEC0.AD1IE = 1;
  IEC0.T1IE = 1;
  TMR1 = 0;
  T1IF_bit = 0;
@@ -299,13 +287,8 @@ void Configuracion(){
  PR2 = 500;
 
 
- INTCON2.INT0EP = 0;
-
-
- IPC3bits.AD1IP = 0x06;
  IPC0bits.T1IP = 0x07;
- IPC1bits.T2IP = 0x05;
- IPC0bits.INT0IP = 0x04;
+ IPC1bits.T2IP = 0x06;
 
 
  RPINR18bits.U1RXR = 0x0C;

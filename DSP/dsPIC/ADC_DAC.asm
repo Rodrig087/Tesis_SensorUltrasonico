@@ -64,13 +64,13 @@ L_Velocidad2:
 	MOV	W0, W2
 ;ADC_DAC.c,83 :: 		if (Temp & 0x8000) {
 	BTSS	W0, #15
-	GOTO	L__Velocidad43
+	GOTO	L__Velocidad45
 ;ADC_DAC.c,84 :: 		Temp = 0;                                //Si la temperatura es negativa la establece como cero.
 	CLR	W2
 ; Temp end address is: 4 (W2)
 ;ADC_DAC.c,85 :: 		}
 	GOTO	L_Velocidad4
-L__Velocidad43:
+L__Velocidad45:
 ;ADC_DAC.c,83 :: 		if (Temp & 0x8000) {
 ;ADC_DAC.c,85 :: 		}
 L_Velocidad4:
@@ -156,18 +156,18 @@ L_Pulse5:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA NZ	L__Pulse46
+	BRA NZ	L__Pulse48
 	GOTO	L_Pulse6
-L__Pulse46:
+L__Pulse48:
 	GOTO	L_Pulse5
 L_Pulse6:
 ;ADC_DAC.c,118 :: 		if (bm==1){
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA Z	L__Pulse47
+	BRA Z	L__Pulse49
 	GOTO	L_Pulse7
-L__Pulse47:
+L__Pulse49:
 ;ADC_DAC.c,121 :: 		Mmax = Vector_Max(M, nm, &MIndexMax);
 	MOV	#lo_addr(_MIndexMax), W0
 	PUSH	W0
@@ -202,9 +202,9 @@ L_Pulse8:
 	MOV	_k, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__Pulse48
+	BRA LTU	L__Pulse50
 	GOTO	L_Pulse9
-L__Pulse48:
+L__Pulse50:
 ;ADC_DAC.c,128 :: 		value = M[k]-Mmed;
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -218,9 +218,9 @@ L__Pulse48:
 	MOV	[W3], W1
 	MOV	#lo_addr(_Mmed), W0
 	CP	W1, [W0]
-	BRA LTU	L__Pulse49
+	BRA LTU	L__Pulse51
 	GOTO	L_Pulse11
-L__Pulse49:
+L__Pulse51:
 ;ADC_DAC.c,130 :: 		value = (M[k]+((Mmed-M[k])*2))-(Mmed);
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -330,9 +330,9 @@ L_Pulse7:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #2
-	BRA Z	L__Pulse50
+	BRA Z	L__Pulse52
 	GOTO	L_Pulse12
-L__Pulse50:
+L__Pulse52:
 ;ADC_DAC.c,154 :: 		yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
 	MOV	#lo_addr(_maxIndex), W0
 	PUSH	W0
@@ -358,9 +358,9 @@ L_Pulse13:
 	MOV	[W0], W1
 	MOV	#lo_addr(_yy1), W0
 	CP	W1, [W0]
-	BRA LTU	L__Pulse51
+	BRA LTU	L__Pulse53
 	GOTO	L_Pulse14
-L__Pulse51:
+L__Pulse53:
 ;ADC_DAC.c,159 :: 		i1a++;
 	MOV	#1, W1
 	MOV	#lo_addr(_i1a), W0
@@ -497,122 +497,35 @@ L_Pulse14:
 	CALL	__Div_FP
 	CALL	__Float2Longint
 	MOV	W0, _imax
-;ADC_DAC.c,180 :: 		M[0]=500;
-	MOV	#500, W0
-	MOV	W0, _M
-;ADC_DAC.c,181 :: 		M[i0]=250;
-	MOV	_i0, W0
-	SL	W0, #1, W1
-	MOV	#lo_addr(_M), W0
-	ADD	W0, W1, W1
-	MOV	#250, W0
-	MOV	W0, [W1]
-;ADC_DAC.c,182 :: 		M[i1]=350;
-	MOV	_i1, W0
-	SL	W0, #1, W1
-	MOV	#lo_addr(_M), W0
-	ADD	W0, W1, W1
-	MOV	#350, W0
-	MOV	W0, [W1]
-;ADC_DAC.c,183 :: 		M[imax]=800;
-	MOV	_imax, W0
-	SL	W0, #1, W1
-	MOV	#lo_addr(_M), W0
-	ADD	W0, W1, W1
-	MOV	#800, W0
-	MOV	W0, [W1]
-;ADC_DAC.c,184 :: 		M[i2]=250;
-	MOV	_i2, W0
-	SL	W0, #1, W1
-	MOV	#lo_addr(_M), W0
-	ADD	W0, W1, W1
-	MOV	#250, W0
-	MOV	W0, [W1]
-;ADC_DAC.c,185 :: 		M[nm-2]=500;
-	MOV	#500, W0
-	MOV	W0, _M+696
-;ADC_DAC.c,187 :: 		IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
+;ADC_DAC.c,180 :: 		IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
 	BSET	IEC0, #3
-;ADC_DAC.c,188 :: 		TMR1 = 0;                                                //Encera el TMR1
+;ADC_DAC.c,181 :: 		TMR1 = 0;                                                //Encera el TMR1
 	CLR	TMR1
-;ADC_DAC.c,189 :: 		T1IF_bit = 0;                                            //Limpia la bandera de interrupcion por desbordamiento del TMR1
+;ADC_DAC.c,182 :: 		T1IF_bit = 0;                                            //Limpia la bandera de interrupcion por desbordamiento del TMR1
 	BCLR	T1IF_bit, BitPos(T1IF_bit+0)
-;ADC_DAC.c,190 :: 		T1CON.TON = 1;                                           //Enciende el TMR1
+;ADC_DAC.c,183 :: 		T1CON.TON = 1;                                           //Enciende el TMR1
 	BSET	T1CON, #15
-;ADC_DAC.c,191 :: 		bm = 3;
+;ADC_DAC.c,184 :: 		bm = 3;
 	MOV	#lo_addr(_bm), W1
 	MOV.B	#3, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,193 :: 		}
+;ADC_DAC.c,186 :: 		}
 L_Pulse12:
-;ADC_DAC.c,195 :: 		while(bm!=4);
+;ADC_DAC.c,188 :: 		while(bm!=4);
 L_Pulse15:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #4
-	BRA NZ	L__Pulse52
+	BRA NZ	L__Pulse54
 	GOTO	L_Pulse16
-L__Pulse52:
+L__Pulse54:
 	GOTO	L_Pulse15
 L_Pulse16:
-;ADC_DAC.c,196 :: 		}
+;ADC_DAC.c,189 :: 		}
 L_end_Pulse:
 	ULNK
 	RETURN
 ; end of _Pulse
-
-_ADC1Int:
-	PUSH	52
-	PUSH	RCOUNT
-	PUSH	W0
-	MOV	#2, W0
-	REPEAT	#12
-	PUSH	[W0++]
-
-;ADC_DAC.c,200 :: 		void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
-;ADC_DAC.c,201 :: 		if (i<nm){
-	MOV	_i, W1
-	MOV	#350, W0
-	CP	W1, W0
-	BRA LTU	L__ADC1Int54
-	GOTO	L_ADC1Int17
-L__ADC1Int54:
-;ADC_DAC.c,202 :: 		M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
-	MOV	_i, W0
-	SL	W0, #1, W1
-	MOV	#lo_addr(_M), W0
-	ADD	W0, W1, W1
-	MOV	ADC1BUF0, WREG
-	MOV	W0, [W1]
-;ADC_DAC.c,203 :: 		i++;                                       //Aumenta en 1 el subindice del vector de Muestras
-	MOV	#1, W1
-	MOV	#lo_addr(_i), W0
-	ADD	W1, [W0], [W0]
-;ADC_DAC.c,204 :: 		}
-	GOTO	L_ADC1Int18
-L_ADC1Int17:
-;ADC_DAC.c,206 :: 		bm = 1;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
-	MOV	#lo_addr(_bm), W1
-	MOV.B	#1, W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,207 :: 		T1CON.TON = 0;                             //Apaga el TMR1
-	BCLR	T1CON, #15
-;ADC_DAC.c,208 :: 		IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
-	BCLR	IEC0, #3
-;ADC_DAC.c,209 :: 		}
-L_ADC1Int18:
-;ADC_DAC.c,211 :: 		AD1IF_bit = 0;                                //Limpia la bandera de interrupcion del ADC
-	BCLR	AD1IF_bit, BitPos(AD1IF_bit+0)
-;ADC_DAC.c,212 :: 		}
-L_end_ADC1Int:
-	MOV	#26, W0
-	REPEAT	#12
-	POP	[W0--]
-	POP	W0
-	POP	RCOUNT
-	POP	52
-	RETFIE
-; end of _ADC1Int
 
 _Timer1Interrupt:
 	PUSH	52
@@ -622,35 +535,72 @@ _Timer1Interrupt:
 	REPEAT	#12
 	PUSH	[W0++]
 
-;ADC_DAC.c,214 :: 		void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
-;ADC_DAC.c,215 :: 		RB15_bit = ~RB15_bit;
+;ADC_DAC.c,193 :: 		void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+;ADC_DAC.c,194 :: 		RB15_bit = ~RB15_bit;
 	BTG	RB15_bit, BitPos(RB15_bit+0)
-;ADC_DAC.c,216 :: 		if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
+;ADC_DAC.c,195 :: 		if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
 	BRA Z	L__Timer1Interrupt56
-	GOTO	L_Timer1Interrupt19
+	GOTO	L_Timer1Interrupt17
 L__Timer1Interrupt56:
-;ADC_DAC.c,217 :: 		SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
+;ADC_DAC.c,196 :: 		SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
 	BCLR	SAMP_bit, BitPos(SAMP_bit+0)
-;ADC_DAC.c,218 :: 		}
+;ADC_DAC.c,197 :: 		while (!AD1CON1bits.DONE);                 //Espera hasta que se complete la conversion
+L_Timer1Interrupt18:
+	BTSC	AD1CON1bits, #0
+	GOTO	L_Timer1Interrupt19
+	GOTO	L_Timer1Interrupt18
 L_Timer1Interrupt19:
-;ADC_DAC.c,219 :: 		if (bm==3) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
+;ADC_DAC.c,198 :: 		if (i<nm){
+	MOV	_i, W1
+	MOV	#350, W0
+	CP	W1, W0
+	BRA LTU	L__Timer1Interrupt57
+	GOTO	L_Timer1Interrupt20
+L__Timer1Interrupt57:
+;ADC_DAC.c,199 :: 		M[i] = ADC1BUF0;                        //Almacena el valor actual de la conversion del ADC en el vector M
+	MOV	_i, W0
+	SL	W0, #1, W1
+	MOV	#lo_addr(_M), W0
+	ADD	W0, W1, W1
+	MOV	ADC1BUF0, WREG
+	MOV	W0, [W1]
+;ADC_DAC.c,200 :: 		i++;                                    //Aumenta en 1 el subindice del vector de Muestras
+	MOV	#1, W1
+	MOV	#lo_addr(_i), W0
+	ADD	W1, [W0], [W0]
+;ADC_DAC.c,201 :: 		} else {
+	GOTO	L_Timer1Interrupt21
+L_Timer1Interrupt20:
+;ADC_DAC.c,202 :: 		bm = 1;                                 //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
+	MOV	#lo_addr(_bm), W1
+	MOV.B	#1, W0
+	MOV.B	W0, [W1]
+;ADC_DAC.c,203 :: 		T1CON.TON = 0;                          //Apaga el TMR1
+	BCLR	T1CON, #15
+;ADC_DAC.c,204 :: 		IEC0.T1IE = 0;                          //Desabilita la interrupcion por desborde del TMR1
+	BCLR	IEC0, #3
+;ADC_DAC.c,205 :: 		}
+L_Timer1Interrupt21:
+;ADC_DAC.c,206 :: 		}
+L_Timer1Interrupt17:
+;ADC_DAC.c,208 :: 		if (bm==3) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA Z	L__Timer1Interrupt57
-	GOTO	L_Timer1Interrupt20
-L__Timer1Interrupt57:
-;ADC_DAC.c,220 :: 		if (j<nm){
+	BRA Z	L__Timer1Interrupt58
+	GOTO	L_Timer1Interrupt22
+L__Timer1Interrupt58:
+;ADC_DAC.c,209 :: 		if (j<nm){
 	MOV	_j, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__Timer1Interrupt58
-	GOTO	L_Timer1Interrupt21
-L__Timer1Interrupt58:
-;ADC_DAC.c,221 :: 		LATB = (M[j]&0x03FF);
+	BRA LTU	L__Timer1Interrupt59
+	GOTO	L_Timer1Interrupt23
+L__Timer1Interrupt59:
+;ADC_DAC.c,210 :: 		LATB = (M[j]&0x03FF);
 	MOV	_j, W0
 	SL	W0, #1, W1
 	MOV	#lo_addr(_M), W0
@@ -659,28 +609,28 @@ L__Timer1Interrupt58:
 	MOV	#1023, W1
 	MOV	#lo_addr(LATB), W0
 	AND	W2, W1, [W0]
-;ADC_DAC.c,222 :: 		j++;
+;ADC_DAC.c,211 :: 		j++;
 	MOV	#1, W1
 	MOV	#lo_addr(_j), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,223 :: 		} else {
-	GOTO	L_Timer1Interrupt22
-L_Timer1Interrupt21:
-;ADC_DAC.c,224 :: 		bm = 4;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
+;ADC_DAC.c,212 :: 		} else {
+	GOTO	L_Timer1Interrupt24
+L_Timer1Interrupt23:
+;ADC_DAC.c,213 :: 		bm = 4;                               //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
 	MOV	#lo_addr(_bm), W1
 	MOV.B	#4, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,225 :: 		T1CON.TON = 0;                             //Apaga el TMR1
+;ADC_DAC.c,214 :: 		T1CON.TON = 0;                        //Apaga el TMR1
 	BCLR	T1CON, #15
-;ADC_DAC.c,226 :: 		IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
+;ADC_DAC.c,215 :: 		IEC0.T1IE = 0;                        //Desabilita la interrupcion por desborde del TMR1
 	BCLR	IEC0, #3
-;ADC_DAC.c,227 :: 		}
+;ADC_DAC.c,216 :: 		}
+L_Timer1Interrupt24:
+;ADC_DAC.c,217 :: 		}
 L_Timer1Interrupt22:
-;ADC_DAC.c,228 :: 		}
-L_Timer1Interrupt20:
-;ADC_DAC.c,229 :: 		T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
+;ADC_DAC.c,218 :: 		T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 	BCLR	T1IF_bit, BitPos(T1IF_bit+0)
-;ADC_DAC.c,230 :: 		}
+;ADC_DAC.c,219 :: 		}
 L_end_Timer1Interrupt:
 	MOV	#26, W0
 	REPEAT	#12
@@ -699,56 +649,54 @@ _Timer2Interrupt:
 	REPEAT	#12
 	PUSH	[W0++]
 
-;ADC_DAC.c,232 :: 		void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
-;ADC_DAC.c,233 :: 		if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
+;ADC_DAC.c,221 :: 		void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
+;ADC_DAC.c,222 :: 		if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
 	MOV	_contp, W0
 	CP	W0, #10
-	BRA LTU	L__Timer2Interrupt60
-	GOTO	L_Timer2Interrupt23
-L__Timer2Interrupt60:
-;ADC_DAC.c,234 :: 		RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
+	BRA LTU	L__Timer2Interrupt61
+	GOTO	L_Timer2Interrupt25
+L__Timer2Interrupt61:
+;ADC_DAC.c,223 :: 		RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
 	BTG	RB14_bit, BitPos(RB14_bit+0)
-;ADC_DAC.c,235 :: 		}else {
-	GOTO	L_Timer2Interrupt24
-L_Timer2Interrupt23:
-;ADC_DAC.c,236 :: 		RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
+;ADC_DAC.c,224 :: 		}else {
+	GOTO	L_Timer2Interrupt26
+L_Timer2Interrupt25:
+;ADC_DAC.c,225 :: 		RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
 	BCLR	RB14_bit, BitPos(RB14_bit+0)
-;ADC_DAC.c,238 :: 		if (contp==110){
+;ADC_DAC.c,227 :: 		if (contp==110){
 	MOV	#110, W1
 	MOV	#lo_addr(_contp), W0
 	CP	W1, [W0]
-	BRA Z	L__Timer2Interrupt61
-	GOTO	L_Timer2Interrupt25
-L__Timer2Interrupt61:
-;ADC_DAC.c,239 :: 		IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
+	BRA Z	L__Timer2Interrupt62
+	GOTO	L_Timer2Interrupt27
+L__Timer2Interrupt62:
+;ADC_DAC.c,228 :: 		IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
 	BCLR	IEC0, #7
-;ADC_DAC.c,240 :: 		T2CON.TON = 0;                       //Apaga el TMR2
+;ADC_DAC.c,229 :: 		T2CON.TON = 0;                       //Apaga el TMR2
 	BCLR	T2CON, #15
-;ADC_DAC.c,241 :: 		IEC0.AD1IE = 1;                      //Habilita la interrupcion por conversion completa del ADC
-	BSET	IEC0, #13
-;ADC_DAC.c,242 :: 		IEC0.T1IE = 1;                       //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
+;ADC_DAC.c,230 :: 		IEC0.T1IE = 1;                       //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
 	BSET	IEC0, #3
-;ADC_DAC.c,243 :: 		TMR1 = 0;                            //Encera el TMR1
+;ADC_DAC.c,231 :: 		TMR1 = 0;                            //Encera el TMR1
 	CLR	TMR1
-;ADC_DAC.c,244 :: 		T1IF_bit = 0;                        //Limpia la bandera de interrupcion por desbordamiento del TMR1
+;ADC_DAC.c,232 :: 		T1IF_bit = 0;                        //Limpia la bandera de interrupcion por desbordamiento del TMR1
 	BCLR	T1IF_bit, BitPos(T1IF_bit+0)
-;ADC_DAC.c,245 :: 		T1CON.TON = 1;                       //Enciende el TMR1
+;ADC_DAC.c,233 :: 		T1CON.TON = 1;                       //Enciende el TMR1
 	BSET	T1CON, #15
-;ADC_DAC.c,246 :: 		bm=0;
+;ADC_DAC.c,234 :: 		bm=0;
 	MOV	#lo_addr(_bm), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,247 :: 		}
-L_Timer2Interrupt25:
-;ADC_DAC.c,249 :: 		}
-L_Timer2Interrupt24:
-;ADC_DAC.c,250 :: 		contp++;                                      //Aumenta el contador en una unidad.
+;ADC_DAC.c,235 :: 		}
+L_Timer2Interrupt27:
+;ADC_DAC.c,237 :: 		}
+L_Timer2Interrupt26:
+;ADC_DAC.c,238 :: 		contp++;                                      //Aumenta el contador en una unidad.
 	MOV	#1, W1
 	MOV	#lo_addr(_contp), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,251 :: 		T2IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR2
+;ADC_DAC.c,239 :: 		T2IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR2
 	BCLR	T2IF_bit, BitPos(T2IF_bit+0)
-;ADC_DAC.c,252 :: 		}
+;ADC_DAC.c,240 :: 		}
 L_end_Timer2Interrupt:
 	MOV	#26, W0
 	REPEAT	#12
@@ -761,79 +709,79 @@ L_end_Timer2Interrupt:
 
 _Configuracion:
 
-;ADC_DAC.c,256 :: 		void Configuracion(){
-;ADC_DAC.c,259 :: 		CLKDIVbits.PLLPRE = 0;                      //PLLPRE<4:0> = 0  ->  N1 = 2    8MHz / 2 = 4MHz
+;ADC_DAC.c,244 :: 		void Configuracion(){
+;ADC_DAC.c,247 :: 		CLKDIVbits.PLLPRE = 0;                      //PLLPRE<4:0> = 0  ->  N1 = 2    8MHz / 2 = 4MHz
 	MOV	#lo_addr(CLKDIVbits), W0
 	MOV.B	[W0], W1
 	MOV.B	#224, W0
 	AND.B	W1, W0, W1
 	MOV	#lo_addr(CLKDIVbits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,260 :: 		PLLFBD = 38;                                //PLLDIV<8:0> = 38 ->  M = 40    4MHz * 40 = 160MHz
+;ADC_DAC.c,248 :: 		PLLFBD = 38;                                //PLLDIV<8:0> = 38 ->  M = 40    4MHz * 40 = 160MHz
 	MOV	#38, W0
 	MOV	WREG, PLLFBD
-;ADC_DAC.c,261 :: 		CLKDIVbits.PLLPOST = 0;                     //PLLPOST<1:0> = 0 ->  N2 = 2    160MHz / 2 = 80MHz
+;ADC_DAC.c,249 :: 		CLKDIVbits.PLLPOST = 0;                     //PLLPOST<1:0> = 0 ->  N2 = 2    160MHz / 2 = 80MHz
 	MOV	#lo_addr(CLKDIVbits), W0
 	MOV.B	[W0], W1
 	MOV.B	#63, W0
 	AND.B	W1, W0, W1
 	MOV	#lo_addr(CLKDIVbits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,264 :: 		AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
+;ADC_DAC.c,252 :: 		AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
 	MOV	#65534, W0
 	MOV	WREG, AD1PCFGL
-;ADC_DAC.c,265 :: 		TRISA0_bit = 1;                             //Set RA0 pin as input
+;ADC_DAC.c,253 :: 		TRISA0_bit = 1;                             //Set RA0 pin as input
 	BSET	TRISA0_bit, BitPos(TRISA0_bit+0)
-;ADC_DAC.c,266 :: 		TRISA4_bit = 1;                             //Set RA4 pin as input
+;ADC_DAC.c,254 :: 		TRISA4_bit = 1;                             //Set RA4 pin as input
 	BSET	TRISA4_bit, BitPos(TRISA4_bit+0)
-;ADC_DAC.c,267 :: 		TRISB = 0;                                  //Set RB14 pin as output
+;ADC_DAC.c,255 :: 		TRISB = 0;                                  //Set RB14 pin as output
 	CLR	TRISB
-;ADC_DAC.c,270 :: 		AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
+;ADC_DAC.c,258 :: 		AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
 	BCLR	AD1CON1, #10
-;ADC_DAC.c,271 :: 		AD1CON1bits.FORM = 0x00;                    //Formato de la canversion: 00->(0_1023)|01->(-512_511)|02->(0_0.999)|03->(-1_0.999)
+;ADC_DAC.c,259 :: 		AD1CON1bits.FORM = 0x00;                    //Formato de la canversion: 00->(0_1023)|01->(-512_511)|02->(0_0.999)|03->(-1_0.999)
 	MOV	AD1CON1bits, W1
 	MOV	#64767, W0
 	AND	W1, W0, W0
 	MOV	WREG, AD1CON1bits
-;ADC_DAC.c,272 :: 		AD1CON1.SIMSAM = 0;                         //0 -> Muestrea múltiples canales individualmente en secuencia
+;ADC_DAC.c,260 :: 		AD1CON1.SIMSAM = 0;                         //0 -> Muestrea múltiples canales individualmente en secuencia
 	BCLR	AD1CON1, #3
-;ADC_DAC.c,273 :: 		AD1CON1.ADSIDL = 0;                         //Continua con la operacion del modulo durante el modo desocupado
+;ADC_DAC.c,261 :: 		AD1CON1.ADSIDL = 0;                         //Continua con la operacion del modulo durante el modo desocupado
 	BCLR	AD1CON1, #13
-;ADC_DAC.c,274 :: 		AD1CON1.ASAM = 1;                           //Muestreo automatico
+;ADC_DAC.c,262 :: 		AD1CON1.ASAM = 1;                           //Muestreo automatico
 	BSET	AD1CON1, #2
-;ADC_DAC.c,275 :: 		AD1CON1bits.SSRC = 0x00;                    //Conversion manual
+;ADC_DAC.c,263 :: 		AD1CON1bits.SSRC = 0x00;                    //Conversion manual
 	MOV	#lo_addr(AD1CON1bits), W0
 	MOV.B	[W0], W1
 	MOV.B	#31, W0
 	AND.B	W1, W0, W1
 	MOV	#lo_addr(AD1CON1bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,277 :: 		AD1CON2bits.VCFG = 0;                       //Selecciona AVDD y AVSS como fuentes de voltaje de referencia
+;ADC_DAC.c,265 :: 		AD1CON2bits.VCFG = 0;                       //Selecciona AVDD y AVSS como fuentes de voltaje de referencia
 	MOV	AD1CON2bits, W1
 	MOV	#8191, W0
 	AND	W1, W0, W0
 	MOV	WREG, AD1CON2bits
-;ADC_DAC.c,278 :: 		AD1CON2bits.CHPS = 0;                       //Selecciona unicamente el canal CH0
+;ADC_DAC.c,266 :: 		AD1CON2bits.CHPS = 0;                       //Selecciona unicamente el canal CH0
 	MOV	AD1CON2bits, W1
 	MOV	#64767, W0
 	AND	W1, W0, W0
 	MOV	WREG, AD1CON2bits
-;ADC_DAC.c,279 :: 		AD1CON2.CSCNA = 0;                          //No escanea las entradas de CH0 durante la Muestra A
+;ADC_DAC.c,267 :: 		AD1CON2.CSCNA = 0;                          //No escanea las entradas de CH0 durante la Muestra A
 	BCLR	AD1CON2, #10
-;ADC_DAC.c,280 :: 		AD1CON2bits.SMPI = 0x00;                    //Numero de secuencias de muestreo/conversion por interrupcion (N+1)
+;ADC_DAC.c,268 :: 		AD1CON2bits.SMPI = 0x00;                    //Numero de secuencias de muestreo/conversion por interrupcion (N+1)
 	MOV	#lo_addr(AD1CON2bits), W0
 	MOV.B	[W0], W1
 	MOV.B	#195, W0
 	AND.B	W1, W0, W1
 	MOV	#lo_addr(AD1CON2bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,281 :: 		AD1CON2.BUFM = 0;                           //Bit de selección del modo de relleno del búfer, 0 -> Siempre comienza a llenar el buffer desde el principio
+;ADC_DAC.c,269 :: 		AD1CON2.BUFM = 0;                           //Bit de selección del modo de relleno del búfer, 0 -> Siempre comienza a llenar el buffer desde el principio
 	BCLR	AD1CON2, #1
-;ADC_DAC.c,282 :: 		AD1CON2.ALTS = 0x00;                        //Utiliza siempre la selección de entrada de canal para la muestra A
+;ADC_DAC.c,270 :: 		AD1CON2.ALTS = 0x00;                        //Utiliza siempre la selección de entrada de canal para la muestra A
 	BCLR	AD1CON2, #0
-;ADC_DAC.c,284 :: 		AD1CON3.ADRC = 0;                           //Selecciona el reloj de conversion del ADC derivado del reloj del sistema
+;ADC_DAC.c,272 :: 		AD1CON3.ADRC = 0;                           //Selecciona el reloj de conversion del ADC derivado del reloj del sistema
 	BCLR	AD1CON3, #15
-;ADC_DAC.c,285 :: 		AD1CON3bits.ADCS = 0x02;                    //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
+;ADC_DAC.c,273 :: 		AD1CON3bits.ADCS = 0x02;                    //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
 	MOV.B	#2, W0
 	MOV.B	W0, W1
 	MOV	#lo_addr(AD1CON3bits), W0
@@ -844,7 +792,7 @@ _Configuracion:
 	XOR.B	W1, [W0], W1
 	MOV	#lo_addr(AD1CON3bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,286 :: 		AD1CON3bits.SAMC = 0x02;                    //Auto Sample Time bits, 2 -> 2*TAD (minimo periodo de muestreo para 10 bits)
+;ADC_DAC.c,274 :: 		AD1CON3bits.SAMC = 0x02;                    //Auto Sample Time bits, 2 -> 2*TAD (minimo periodo de muestreo para 10 bits)
 	MOV	#512, W0
 	MOV	W0, W1
 	MOV	#lo_addr(AD1CON3bits), W0
@@ -854,54 +802,41 @@ _Configuracion:
 	MOV	#lo_addr(AD1CON3bits), W0
 	XOR	W1, [W0], W1
 	MOV	W1, AD1CON3bits
-;ADC_DAC.c,288 :: 		AD1CHS0 = 0;                                //ADC1 INPUT CHANNEL 0 SELECT REGISTER
+;ADC_DAC.c,276 :: 		AD1CHS0 = 0;                                //ADC1 INPUT CHANNEL 0 SELECT REGISTER
 	CLR	AD1CHS0
-;ADC_DAC.c,289 :: 		AD1CHS123 = 0;                              //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
+;ADC_DAC.c,277 :: 		AD1CHS123 = 0;                              //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
 	CLR	AD1CHS123
-;ADC_DAC.c,291 :: 		AD1CSSL = 0x00;                             //Se salta todos los puertos ANx para los escaneos de entrada
+;ADC_DAC.c,279 :: 		AD1CSSL = 0x00;                             //Se salta todos los puertos ANx para los escaneos de entrada
 	CLR	AD1CSSL
-;ADC_DAC.c,293 :: 		AD1CON1.ADON = 1;                           //Enciende el modulo ADC
+;ADC_DAC.c,281 :: 		AD1CON1.ADON = 1;                           //Enciende el modulo ADC
 	BSET	AD1CON1, #15
-;ADC_DAC.c,296 :: 		T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
+;ADC_DAC.c,284 :: 		T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
 	MOV	#32768, W0
 	MOV	WREG, T1CON
-;ADC_DAC.c,297 :: 		IEC0.T1IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR1 desabilitada para no interferir con la lectura del sensor de temperatura
+;ADC_DAC.c,285 :: 		IEC0.T1IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR1 desabilitada para no interferir con la lectura del sensor de temperatura
 	BCLR	IEC0, #3
-;ADC_DAC.c,298 :: 		T1IF_bit = 0;                               //Limpia la bandera de interrupcion
+;ADC_DAC.c,286 :: 		T1IF_bit = 0;                               //Limpia la bandera de interrupcion
 	BCLR	T1IF_bit, BitPos(T1IF_bit+0)
-;ADC_DAC.c,299 :: 		PR1 = 200;                                  //Genera una interrupcion cada 5us (Fs=200KHz)
+;ADC_DAC.c,287 :: 		PR1 = 200;                                  //Genera una interrupcion cada 5us (Fs=200KHz)
 	MOV	#200, W0
 	MOV	WREG, PR1
-;ADC_DAC.c,302 :: 		T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
+;ADC_DAC.c,290 :: 		T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
 	MOV	#32768, W0
 	MOV	WREG, T2CON
-;ADC_DAC.c,303 :: 		IEC0.T2IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR2 desabilitada para no interferir con la lectura del sensor de temperatura
+;ADC_DAC.c,291 :: 		IEC0.T2IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR2 desabilitada para no interferir con la lectura del sensor de temperatura
 	BCLR	IEC0, #7
-;ADC_DAC.c,304 :: 		T2IF_bit = 0;                               //Limpia la bandera de interrupcion
+;ADC_DAC.c,292 :: 		T2IF_bit = 0;                               //Limpia la bandera de interrupcion
 	BCLR	T2IF_bit, BitPos(T2IF_bit+0)
-;ADC_DAC.c,305 :: 		PR2 = 500;                                  //Genera una interrupcion cada 12.5us
+;ADC_DAC.c,293 :: 		PR2 = 500;                                  //Genera una interrupcion cada 12.5us
 	MOV	#500, W0
 	MOV	WREG, PR2
-;ADC_DAC.c,308 :: 		INTCON2.INT0EP = 0;                         //Interrupcion en flanco positivo
-	BCLR	INTCON2, #0
-;ADC_DAC.c,311 :: 		IPC3bits.AD1IP = 0x06;                      //Nivel de prioridad de interrupcion del ADC
-	MOV.B	#96, W0
-	MOV.B	W0, W1
-	MOV	#lo_addr(IPC3bits), W0
-	XOR.B	W1, [W0], W1
-	MOV.B	#112, W0
-	AND.B	W1, W0, W1
-	MOV	#lo_addr(IPC3bits), W0
-	XOR.B	W1, [W0], W1
-	MOV	#lo_addr(IPC3bits), W0
-	MOV.B	W1, [W0]
-;ADC_DAC.c,312 :: 		IPC0bits.T1IP = 0x07;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
+;ADC_DAC.c,296 :: 		IPC0bits.T1IP = 0x07;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
 	MOV	IPC0bits, W1
 	MOV	#28672, W0
 	IOR	W1, W0, W0
 	MOV	WREG, IPC0bits
-;ADC_DAC.c,313 :: 		IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
-	MOV	#20480, W0
+;ADC_DAC.c,297 :: 		IPC1bits.T2IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
+	MOV	#24576, W0
 	MOV	W0, W1
 	MOV	#lo_addr(IPC1bits), W0
 	XOR	W1, [W0], W1
@@ -910,17 +845,7 @@ _Configuracion:
 	MOV	#lo_addr(IPC1bits), W0
 	XOR	W1, [W0], W1
 	MOV	W1, IPC1bits
-;ADC_DAC.c,314 :: 		IPC0bits.INT0IP = 0x04;                     //Nivel de prioridad de la interrupcion INT0
-	MOV.B	#4, W0
-	MOV.B	W0, W1
-	MOV	#lo_addr(IPC0bits), W0
-	XOR.B	W1, [W0], W1
-	AND.B	W1, #7, W1
-	MOV	#lo_addr(IPC0bits), W0
-	XOR.B	W1, [W0], W1
-	MOV	#lo_addr(IPC0bits), W0
-	MOV.B	W1, [W0]
-;ADC_DAC.c,317 :: 		RPINR18bits.U1RXR = 0x0C;                   //Asisgna Rx a RP12
+;ADC_DAC.c,300 :: 		RPINR18bits.U1RXR = 0x0C;                   //Asisgna Rx a RP12
 	MOV.B	#12, W0
 	MOV.B	W0, W1
 	MOV	#lo_addr(RPINR18bits), W0
@@ -930,7 +855,7 @@ _Configuracion:
 	XOR.B	W1, [W0], W1
 	MOV	#lo_addr(RPINR18bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,318 :: 		RPOR6bits.RP13R = 0x03;                     //Asigna Tx a RP13
+;ADC_DAC.c,301 :: 		RPOR6bits.RP13R = 0x03;                     //Asigna Tx a RP13
 	MOV	#768, W0
 	MOV	W0, W1
 	MOV	#lo_addr(RPOR6bits), W0
@@ -940,7 +865,7 @@ _Configuracion:
 	MOV	#lo_addr(RPOR6bits), W0
 	XOR	W1, [W0], W1
 	MOV	W1, RPOR6bits
-;ADC_DAC.c,320 :: 		}
+;ADC_DAC.c,303 :: 		}
 L_end_Configuracion:
 	RETURN
 ; end of _Configuracion
@@ -954,56 +879,56 @@ _main:
 	MOV	#4, W0
 	IOR	68
 
-;ADC_DAC.c,324 :: 		void main() {
-;ADC_DAC.c,326 :: 		Configuracion();
+;ADC_DAC.c,307 :: 		void main() {
+;ADC_DAC.c,309 :: 		Configuracion();
 	PUSH	W10
 	PUSH	W11
 	CALL	_Configuracion
-;ADC_DAC.c,328 :: 		UART1_Init(9600);               // Initialize UART module at 9600 bps
+;ADC_DAC.c,311 :: 		UART1_Init(9600);               // Initialize UART module at 9600 bps
 	MOV	#9600, W10
 	MOV	#0, W11
 	CALL	_UART1_Init
-;ADC_DAC.c,329 :: 		Delay_ms(100);                  // Wait for UART module to stabilize
+;ADC_DAC.c,312 :: 		Delay_ms(100);                  // Wait for UART module to stabilize
 	MOV	#21, W8
 	MOV	#22619, W7
-L_main26:
-	DEC	W7
-	BRA NZ	L_main26
-	DEC	W8
-	BRA NZ	L_main26
-;ADC_DAC.c,331 :: 		while(1){
 L_main28:
-;ADC_DAC.c,333 :: 		UART1_Write(0xEE);                       //Indica el comienzo de una secuencia
+	DEC	W7
+	BRA NZ	L_main28
+	DEC	W8
+	BRA NZ	L_main28
+;ADC_DAC.c,314 :: 		while(1){
+L_main30:
+;ADC_DAC.c,316 :: 		UART1_Write(0xEE);                       //Indica el comienzo de una secuencia
 	MOV	#238, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,334 :: 		UART1_Write(0x0D);
+;ADC_DAC.c,317 :: 		UART1_Write(0x0D);
 	MOV	#13, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,335 :: 		UART1_Write(0x0A);
+;ADC_DAC.c,318 :: 		UART1_Write(0x0A);
 	MOV	#10, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,337 :: 		Pulse();
+;ADC_DAC.c,320 :: 		Pulse();
 	CALL	_Pulse
-;ADC_DAC.c,339 :: 		for (j=0;j<nm;j++){
+;ADC_DAC.c,322 :: 		for (j=0;j<nm;j++){
 	CLR	W0
 	MOV	W0, _j
-L_main30:
+L_main32:
 	MOV	_j, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__main64
-	GOTO	L_main31
-L__main64:
-;ADC_DAC.c,340 :: 		while(UART_Tx_Idle()==0);           //Espera hasta que se haya terminado de enviar todos los datos antes de continuar
-L_main33:
+	BRA LTU	L__main65
+	GOTO	L_main33
+L__main65:
+;ADC_DAC.c,323 :: 		while(UART_Tx_Idle()==0);           //Espera hasta que se haya terminado de enviar todos los datos antes de continuar
+L_main35:
 	CALL	_UART_Tx_Idle
 	CP	W0, #0
-	BRA Z	L__main65
-	GOTO	L_main34
-L__main65:
-	GOTO	L_main33
-L_main34:
-;ADC_DAC.c,341 :: 		TT2 = M[j];                         //Guarda cada uno de los valores de M en TT2
+	BRA Z	L__main66
+	GOTO	L_main36
+L__main66:
+	GOTO	L_main35
+L_main36:
+;ADC_DAC.c,324 :: 		TT2 = M[j];                         //Guarda cada uno de los valores de M en TT2
 	MOV	_j, W0
 	SL	W0, #1, W1
 	MOV	#lo_addr(_M), W0
@@ -1012,21 +937,21 @@ L_main34:
 	CLR	W1
 	MOV	W0, _TT2
 	MOV	W1, _TT2+2
-;ADC_DAC.c,342 :: 		chT2 = (unsigned char *) & TT2;
+;ADC_DAC.c,325 :: 		chT2 = (unsigned char *) & TT2;
 	MOV	#lo_addr(_TT2), W0
 	MOV	W0, _chT2
-;ADC_DAC.c,343 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
+;ADC_DAC.c,326 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
 	MOV	#lo_addr(_l), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-L_main35:
+L_main37:
 	MOV	#lo_addr(_l), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #2
-	BRA LT	L__main66
-	GOTO	L_main36
-L__main66:
-;ADC_DAC.c,344 :: 		trama[l]=(*chT2++);
+	BRA LT	L__main67
+	GOTO	L_main38
+L__main67:
+;ADC_DAC.c,327 :: 		trama[l]=(*chT2++);
 	MOV	#lo_addr(_l), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_trama), W0
@@ -1036,71 +961,71 @@ L__main66:
 	MOV	#1, W1
 	MOV	#lo_addr(_chT2), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,343 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
+;ADC_DAC.c,326 :: 		for (l=0;l<2;l++){                  //Genera la trama de 2 Bytes
 	MOV.B	#1, W1
 	MOV	#lo_addr(_l), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,345 :: 		}
-	GOTO	L_main35
-L_main36:
-;ADC_DAC.c,346 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
+;ADC_DAC.c,328 :: 		}
+	GOTO	L_main37
+L_main38:
+;ADC_DAC.c,329 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
 	MOV	#lo_addr(_l), W1
 	MOV.B	#1, W0
 	MOV.B	W0, [W1]
-L_main38:
+L_main40:
 	MOV	#lo_addr(_l), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
-	BRA GE	L__main67
-	GOTO	L_main39
-L__main67:
-;ADC_DAC.c,347 :: 		UART1_Write(trama[l]);
+	BRA GE	L__main68
+	GOTO	L_main41
+L__main68:
+;ADC_DAC.c,330 :: 		UART1_Write(trama[l]);
 	MOV	#lo_addr(_l), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_trama), W0
 	ADD	W0, W1, W0
 	ZE	[W0], W10
 	CALL	_UART1_Write
-;ADC_DAC.c,346 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
+;ADC_DAC.c,329 :: 		for (l=1;l>=0;l--){                 //Envia la trama de 2 Bytes
 	MOV.B	#1, W1
 	MOV	#lo_addr(_l), W0
 	SUBR.B	W1, [W0], [W0]
-;ADC_DAC.c,348 :: 		}
-	GOTO	L_main38
-L_main39:
-;ADC_DAC.c,349 :: 		UART1_Write(0x0D);                  //Salto de linea
+;ADC_DAC.c,331 :: 		}
+	GOTO	L_main40
+L_main41:
+;ADC_DAC.c,332 :: 		UART1_Write(0x0D);                  //Salto de linea
 	MOV	#13, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,350 :: 		UART1_Write(0x0A);
+;ADC_DAC.c,333 :: 		UART1_Write(0x0A);
 	MOV	#10, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,339 :: 		for (j=0;j<nm;j++){
+;ADC_DAC.c,322 :: 		for (j=0;j<nm;j++){
 	MOV	#1, W1
 	MOV	#lo_addr(_j), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,351 :: 		}
-	GOTO	L_main30
-L_main31:
-;ADC_DAC.c,353 :: 		UART1_Write(0xEE);                       //Indica el fin de una secuencia
+;ADC_DAC.c,334 :: 		}
+	GOTO	L_main32
+L_main33:
+;ADC_DAC.c,336 :: 		UART1_Write(0xEE);                       //Indica el fin de una secuencia
 	MOV	#238, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,354 :: 		UART1_Write(0x0D);
+;ADC_DAC.c,337 :: 		UART1_Write(0x0D);
 	MOV	#13, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,355 :: 		UART1_Write(0x0A);
+;ADC_DAC.c,338 :: 		UART1_Write(0x0A);
 	MOV	#10, W10
 	CALL	_UART1_Write
-;ADC_DAC.c,357 :: 		Delay_ms(10);
+;ADC_DAC.c,340 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
-L_main41:
+L_main43:
 	DEC	W7
-	BRA NZ	L_main41
+	BRA NZ	L_main43
 	DEC	W8
-	BRA NZ	L_main41
-;ADC_DAC.c,359 :: 		}
-	GOTO	L_main28
-;ADC_DAC.c,361 :: 		}
+	BRA NZ	L_main43
+;ADC_DAC.c,342 :: 		}
+	GOTO	L_main30
+;ADC_DAC.c,344 :: 		}
 L_end_main:
 	POP	W11
 	POP	W10

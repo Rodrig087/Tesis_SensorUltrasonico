@@ -177,13 +177,6 @@ void Pulse(){
                T2 = tmax+dx;
                imax = (unsigned int)(T2/tx);
 
-               M[0]=500;
-               M[i0]=250;
-               M[i1]=350;
-               M[imax]=800;
-               M[i2]=250;
-               M[nm-2]=500;
-
                IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
                TMR1 = 0;                                                //Encera el TMR1
                T1IF_bit = 0;                                            //Limpia la bandera de interrupcion por desbordamiento del TMR1
@@ -196,34 +189,30 @@ void Pulse(){
 }
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
-//Interrupcion por conversion completada del ADC
-void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
-     if (i<nm){
-        M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
-        i++;                                       //Aumenta en 1 el subindice del vector de Muestras
-     } 
-     else{
-        bm = 1;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
-        T1CON.TON = 0;                             //Apaga el TMR1
-        IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
-     }
-
-     AD1IF_bit = 0;                                //Limpia la bandera de interrupcion del ADC
-}
 //Interrupcion por desbordamiento del TMR1
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      RB15_bit = ~RB15_bit;
      if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
         SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
+        while (!AD1CON1bits.DONE);                 //Espera hasta que se complete la conversion
+        if (i<nm){
+           M[i] = ADC1BUF0;                        //Almacena el valor actual de la conversion del ADC en el vector M
+           i++;                                    //Aumenta en 1 el subindice del vector de Muestras
+        } else {
+           bm = 1;                                 //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
+           T1CON.TON = 0;                          //Apaga el TMR1
+           IEC0.T1IE = 0;                          //Desabilita la interrupcion por desborde del TMR1
+        }
      }
+     
      if (bm==3) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
           if (j<nm){
              LATB = (M[j]&0x03FF);
              j++;
           } else {
-             bm = 4;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
-             T1CON.TON = 0;                             //Apaga el TMR1
-             IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
+             bm = 4;                               //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
+             T1CON.TON = 0;                        //Apaga el TMR1
+             IEC0.T1IE = 0;                        //Desabilita la interrupcion por desborde del TMR1
           }
      }
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
@@ -238,7 +227,6 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
           if (contp==110){
               IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
               T2CON.TON = 0;                       //Apaga el TMR2
-              IEC0.AD1IE = 1;                      //Habilita la interrupcion por conversion completa del ADC
               IEC0.T1IE = 1;                       //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
               TMR1 = 0;                            //Encera el TMR1
               T1IF_bit = 0;                        //Limpia la bandera de interrupcion por desbordamiento del TMR1
@@ -303,16 +291,11 @@ void Configuracion(){
      IEC0.T2IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR2 desabilitada para no interferir con la lectura del sensor de temperatura
      T2IF_bit = 0;                               //Limpia la bandera de interrupcion
      PR2 = 500;                                  //Genera una interrupcion cada 12.5us
-
-     //Configuracion INT0
-     INTCON2.INT0EP = 0;                         //Interrupcion en flanco positivo
      
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
-     IPC3bits.AD1IP = 0x06;                      //Nivel de prioridad de interrupcion del ADC
      IPC0bits.T1IP = 0x07;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
-     IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
-     IPC0bits.INT0IP = 0x04;                     //Nivel de prioridad de la interrupcion INT0
-     
+     IPC1bits.T2IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
+
      //Configuracion UART
      RPINR18bits.U1RXR = 0x0C;                   //Asisgna Rx a RP12
      RPOR6bits.RP13R = 0x03;                     //Asigna Tx a RP13
