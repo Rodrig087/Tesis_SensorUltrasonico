@@ -72,8 +72,11 @@ void Velocidad(){
 
 
 
-void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
- IEC0.INT0IE = 0;
+void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+ LATA1_bit = ~LATA1_bit;
+ if (bm==0){
+ SAMP_bit = 0;
+ while (!AD1CON1bits.DONE);
  if (i<nm){
  M[i] = ADC1BUF0;
  i++;
@@ -82,13 +85,6 @@ void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
  T1CON.TON = 0;
  IEC0.T1IE = 0;
  }
- AD1IF_bit = 0;
-}
-
-void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
- LATA1_bit = ~LATA1_bit;
- if (bm==0){
- SAMP_bit = 0;
  }
  if (bm==1) {
  if (j<nm){
@@ -112,7 +108,7 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  LATA4_bit = ~LATA4_bit;
  IEC0.T2IE = 0;
  T2CON.TON = 0;
- IEC0.AD1IE = 1;
+ IEC0.AD1IE = 0;
  IEC0.T1IE = 1;
  TMR1 = 0;
  T1CON.TON = 1;
@@ -142,20 +138,20 @@ void Configuracion(){
  AD1CON1.AD12B = 0;
  AD1CON1bits.FORM = 0x00;
  AD1CON1.SIMSAM = 0;
- AD1CON1.ADSIDL = 0;
+ AD1CON1.ADSIDL = 1;
  AD1CON1.ASAM = 1;
  AD1CON1bits.SSRC = 0x00;
 
  AD1CON2bits.VCFG = 0;
  AD1CON2bits.CHPS = 0;
  AD1CON2.CSCNA = 0;
- AD1CON2bits.SMPI = 0x00;
+
  AD1CON2.BUFM = 0;
  AD1CON2.ALTS = 0x00;
 
  AD1CON3.ADRC = 0;
- AD1CON3bits.ADCS = 0x02;
- AD1CON3bits.SAMC = 0x02;
+ AD1CON3bits.ADCS = 0x00;
+
 
  AD1CHS0 = 0;
  AD1CHS123 = 0;
@@ -182,7 +178,7 @@ void Configuracion(){
  INTCON2.INT0EP = 0;
 
 
- IPC3bits.AD1IP = 0x06;
+
  IPC0bits.T1IP = 0x07;
  IPC1bits.T2IP = 0x05;
  IPC0bits.INT0IP = 0x04;
@@ -228,7 +224,7 @@ void main() {
  if (M[k]<VMmed){
  value = (M[k]+((VMmed-M[k])*2))-(VMmed);
  }
-#line 249 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
+#line 245 "D:/Git/Tesis_SensorUltrasonico/DSP/ADC_DAC.c"
  x0 = (float)(value);
  y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);
 

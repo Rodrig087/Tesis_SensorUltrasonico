@@ -82,24 +82,20 @@ void Velocidad(){
 
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
-//Interrupcion por conversion completada del ADC
-void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
-     IEC0.INT0IE = 0;
-     if (i<nm){
-        M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
-        i++;                                       //Aumenta en 1 el subindice del vector de Muestras
-     } else {
-        bm = 1;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
-        T1CON.TON = 0;                             //Apaga el TMR1
-        IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
-     }
-     AD1IF_bit = 0;                                //Limpia la bandera de interrupcion del ADC
-}
 //Interrupcion por desbordamiento del TMR1
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      LATA1_bit = ~LATA1_bit;                       //Auxiliar para ver el proceso de la interrupcion
      if (bm==0){                                   //Cuando la bandera bm=0, la interrupcion por TMR1 es utilizada para el muestreo de la señal de entrada
         SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
+        while (!AD1CON1bits.DONE);                 // Wait for the conversion to complete
+        if (i<nm){
+           M[i] = ADC1BUF0;                       //Almacena el valor actual de la conversion del ADC en el vector M
+           i++;                                   //Aumenta en 1 el subindice del vector de Muestras
+        } else {
+           bm = 1;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
+           T1CON.TON = 0;                             //Apaga el TMR1
+           IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
+        }
      }
      if (bm==1) {                                  //Cuando la bandera bm=1, la interrupcion por TMR1 es utilizada para la reconstruccion de la señal mediante el DAC
           if (j<nm){
@@ -123,7 +119,7 @@ void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
               LATA4_bit = ~LATA4_bit;
               IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
               T2CON.TON = 0;                       //Apaga el TMR2
-              IEC0.AD1IE = 1;                      //Habilita la interrupcion por conversion completa del ADC
+              IEC0.AD1IE = 0;                      //Habilita la interrupcion por conversion completa del ADC
               IEC0.T1IE = 1;                       //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
               TMR1 = 0;                            //Encera el TMR1
               T1CON.TON = 1;                       //Enciende el TMR1
@@ -153,20 +149,20 @@ void Configuracion(){
      AD1CON1.AD12B = 0;                            //Configura el ADC en modo de 10 bits
      AD1CON1bits.FORM = 0x00;                      //Formato de la canversion: 00->(0_1023)|01->(-512_511)|02->(0_0.999)|03->(-1_0.999)
      AD1CON1.SIMSAM = 0;                           //0 -> Muestrea múltiples canales individualmente en secuencia
-     AD1CON1.ADSIDL = 0;                           //Continua con la operacion del modulo durante el modo desocupado
+     AD1CON1.ADSIDL = 1;                           //Continua con la operacion del modulo durante el modo desocupado
      AD1CON1.ASAM = 1;                             //Muestreo automatico
      AD1CON1bits.SSRC = 0x00;                      //Conversion manual
 
      AD1CON2bits.VCFG = 0;                         //Selecciona AVDD y AVSS como fuentes de voltaje de referencia
      AD1CON2bits.CHPS = 0;                         //Selecciona unicamente el canal CH0
      AD1CON2.CSCNA = 0;                            //No escanea las entradas de CH0 durante la Muestra A
-     AD1CON2bits.SMPI = 0x00;                      //Numero de secuencias de muestreo/conversion por interrupcion (N+1)
+    // AD1CON2bits.SMPI = 0x00;                      //Numero de secuencias de muestreo/conversion por interrupcion (N+1)
      AD1CON2.BUFM = 0;                             //Bit de selección del modo de relleno del búfer, 0 -> Siempre comienza a llenar el buffer desde el principio
      AD1CON2.ALTS = 0x00;                          //Utiliza siempre la selección de entrada de canal para la muestra A
 
      AD1CON3.ADRC = 0;                             //Selecciona el reloj de conversion del ADC derivado del reloj del sistema
-     AD1CON3bits.ADCS = 0x02;                      //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
-     AD1CON3bits.SAMC = 0x02;                      //Auto Sample Time bits, 2 -> 2*TAD (minimo periodo de muestreo para 10 bits)
+     AD1CON3bits.ADCS = 0x00;                      //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
+     //AD1CON3bits.SAMC = 0x02;                      //Auto Sample Time bits, 2 -> 2*TAD (minimo periodo de muestreo para 10 bits)
 
      AD1CHS0 = 0;                                  //ADC1 INPUT CHANNEL 0 SELECT REGISTER
      AD1CHS123 = 0;                                //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
@@ -193,7 +189,7 @@ void Configuracion(){
      INTCON2.INT0EP = 0;                           //Interrupcion en flanco positivo
      
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
-     IPC3bits.AD1IP = 0x06;                        //Nivel de prioridad de interrupcion del ADC
+     //IPC3bits.AD1IP = 0x06;                        //Nivel de prioridad de interrupcion del ADC
      IPC0bits.T1IP = 0x07;                         //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
      IPC1bits.T2IP = 0x05;                         //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
      IPC0bits.INT0IP = 0x04;                       //Nivel de prioridad de la interrupcion INT0
