@@ -307,9 +307,8 @@ void main() {
 
  while(1){
 
- UART1_Write(0xEE);
+ UART1_Write(0x00);
  UART1_Write(0x0D);
- UART1_Write(0x0A);
 
  Pulse();
 
@@ -324,12 +323,10 @@ void main() {
  UART1_Write(trama[l]);
  }
  UART1_Write(0x0D);
- UART1_Write(0x0A);
  }
 
- UART1_Write(0xEE);
+ UART1_Write(0x00);
  UART1_Write(0x0D);
- UART1_Write(0x0A);
 
  Delay_ms(10);
 
