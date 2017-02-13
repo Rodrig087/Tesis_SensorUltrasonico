@@ -198,6 +198,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
         if (i<nm){
            M[i] = ADC1BUF0;                        //Almacena el valor actual de la conversion del ADC en el vector M
            i++;                                    //Aumenta en 1 el subindice del vector de Muestras
+           ADC1BUF0 = 0;                           //Encera el buffer
         } else {
            bm = 1;                                 //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
            T1CON.TON = 0;                          //Apaga el TMR1

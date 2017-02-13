@@ -192,6 +192,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  if (i<nm){
  M[i] = ADC1BUF0;
  i++;
+ ADC1BUF0 = 0;
  } else {
  bm = 1;
  T1CON.TON = 0;
