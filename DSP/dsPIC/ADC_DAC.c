@@ -102,7 +102,7 @@ void Pulse(){
 
             // Generacion de pulsos y captura de la señal de retorno //
             contp = 0;                                               //Limpia la variable del contador de pulsos
-            RB14_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
+            RB0_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
 
             T1CON.TON = 0;                                           //Apaga el TMR1
             IEC0.T1IE = 0;                                           //Desabilita la interrupcion por desborde del TMR1
@@ -189,39 +189,33 @@ void UART1_Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
      U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
 }
 
-//Interrupcion por conversion completada del ADC
-void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
+//Interrupcion por desbordamiento del TMR1
+void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+     RB1_bit = ~RB1_bit;
+     SAMP_bit = 0;                                 //Limpia el bit SAMP para iniciar la conversion del ADC
+     while (!AD1CON1bits.DONE);                    //Espera hasta que se complete la conversion
      if (i<nm){
         M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
         i++;                                       //Aumenta en 1 el subindice del vector de Muestras
-     } 
-     else{
+        //ADC1BUF0 = 0;                              //Encera el buffer
+     } else {
         bm = 1;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
         T1CON.TON = 0;                             //Apaga el TMR1
         IEC0.T1IE = 0;                             //Desabilita la interrupcion por desborde del TMR1
      }
-
-     AD1IF_bit = 0;                                //Limpia la bandera de interrupcion del ADC
-}
-
-//Interrupcion por desbordamiento del TMR1
-void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
-     RB15_bit = ~RB15_bit;
-     SAMP_bit = 0;                              //Limpia el bit SAMP para iniciar la conversion del ADC
      T1IF_bit = 0;                                 //Limpia la bandera de interrupcion por desbordamiento del TMR1
 }
 
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
      if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
-          RB14_bit = ~RB14_bit;                    //Conmuta el valor del pin RB14
+          RB0_bit = ~RB0_bit;                    //Conmuta el valor del pin RB14
      }else {
-          RB14_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
+          RB0_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
 
           if (contp==110){
-              IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1 y por conversion completa del ADC
+              IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1
               T2CON.TON = 0;                       //Apaga el TMR2
-              IEC0.AD1IE = 1;                      //Habilita la interrupcion por conversion completa del ADC
               IEC0.T1IE = 1;                       //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
               TMR1 = 0;                            //Encera el TMR1
               T1IF_bit = 0;                        //Limpia la bandera de interrupcion por desbordamiento del TMR1
@@ -247,7 +241,7 @@ void Configuracion(){
      AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
      TRISA0_bit = 1;                             //Set RA0 pin as input
      TRISA4_bit = 1;                             //Set RA4 pin as input
-     TRISB = 0xFF;
+     TRISB = 0xFF80;                             //TRISB = 11111111 10000000
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
@@ -260,7 +254,6 @@ void Configuracion(){
      AD1CON2bits.VCFG = 0;                       //Selecciona AVDD y AVSS como fuentes de voltaje de referencia
      AD1CON2bits.CHPS = 0;                       //Selecciona unicamente el canal CH0
      AD1CON2.CSCNA = 0;                          //No escanea las entradas de CH0 durante la Muestra A
-     AD1CON2bits.SMPI = 0x00;                    //Numero de secuencias de muestreo/conversion por interrupcion (N+1)
      AD1CON2.BUFM = 0;                           //Bit de selección del modo de relleno del búfer, 0 -> Siempre comienza a llenar el buffer desde el principio
      AD1CON2.ALTS = 0x00;                        //Utiliza siempre la selección de entrada de canal para la muestra A
 
@@ -288,15 +281,14 @@ void Configuracion(){
      PR2 = 500;                                  //Genera una interrupcion cada 12.5us
 
       //Configuracion UART
-     RPINR18bits.U1RXR = 0x0C;                   //Asisgna Rx a RP12
-     RPOR6bits.RP13R = 0x03;                     //Asigna Tx a RP13
+     RPINR18bits.U1RXR = 0x07;                   //Asisgna Rx a RP12
+     RPOR3bits.RP6R = 0x03;                     //Asigna Tx a RP13
      IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato po UART
      
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
-     IPC3bits.AD1IP = 0x06;                      //Nivel de prioridad de interrupcion del ADC
      IPC0bits.T1IP = 0x07;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
-     IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
-     IPC2bits.U1RXIP = 0x04;                     //Nivel de prioridad de la interrupcion UARTRX
+     IPC1bits.T2IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
+     IPC2bits.U1RXIP = 0x05;                     //Nivel de prioridad de la interrupcion UARTRX
      
 
      
@@ -312,7 +304,7 @@ void main() {
      Delay_ms(100);                  // Wait for UART module to stabilize
      //UART_Write_Text("Start");
      
-     TpId = PORTB&0xFF;
+     TpId = (PORTB&0xFF00)>>8;
      TP = TpId>>4;
      Id = TPId&0xF;
 
@@ -348,9 +340,9 @@ void main() {
               UART1_Write(Tp);
               UART1_Write(Id);
               
-              for (l=0;l<4;l++){
+              /*for (l=0;l<4;l++){
                  UART1_Write(trama[l]);
-              }
+              }*/
               
               //UART1_Write(0xFF);
               

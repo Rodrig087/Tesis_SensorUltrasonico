@@ -96,7 +96,7 @@ void Pulse(){
 
 
  contp = 0;
- RB14_bit = 0;
+ RB0_bit = 0;
 
  T1CON.TON = 0;
  IEC0.T1IE = 0;
@@ -184,38 +184,32 @@ void UART1_Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
 }
 
 
-void ADC1Int() org IVT_ADDR_ADC1INTERRUPT {
+void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
+ RB1_bit = ~RB1_bit;
+ SAMP_bit = 0;
+ while (!AD1CON1bits.DONE);
  if (i<nm){
  M[i] = ADC1BUF0;
  i++;
- }
- else{
+
+ } else {
  bm = 1;
  T1CON.TON = 0;
  IEC0.T1IE = 0;
  }
-
- AD1IF_bit = 0;
-}
-
-
-void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
- RB15_bit = ~RB15_bit;
- SAMP_bit = 0;
  T1IF_bit = 0;
 }
 
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  if (contp<10){
- RB14_bit = ~RB14_bit;
+ RB0_bit = ~RB0_bit;
  }else {
- RB14_bit = 0;
+ RB0_bit = 0;
 
  if (contp==110){
  IEC0.T2IE = 0;
  T2CON.TON = 0;
- IEC0.AD1IE = 1;
  IEC0.T1IE = 1;
  TMR1 = 0;
  T1IF_bit = 0;
@@ -241,7 +235,7 @@ void Configuracion(){
  AD1PCFGL = 0xFFFE;
  TRISA0_bit = 1;
  TRISA4_bit = 1;
- TRISB = 0xFF;
+ TRISB = 0xFF80;
 
 
  AD1CON1.AD12B = 0;
@@ -254,7 +248,6 @@ void Configuracion(){
  AD1CON2bits.VCFG = 0;
  AD1CON2bits.CHPS = 0;
  AD1CON2.CSCNA = 0;
- AD1CON2bits.SMPI = 0x00;
  AD1CON2.BUFM = 0;
  AD1CON2.ALTS = 0x00;
 
@@ -282,15 +275,14 @@ void Configuracion(){
  PR2 = 500;
 
 
- RPINR18bits.U1RXR = 0x0C;
- RPOR6bits.RP13R = 0x03;
+ RPINR18bits.U1RXR = 0x07;
+ RPOR3bits.RP6R = 0x03;
  IEC0.U1RXIE = 1;
 
 
- IPC3bits.AD1IP = 0x06;
  IPC0bits.T1IP = 0x07;
- IPC1bits.T2IP = 0x05;
- IPC2bits.U1RXIP = 0x04;
+ IPC1bits.T2IP = 0x06;
+ IPC2bits.U1RXIP = 0x05;
 
 
 
@@ -306,7 +298,7 @@ void main() {
  Delay_ms(100);
 
 
- TpId = PORTB&0xFF;
+ TpId = (PORTB&0xFF00)>>8;
  TP = TpId>>4;
  Id = TPId&0xF;
 
@@ -341,13 +333,7 @@ void main() {
 
  UART1_Write(Tp);
  UART1_Write(Id);
-
- for (l=0;l<4;l++){
- UART1_Write(trama[l]);
- }
-
-
-
+#line 349 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  Delay_ms(10);
 
  }
