@@ -20,6 +20,11 @@ const short Psize = 4;                                  //Constante de longitud 
 const short Rsize = 6;                                  //Constante de longitud de trama de Respuesta
 const short Hdr = 0xEE;                                 //Constante de delimitador de inicio de trama (0x20)
 const short End = 0xFF;                                 //Constante de delimitador de final de trama (0x0D)
+unsigned char Ptcn[Psize];                              //Trama de peticion
+unsigned char Rspt[Rsize];                              //Trama de respuesta
+short ir,ip;                                            //Subindices para las tramas de peticion y respuesta
+short BanP;                                             //Bandera de peticion de datos
+const short Nsm=3;                                      //Numero maximo de secuencias de medicion
 
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
@@ -46,24 +51,24 @@ unsigned int MIndexMin;
 unsigned int maxIndex;
 unsigned int i0, i1, i2, imax;
 unsigned int i1a, i1b;
-const short dix=8;
+const short dix=16;
 const float tx=5.0;
 int yy0, yy1, yy2;
 float yf0, yf1, yf2;
 float nx, dx, tmax;
-//Variables para calcular el TOF
-float T1, T2;
-float TOF, Dst;
-//Variables para la visualizacion de datos en el LCD
-char txt1[6], txt2[6], txt3[6], txt4[6] ;
-//Variables para peticion de datos
-short bp;
+//Variables para calcular la Distancia
 short conts;
+float T2a, T2b;
+const float T2umb = 3.0;
+const float T1 = 1375.0;
+const float T2adj = 185.0;            //Factor de calibracion de T2: Con Temp=20 Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
 float T2sum,T2prom;
-unsigned long TT2;
-unsigned char  *chT2;
-unsigned char trama[4];
-short l;
+float T2, TOF, Dst;
+unsigned int IDst;
+unsigned char *chIDst;
+
+long TT2;
+unsigned char *chTT2;
 
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
@@ -73,28 +78,28 @@ void Velocidad(){
      unsigned int Rint;
      float Rfrac;
 
-     Ow_Reset(&PORTA, 1);                        //Onewire reset signal
-     Ow_Write(&PORTA, 1, 0xCC);                  //Issue command SKIP_ROM
-     Ow_Write(&PORTA, 1, 0x44);                  //Issue command CONVERT_T
+     Ow_Reset(&PORTA, 1);                          //Onewire reset signal
+     Ow_Write(&PORTA, 1, 0xCC);                    //Issue command SKIP_ROM
+     Ow_Write(&PORTA, 1, 0x44);                    //Issue command CONVERT_T
      Delay_us(100);
 
      Ow_Reset(&PORTA, 1);
-     Ow_Write(&PORTA, 1, 0xCC);                  //Issue command SKIP_ROM
-     Ow_Write(&PORTA, 1, 0xBE);                  //Issue command READ_SCRATCHPAD
+     Ow_Write(&PORTA, 1, 0xCC);                    //Issue command SKIP_ROM
+     Ow_Write(&PORTA, 1, 0xBE);                    //Issue command READ_SCRATCHPAD
      Delay_us(100);
 
      Temp =  Ow_Read(&PORTA, 1);
      Temp = (Ow_Read(&PORTA, 1) << 8) + Temp;
 
      if (Temp & 0x8000) {
-        Temp = 0;                                //Si la temperatura es negativa la establece como cero.
+        Temp = 0;                                  //Si la temperatura es negativa la establece como cero.
      }
 
-     Rint = Temp >> 4;                           //Extrae la parte entera de la respuesta del sensor
-     Rfrac = ((Temp & 0x000F) * 625) / 10000.;   //Extrae la parte decimal de la respuesta del sensor
+     Rint = Temp >> 4;                             //Extrae la parte entera de la respuesta del sensor
+     Rfrac = ((Temp & 0x000F) * 625) / 10000.;     //Extrae la parte decimal de la respuesta del sensor
      DSTemp = Rint + Rfrac;
 
-     VSnd = 331.45 * sqrt(1+(DsTemp/273));       //Expresa la temperatura en punto flotante
+     VSnd = 331.45 * sqrt(1+(DsTemp/273));         //Expresa la temperatura en punto flotante
 }
 
 //Funcion para la generacion y procesamiento de la señal
@@ -152,7 +157,7 @@ void Pulse(){
 
             // Cálculo del punto maximo y TOF
             if (bm==2){
-
+               RB2_bit = ~RB2_bit;
                yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
                i1b = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1a
                i1a = 0;
@@ -182,10 +187,55 @@ void Pulse(){
 
 }
 
+//Funcion para el calculo de la distancia
+void Distancia(){
+     conts = 0;                               //Limpia el contador de secuencias
+     T2sum = 0.0;
+     T2prom = 0.0;
+     T2a = 0.0;
+     T2b = 0.0;
+     
+     while (conts<Nsm){
+           Pulse();                           //Inicia una secuencia de medicion
+           T2b = T2;
+           if ((T2b-T2a)<=T2umb){             //Verifica si el T2 actual esta dentro de un umbral pre-establecido
+              T2sum = T2sum + T2b;            //Acumula la sumatoria de valores de T2 calculados por la funcion Pulse()
+              conts++;                        //Aumenta el contador de secuencias
+           }
+           T2a = T2b;
+     }
+
+     T2prom = T2sum/Nsm;
+
+     //Velocidad();                             //Calcula la velocidad del sonido
+     VSnd = 343.2;
+     
+     TOF = (T1+T2prom-T2adj)/2.0e6;           //Calcula el TOF en seg
+     Dst = VSnd * TOF * 1000.0;               //Calcula la distancia en mm
+     IDst = (unsigned int)(Dst);              //Tranforma el dato de distancia de float a entero sin signo
+     chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
+
+     for (ip=(Rsize-2);ip>2;ip--){
+         Rspt[ip]=(*chIDst++);                //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la distancia calculada
+     }
+     
+      /*TT2 = T2prom * 100.0;
+      chTT2 = (unsigned char *) & TT2;
+
+      for (ip=(Rsize-2);ip>2;ip--){
+         Rspt[ip]=(*chTT2++);
+      }*/
+     
+}
+
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
 //Interrupcion por recepcion de datos a travez de UART
 void UART1_Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
-
+     Ptcn[ir] = UART1_Read();                       //Almacena los datos de entrada byte a byte en el buffer de peticion
+     ir++;
+     if (ir==Psize){                                //Verifica que se haya terminado de llenar la trama de datos
+        BanP = 1;                                   //Habilita la bandera de peticion de datos
+     }
      U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
 }
 
@@ -197,7 +247,6 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
      if (i<nm){
         M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
         i++;                                       //Aumenta en 1 el subindice del vector de Muestras
-        //ADC1BUF0 = 0;                              //Encera el buffer
      } else {
         bm = 1;                                    //Cambia el valor de la bandera bm para terminar con el muestreo y dar comienzo al procesamiento de la señal
         T1CON.TON = 0;                             //Apaga el TMR1
@@ -209,7 +258,7 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
      if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
-          RB0_bit = ~RB0_bit;                    //Conmuta el valor del pin RB14
+          RB0_bit = ~RB0_bit;                      //Conmuta el valor del pin RB14
      }else {
           RB0_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
 
@@ -300,51 +349,41 @@ void main() {
 
      Configuracion();
      
-     UART1_Init(9600);               // Initialize UART module at 9600 bps
-     Delay_ms(100);                  // Wait for UART module to stabilize
-     //UART_Write_Text("Start");
-     
+     UART1_Init(9600);                                           // Initialize UART module at 9600 bps
+     Delay_ms(100);                                              // Wait for UART module to stabilize
+
      TpId = (PORTB&0xFF00)>>8;
      TP = TpId>>4;
      Id = TPId&0xF;
+     
+     Rspt[0] = Hdr;                                              //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
+     Rspt[1] = Tp;                                               //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
+     Rspt[2] = Id;                                               //Se rellena el tercer byte de la trama de repuesta con el Id de esclavo
+     Rspt[Rsize-1] = End;                                              //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 
      while(1){
+     
+              Banp = 1;
+              Ptcn[0]=Hdr;
+              Ptcn[1]=TP;
+              Ptcn[2]=Id;
 
-              TOF = 0.0;
-              Dst = 0.0;
-              T2sum = 0.0;
-              T2prom = 0.0;
-              conts = 0;
+              if (BanP==1){                                      //Verifica si se realizo una peticion
+                 if (Ptcn[0]==Hdr){                              //Verifica que el primer elemento sea el delimitador de inicio de trama
+                    if ((Ptcn[1]==TP)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
-              while (conts<5){
-                    Pulse();
-                    T2sum = T2sum + T2;
-                    conts++;
+                       Distancia();                              //Realiza un calculo de distancia
+                       for (ip=0;ip<Rsize;ip++){
+                           UART1_Write(Rspt[ip]);
+                       }
+                       
+                    }
+                 } else {
+                   BanP=0;                                       //Limpia la bandera de lectura para permitir una nueva peticion
+                 }
               }
               
-              T2prom=(T2sum/5);
-              //Velocidad();
               
-              //T1 = 100 * 12.5;
-              //TOF = T1 + T2prom;
-              //Dst = VSnd * (TOF / 20000.0);
-
-              TT2 = T2Prom * 100.0;
-
-              chT2 = (unsigned char *) & TT2;
-
-              for (l=0;l<4;l++){
-                 trama[l]=(*chT2++);
-              }
-              
-              UART1_Write(Tp);
-              UART1_Write(Id);
-              
-              /*for (l=0;l<4;l++){
-                 UART1_Write(trama[l]);
-              }*/
-              
-              //UART1_Write(0xFF);
               
               Delay_ms(10);
               

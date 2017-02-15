@@ -1049,6 +1049,7 @@ b6
 b7
 b8
 b9
+banp
 bcd2dec
 bcd2dec16
 bcl
@@ -1059,7 +1060,6 @@ bm
 bor
 bor
 bor_bit
-bp
 bren
 bren
 bren_bit
@@ -1192,6 +1192,7 @@ ch123sa_bit
 ch123sb
 ch123sb
 ch123sb_bit
+chidst
 chps
 chps_0
 chps_0_bit
@@ -1199,7 +1200,7 @@ chps_1
 chps_1_bit
 chps0
 chps1
-cht2
+chtt2
 cke
 cke
 cke_bit
@@ -1518,6 +1519,7 @@ disslw
 disslw
 disslw
 disslw_bit
+distancia
 div0err
 div0err
 div0err_bit
@@ -2478,6 +2480,7 @@ id
 idle
 idle
 idle_bit
+idst
 iec0
 iec0bits
 iec1
@@ -2651,6 +2654,7 @@ iolock_bit
 iopuwr
 iopuwr
 iopuwr_bit
+ip
 ipc0
 ipc0bits
 ipc1
@@ -2690,6 +2694,7 @@ ipmien
 ipmien
 ipmien
 ipmien_bit
+ir
 iren
 iren
 iren_bit
@@ -2831,7 +2836,6 @@ iwcol
 iwcol
 iwcol_bit
 k
-l
 lata
 lata0
 lata0
@@ -3013,6 +3017,7 @@ nosc_2_bit
 nosc0
 nosc1
 nosc2
+nsm
 nstdis
 nstdis
 nstdis_bit
@@ -3891,6 +3896,7 @@ ptckps0
 ptckps1
 ptckps1
 ptckps1
+ptcn
 ptcon
 ptconbits
 ptdir
@@ -4783,6 +4789,7 @@ rsen
 rsen
 rsen_bit
 rsize
+rspt
 rtrim
 rtsmd
 rtsmd
@@ -5287,6 +5294,9 @@ t1md
 t1md
 t1md_bit
 t2
+t2a
+t2adj
+t2b
 t2ckr
 t2ckr_0
 t2ckr_0_bit
@@ -5326,6 +5336,7 @@ t2md
 t2md_bit
 t2prom
 t2sum
+t2umb
 t32
 t32
 t32_bit
@@ -5588,7 +5599,6 @@ tqgate
 tqgate
 tqgate
 tqgate_bit
-trama
 trapr
 trapr
 trapr_bit
@@ -5698,10 +5708,6 @@ tun3
 tun4
 tun5
 tx
-txt1
-txt2
-txt3
-txt4
 u1brg
 u1ctsr
 u1ctsr_0

@@ -18,7 +18,7 @@ _Interrupt:
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt11
 	MOVF        _contp+0, 0 
-	SUBLW       114
+	SUBLW       120
 L__Interrupt11:
 	BTFSC       STATUS+0, 0 
 	GOTO        L_Interrupt4
@@ -26,7 +26,7 @@ L__Interrupt11:
 	SUBWF       _contp+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt12
-	MOVLW       124
+	MOVLW       130
 	SUBWF       _contp+0, 0 
 L__Interrupt12:
 	BTFSC       STATUS+0, 0 
@@ -41,7 +41,7 @@ L_Interrupt4:
 	XORWF       _contp+1, 0 
 	BTFSS       STATUS+0, 2 
 	GOTO        L__Interrupt13
-	MOVLW       124
+	MOVLW       130
 	XORWF       _contp+0, 0 
 L__Interrupt13:
 	BTFSS       STATUS+0, 2 
