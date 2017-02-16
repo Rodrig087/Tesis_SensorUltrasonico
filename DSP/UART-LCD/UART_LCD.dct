@@ -126,6 +126,7 @@ banl
 banp
 baudcon
 baudctl
+bb
 bcd2dec
 bcd2dec16
 bclie
@@ -924,6 +925,7 @@ pssbd0
 pssbd0_bit
 pssbd1
 pssbd1_bit
+ptcn
 ptrtt2
 r
 r_bit

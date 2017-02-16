@@ -157,7 +157,7 @@ void Pulse(){
 
             // Cálculo del punto maximo y TOF
             if (bm==2){
-               RB2_bit = ~RB2_bit;
+
                yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
                i1b = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1a
                i1a = 0;
@@ -231,9 +231,9 @@ void Distancia(){
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
 //Interrupcion por recepcion de datos a travez de UART
 void UART1_Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
-     Ptcn[ir] = UART1_Read();                       //Almacena los datos de entrada byte a byte en el buffer de peticion
-     ir++;
-     if (ir==Psize){                                //Verifica que se haya terminado de llenar la trama de datos
+     Ptcn[ip] = UART1_Read();                       //Almacena los datos de entrada byte a byte en el buffer de peticion
+     ip++;
+     if (ip==(Psize)){                            //Verifica que se haya terminado de llenar la trama de datos
         BanP = 1;                                   //Habilita la bandera de peticion de datos
      }
      U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
@@ -359,27 +359,37 @@ void main() {
      Rspt[0] = Hdr;                                              //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
      Rspt[1] = Tp;                                               //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
      Rspt[2] = Id;                                               //Se rellena el tercer byte de la trama de repuesta con el Id de esclavo
-     Rspt[Rsize-1] = End;                                              //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
+     Rspt[Rsize-1] = End;                                        //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 
      while(1){
-     
-              Banp = 1;
-              Ptcn[0]=Hdr;
-              Ptcn[1]=TP;
-              Ptcn[2]=Id;
 
-              if (BanP==1){                                      //Verifica si se realizo una peticion
-                 if (Ptcn[0]==Hdr){                              //Verifica que el primer elemento sea el delimitador de inicio de trama
+              if (BanP==1){   
+                 RB2_bit = ~RB2_bit;                              //Verifica si se realizo una peticion
+                 if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
                     if ((Ptcn[1]==TP)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
                        Distancia();                              //Realiza un calculo de distancia
-                       for (ip=0;ip<Rsize;ip++){
-                           UART1_Write(Rspt[ip]);
+                       
+                       for (ir=0;ir<Rsize;ir++){
+                           UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
+                       }
+                       for (ip=0;ip<Psize;ip++){
+                           Ptcn[ip]=0;                           //Limpia la trama de peticion
+                       }
+                       for (ip=(Rsize-2);ip>2;ip--){
+                           Rspt[ir]=0;;                          //Limpia los bits de datos de la trama de respuesta
                        }
                        
+                       BanP = 0;
+                       ip=0;                                     //Limpia el subindice de la trama de peticion
+                       
                     }
-                 } else {
-                   BanP=0;                                       //Limpia la bandera de lectura para permitir una nueva peticion
+                 }else{
+                       for (ip=0;ip<Psize;ip++){
+                           Ptcn[ip]=0;                           //Limpia la trama de peticion
+                       }
+                       BanP = 0;
+                       ip=0;                                     //Limpia el subindice de la trama de peticion
                  }
               }
               

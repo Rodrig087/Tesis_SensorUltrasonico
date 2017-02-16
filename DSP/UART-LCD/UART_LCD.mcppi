@@ -33,10 +33,10 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=3
+Count=4
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
-Path2=D:\Git\Tesis_SensorUltrasonico\DSP\UART-LCD\
+Path2=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\UART-LCD\
 [HEADER_PATH]
 Count=0
 [HEADERS]

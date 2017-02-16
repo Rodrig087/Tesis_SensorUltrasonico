@@ -21,6 +21,7 @@ char Dato;
 unsigned short i, j;
 unsigned char trama[5];
 unsigned char trama2[4];
+unsigned char Ptcn[4];
 
 unsigned short BanP, BanL;
 char txt1[15];
@@ -28,6 +29,8 @@ char txt1[15];
 unsigned short  *ptrTT2;
 unsigned long TT2;
 float T2;
+
+short Bb;
 
 
 
@@ -50,6 +53,7 @@ void interrupt(void){
 void Configuracion(){
 
       TRISD0_bit = 0;
+      TRISD1_bit = 1;
       
       INTCON.GIE = 1;                             //Habilita las interrupciones globales
       INTCON.PEIE = 1;                            //Habilita las interrupciones perifericas
@@ -79,18 +83,27 @@ void main() {
      delay_ms(1);
      ptrTT2 = &TT2;
      
+     Ptcn[0]=0xEE;
+     Ptcn[1]=0x01;
+     Ptcn[2]=0x07;
+     Ptcn[3]=0xFF;
+     
+     Bb=0;
+     
      while (1){
 
+            if ((RD1_bit==1)&&(Bb==0)){
+               Bb = 1;
+               for (j=0;j<4;j++){
+                    UART1_WRITE(Ptcn[j]);
+               }
+            }
 
             if (BanL==1){
             
                 for (j=1;j<5;j++){
                     //*(ptrTT2+j) = trama[j];
                     trama2[j-1]= trama[j];
-                }
-                for (j=0;j<4;j++){
-                    UART1_WRITE(trama2[j]);
-                    *(ptrTT2+j) = trama2[j];
                 }
 
                 BanL = 0;
@@ -104,7 +117,9 @@ void main() {
             Lcd_Out(1, 1, "T2: ");
             Lcd_Out(2,1,txt1);
             
+
             Delay_ms(10);
+            Bb = 0;
 
      }
 

@@ -151,7 +151,7 @@ void Pulse(){
 
 
  if (bm==2){
- RB2_bit = ~RB2_bit;
+
  yy1 = Vector_Max(M, nm, &maxIndex);
  i1b = maxIndex;
  i1a = 0;
@@ -218,9 +218,9 @@ void Distancia(){
 
 
 void UART1_Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
- Ptcn[ir] = UART1_Read();
- ir++;
- if (ir==Psize){
+ Ptcn[ip] = UART1_Read();
+ ip++;
+ if (ip==(Psize)){
  BanP = 1;
  }
  U1RXIF_bit = 0;
@@ -350,23 +350,33 @@ void main() {
 
  while(1){
 
- Banp = 1;
- Ptcn[0]=Hdr;
- Ptcn[1]=TP;
- Ptcn[2]=Id;
-
  if (BanP==1){
- if (Ptcn[0]==Hdr){
+ RB2_bit = ~RB2_bit;
+ if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){
  if ((Ptcn[1]==TP)&&(Ptcn[2]==Id)){
 
  Distancia();
- for (ip=0;ip<Rsize;ip++){
- UART1_Write(Rspt[ip]);
+
+ for (ir=0;ir<Rsize;ir++){
+ UART1_Write(Rspt[ir]);
+ }
+ for (ip=0;ip<Psize;ip++){
+ Ptcn[ip]=0;
+ }
+ for (ip=(Rsize-2);ip>2;ip--){
+ Rspt[ir]=0;;
  }
 
+ BanP = 0;
+ ip=0;
+
  }
- } else {
- BanP=0;
+ }else{
+ for (ip=0;ip<Psize;ip++){
+ Ptcn[ip]=0;
+ }
+ BanP = 0;
+ ip=0;
  }
  }
 
