@@ -122,7 +122,6 @@ b5
 b6
 b7
 banked
-banl
 banp
 baudcon
 baudctl
@@ -292,7 +291,6 @@ d_not_a
 d_not_a_bit
 data_address
 data_address_bit
-dato
 dc
 dc_bit
 dc1b0
@@ -363,6 +361,7 @@ eeip
 eeip_bit
 eepgd
 eepgd_bit
+end
 endp0
 endp0_bit
 endp1
@@ -520,6 +519,7 @@ go_done
 go_done_bit
 go_not_done
 go_not_done_bit
+hdr
 hlvdcon
 hlvden
 hlvden_bit
@@ -539,7 +539,6 @@ hlvdl2
 hlvdl2_bit
 hlvdl3
 hlvdl3_bit
-i
 i2c_dat
 i2c_dat_bit
 i2c_read
@@ -550,6 +549,7 @@ i2c_stop_
 i2c_stop__bit
 ics_auto
 ics_off
+id
 idleie
 idleie_bit
 idleif
@@ -615,10 +615,12 @@ inttostr
 inttostrwithzeros
 iofs
 iofs_bit
+ip
 ipen
 ipen_bit
 ipr1
 ipr2
+ir
 ircf0
 ircf0_bit
 ircf1
@@ -917,6 +919,7 @@ prsen
 prsen_bit
 psa
 psa_bit
+psize
 pssac0
 pssac0_bit
 pssac1
@@ -1064,6 +1067,8 @@ ri
 ri_bit
 rsen
 rsen_bit
+rsize
+rspt
 rtrim
 rx_
 rx__bit
@@ -1336,8 +1341,7 @@ toutps2
 toutps2_bit
 toutps3
 toutps3_bit
-trama
-trama2
+tp
 trisa
 trisa0
 trisa0_bit

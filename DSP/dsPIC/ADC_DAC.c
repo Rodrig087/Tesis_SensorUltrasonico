@@ -215,7 +215,7 @@ void Distancia(){
      IDst = (unsigned int)(Dst);              //Tranforma el dato de distancia de float a entero sin signo
      chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
 
-     for (ip=(Rsize-2);ip>2;ip--){
+     for (ip=3;ip<5;ip++){
          Rspt[ip]=(*chIDst++);                //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la distancia calculada
      }
      
@@ -363,10 +363,10 @@ void main() {
 
      while(1){
 
-              if (BanP==1){   
-                 RB2_bit = ~RB2_bit;                              //Verifica si se realizo una peticion
+              if (BanP==1){                                      //Verifica si se realizo una peticion
                  if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
-                    if ((Ptcn[1]==TP)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
+                    RB2_bit = ~RB2_bit;
+                    if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
                        Distancia();                              //Realiza un calculo de distancia
                        
@@ -376,8 +376,8 @@ void main() {
                        for (ip=0;ip<Psize;ip++){
                            Ptcn[ip]=0;                           //Limpia la trama de peticion
                        }
-                       for (ip=(Rsize-2);ip>2;ip--){
-                           Rspt[ir]=0;;                          //Limpia los bits de datos de la trama de respuesta
+                       for (ip=3;ip<5;ip++){
+                           Rspt[ip]=0;;                          //Limpia los bits de datos de la trama de respuesta
                        }
                        
                        BanP = 0;

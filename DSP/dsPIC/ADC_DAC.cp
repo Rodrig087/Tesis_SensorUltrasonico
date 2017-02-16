@@ -209,7 +209,7 @@ void Distancia(){
  IDst = (unsigned int)(Dst);
  chIDst = (unsigned char *) & IDst;
 
- for (ip=(Rsize-2);ip>2;ip--){
+ for (ip=3;ip<5;ip++){
  Rspt[ip]=(*chIDst++);
  }
 #line 229 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
@@ -351,9 +351,9 @@ void main() {
  while(1){
 
  if (BanP==1){
- RB2_bit = ~RB2_bit;
  if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){
- if ((Ptcn[1]==TP)&&(Ptcn[2]==Id)){
+ RB2_bit = ~RB2_bit;
+ if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){
 
  Distancia();
 
@@ -363,8 +363,8 @@ void main() {
  for (ip=0;ip<Psize;ip++){
  Ptcn[ip]=0;
  }
- for (ip=(Rsize-2);ip>2;ip--){
- Rspt[ir]=0;;
+ for (ip=3;ip<5;ip++){
+ Rspt[ip]=0;;
  }
 
  BanP = 0;

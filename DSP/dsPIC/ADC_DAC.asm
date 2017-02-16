@@ -624,15 +624,15 @@ L_Distancia16:
 ;ADC_DAC.c,216 :: 		chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
 	MOV	#lo_addr(_IDst), W0
 	MOV	W0, _chIDst
-;ADC_DAC.c,218 :: 		for (ip=(Rsize-2);ip>2;ip--){
+;ADC_DAC.c,218 :: 		for (ip=3;ip<5;ip++){
 	MOV	#lo_addr(_ip), W1
-	MOV.B	#4, W0
+	MOV.B	#3, W0
 	MOV.B	W0, [W1]
 L_Distancia18:
 	MOV	#lo_addr(_ip), W0
 	MOV.B	[W0], W0
-	CP.B	W0, #2
-	BRA GT	L__Distancia74
+	CP.B	W0, #5
+	BRA LT	L__Distancia74
 	GOTO	L_Distancia19
 L__Distancia74:
 ;ADC_DAC.c,219 :: 		Rspt[ip]=(*chIDst++);                //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la distancia calculada
@@ -645,10 +645,10 @@ L__Distancia74:
 	MOV	#1, W1
 	MOV	#lo_addr(_chIDst), W0
 	ADD	W1, [W0], [W0]
-;ADC_DAC.c,218 :: 		for (ip=(Rsize-2);ip>2;ip--){
+;ADC_DAC.c,218 :: 		for (ip=3;ip<5;ip++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ip), W0
-	SUBR.B	W1, [W0], [W0]
+	ADD.B	W1, [W0], [W0]
 ;ADC_DAC.c,220 :: 		}
 	GOTO	L_Distancia18
 L_Distancia19:
@@ -1063,16 +1063,14 @@ L_main29:
 	MOV.B	W0, [W1]
 ;ADC_DAC.c,364 :: 		while(1){
 L_main31:
-;ADC_DAC.c,366 :: 		if (BanP==1){
+;ADC_DAC.c,366 :: 		if (BanP==1){                                      //Verifica si se realizo una peticion
 	MOV	#lo_addr(_BanP), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
 	BRA Z	L__main84
 	GOTO	L_main33
 L__main84:
-;ADC_DAC.c,367 :: 		RB2_bit = ~RB2_bit;                              //Verifica si se realizo una peticion
-	BTG	RB2_bit, BitPos(RB2_bit+0)
-;ADC_DAC.c,368 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
+;ADC_DAC.c,367 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
 	MOV	#lo_addr(_Ptcn), W0
 	MOV.B	[W0], W1
 	MOV.B	#238, W0
@@ -1088,7 +1086,9 @@ L__main85:
 	GOTO	L__main60
 L__main86:
 L__main57:
-;ADC_DAC.c,369 :: 		if ((Ptcn[1]==TP)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
+;ADC_DAC.c,368 :: 		RB2_bit = ~RB2_bit;
+	BTG	RB2_bit, BitPos(RB2_bit+0)
+;ADC_DAC.c,369 :: 		if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 	MOV	#lo_addr(_Ptcn+1), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_TP), W0
@@ -1158,28 +1158,28 @@ L__main90:
 ;ADC_DAC.c,378 :: 		}
 	GOTO	L_main43
 L_main44:
-;ADC_DAC.c,379 :: 		for (ip=(Rsize-2);ip>2;ip--){
+;ADC_DAC.c,379 :: 		for (ip=3;ip<5;ip++){
 	MOV	#lo_addr(_ip), W1
-	MOV.B	#4, W0
+	MOV.B	#3, W0
 	MOV.B	W0, [W1]
 L_main46:
 	MOV	#lo_addr(_ip), W0
 	MOV.B	[W0], W0
-	CP.B	W0, #2
-	BRA GT	L__main91
+	CP.B	W0, #5
+	BRA LT	L__main91
 	GOTO	L_main47
 L__main91:
-;ADC_DAC.c,380 :: 		Rspt[ir]=0;;                          //Limpia los bits de datos de la trama de respuesta
-	MOV	#lo_addr(_ir), W0
+;ADC_DAC.c,380 :: 		Rspt[ip]=0;;                          //Limpia los bits de datos de la trama de respuesta
+	MOV	#lo_addr(_ip), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_Rspt), W0
 	ADD	W0, W1, W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,379 :: 		for (ip=(Rsize-2);ip>2;ip--){
+;ADC_DAC.c,379 :: 		for (ip=3;ip<5;ip++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ip), W0
-	SUBR.B	W1, [W0], [W0]
+	ADD.B	W1, [W0], [W0]
 ;ADC_DAC.c,381 :: 		}
 	GOTO	L_main46
 L_main47:
@@ -1191,12 +1191,12 @@ L_main47:
 	MOV	#lo_addr(_ip), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,369 :: 		if ((Ptcn[1]==TP)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
+;ADC_DAC.c,369 :: 		if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 L__main59:
 L__main58:
 ;ADC_DAC.c,387 :: 		}else{
 	GOTO	L_main49
-;ADC_DAC.c,368 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
+;ADC_DAC.c,367 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
 L__main61:
 L__main60:
 ;ADC_DAC.c,388 :: 		for (ip=0;ip<Psize;ip++){

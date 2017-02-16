@@ -18,32 +18,33 @@ sbit LCD_D7_Direction at TRISB5_bit;
 
 
 
-char Dato;
-unsigned short i, j;
-unsigned char trama[5];
-unsigned char trama2[4];
-unsigned char Ptcn[4];
+const short TP = 0x01;
+const short Id = 0x07;
+const short Psize = 4;
+const short Rsize = 6;
+const short Hdr = 0xEE;
+const short End = 0xFF;
+unsigned char Ptcn[Psize];
+unsigned char Rspt[Rsize];
+short ir,ip,j;
+unsigned short BanP;
 
-unsigned short BanP, BanL;
-char txt1[15];
-
-unsigned short *ptrTT2;
-unsigned long TT2;
-float T2;
 
 short Bb;
-
-
+char txt1[15];
+unsigned short *ptrTT2;
+unsigned long TT2;
+unsigned int T2;
 
 
 void interrupt(void){
 
  if (PIR1.F5){
  LATD0_bit = ~LATD0_bit;
- trama[i] = UART1_Read();
- i++;
- if (i==4){
- BanL = 1;
+ Rspt[ir] = UART1_Read();
+ ir++;
+ if (ir==Rsize){
+ BanP = 1;
  }
  PIR1.F5 = 0;
  }
@@ -84,36 +85,40 @@ void main() {
  delay_ms(1);
  ptrTT2 = &TT2;
 
- Ptcn[0]=0xEE;
- Ptcn[1]=0x01;
- Ptcn[2]=0x07;
- Ptcn[3]=0xFF;
+ Ptcn[0]=Hdr;
+ Ptcn[1]=Tp;
+ Ptcn[2]=Id;
+ Ptcn[3]=End;
 
  Bb=0;
+ T2=0;
 
  while (1){
 
  if ((RD1_bit==1)&&(Bb==0)){
  Bb = 1;
- for (j=0;j<4;j++){
- UART1_WRITE(Ptcn[j]);
+ for (ip=0;ip<Psize;ip++){
+ UART1_WRITE(Ptcn[ip]);
  }
  }
 
- if (BanL==1){
+ if (BanP==1){
+ if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
+ if ((Rspt[1]==TP)&&(Rspt[2]==Id)){
 
- for (j=1;j<5;j++){
-
- trama2[j-1]= trama[j];
+ for (ir=3;ir<5;ir++){
+ *(ptrTT2+(ir-3)) = Rspt[ir];
  }
 
- BanL = 0;
- i=0;
-
+ BanP = 0;
+ ir=0;
+ }
+ }
  }
 
- T2 = TT2 / 100.0;
- FloatToStr(T2,txt1);
+
+ T2 = TT2;
+ IntToStr(T2,txt1);
 
  Lcd_Out(1, 1, "T2: ");
  Lcd_Out(2,1,txt1);
