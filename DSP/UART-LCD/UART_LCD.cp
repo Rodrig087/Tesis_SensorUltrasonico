@@ -56,6 +56,7 @@ void Configuracion(){
 
  TRISD0_bit = 0;
  TRISD1_bit = 1;
+ TRISC0_bit = 0;
 
  INTCON.GIE = 1;
  INTCON.PEIE = 1;
@@ -81,6 +82,7 @@ void Configuracion(){
 void main() {
 
  Configuracion();
+ LATC0_bit = 0;
  Lcd_Out(1, 1, "Hello!");
  delay_ms(1);
  ptrTT2 = &TT2;
@@ -98,8 +100,12 @@ void main() {
  if ((RD1_bit==1)&&(Bb==0)){
  Bb = 1;
  for (ip=0;ip<Psize;ip++){
+ LATC0_bit = 1;
  UART1_WRITE(Ptcn[ip]);
  }
+ while(UART_Tx_Idle()==0);
+
+ LATC0_bit = 0;
  }
 
  if (BanP==1){

@@ -55,6 +55,7 @@ void Configuracion(){
 
       TRISD0_bit = 0;
       TRISD1_bit = 1;
+      TRISC0_bit = 0;
       
       INTCON.GIE = 1;                             //Habilita las interrupciones globales
       INTCON.PEIE = 1;                            //Habilita las interrupciones perifericas
@@ -80,6 +81,7 @@ void Configuracion(){
 void main() {
 
      Configuracion();
+     LATC0_bit = 0;                                                   //Establece el Max485 en modo de lectura
      Lcd_Out(1, 1, "Hello!");
      delay_ms(1);
      ptrTT2 = &TT2;
@@ -97,20 +99,24 @@ void main() {
             if ((RD1_bit==1)&&(Bb==0)){
                Bb = 1;
                for (ip=0;ip<Psize;ip++){
-                    UART1_WRITE(Ptcn[ip]);
+                    LATC0_bit = 1;                                    //Establece el Max485 en modo de escritura
+                    UART1_WRITE(Ptcn[ip]);                          //Manda por Uart la trama de peticion
                }
+               while(UART_Tx_Idle()==0);                            //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+               //Delay_ms(1);
+               LATC0_bit = 0;                                         //Establece el Max485 en modo de lectura
             }
 
             if (BanP==1){
                if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
-                  if ((Rspt[1]==TP)&&(Rspt[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
+                  if ((Rspt[1]==TP)&&(Rspt[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
                       for (ir=3;ir<5;ir++){
                         *(ptrTT2+(ir-3)) = Rspt[ir];               //Asigna a TT2 los datos tomados de la trama de peticion
                       }
 
                       BanP = 0;
-                      ir=0;                                     //Limpia el subindice de la trama de peticion
+                      ir=0;                                        //Limpia el subindice de la trama de peticion
                   }
                }
             }

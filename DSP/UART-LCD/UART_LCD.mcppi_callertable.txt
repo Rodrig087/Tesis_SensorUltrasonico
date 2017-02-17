@@ -20,6 +20,8 @@ main
 				Delay_5500us
 				Delay_50us
 	UART1_Write
+	UART_Tx_Idle
+		____DoIFC
 	IntToStr
 		WordToStr
 			Div_16X16_U
