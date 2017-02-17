@@ -654,6 +654,7 @@ double2int
 double2longint
 double2longword
 double2word
+dst
 dt1
 dt1_bit
 dt2
@@ -1384,7 +1385,7 @@ pstr2con
 pstr3con
 pstrcon
 ptcn
-ptrtt2
+ptrdst
 pvcfg0
 pvcfg0_bit
 pvcfg1
@@ -1903,7 +1904,6 @@ t1soscen
 t1soscen_bit
 t1sync
 t1sync_bit
-t2
 t2ckps0
 t2ckps0_bit
 t2ckps1
@@ -2202,7 +2202,6 @@ trmt1
 trmt1_bit
 trmt2
 trmt2_bit
-tt2
 tun0
 tun0_bit
 tun1

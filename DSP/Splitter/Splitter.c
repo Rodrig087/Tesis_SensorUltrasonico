@@ -9,25 +9,25 @@ Descripcion:
 ---------------------------------------------------------------------------------------------------------------------------*/
 
 // LCD module connections
-sbit LCD_RS at RA0_bit;
-sbit LCD_EN at RA1_bit;
-sbit LCD_D4 at RA2_bit;
-sbit LCD_D5 at RA3_bit;
-sbit LCD_D6 at RA4_bit;
-sbit LCD_D7 at RA5_bit;
+sbit LCD_RS at RB0_bit;
+sbit LCD_EN at RB1_bit;
+sbit LCD_D4 at RB2_bit;
+sbit LCD_D5 at RB3_bit;
+sbit LCD_D6 at RB4_bit;
+sbit LCD_D7 at RB5_bit;
 
-sbit LCD_RS_Direction at TRISA0_bit;
-sbit LCD_EN_Direction at TRISA1_bit;
-sbit LCD_D4_Direction at TRISA2_bit;
-sbit LCD_D5_Direction at TRISA3_bit;
-sbit LCD_D6_Direction at TRISA4_bit;
-sbit LCD_D7_Direction at TRISA5_bit;
+sbit LCD_RS_Direction at TRISB0_bit;
+sbit LCD_EN_Direction at TRISB1_bit;
+sbit LCD_D4_Direction at TRISB2_bit;
+sbit LCD_D5_Direction at TRISB3_bit;
+sbit LCD_D6_Direction at TRISB4_bit;
+sbit LCD_D7_Direction at TRISB5_bit;
 // End LCD module connections
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la peticion y respuesta de datos
-short TP;                                               //Identificador de tipo de sensor
-short Id;                                               //Identificador de numero de esclavo
+const short TP = 0x01;                                  //Identificador de tipo de sensor
+const short Id = 0x07;                                  //Identificador de numero de esclavo
 const short Psize = 4;                                  //Constante de longitud de trama de Peticion
 const short Rsize = 6;                                  //Constante de longitud de trama de Respuesta
 const short Hdr = 0xEE;                                 //Constante de delimitador de inicio de trama
@@ -40,21 +40,19 @@ unsigned short BanP;
 //Variables para visualizar el dato en la LCD
 short Bb;
 char txt1[6];
-unsigned short  *ptrTT2;
-unsigned long TT2;
-unsigned int T2;
+unsigned short  *ptrDst;
+unsigned int Dst;
 
 void interrupt(void){
-
-     if(PIR1.F5==1){                                   //Verifica la bandera de interrupcion del Uart1
+     if(PIR1.F5==1){                                 //Verifica la bandera de interrupcion del Uart1
+        RA1_bit = ~RA1_bit;
         Rspt[ir] = UART1_Read();                     //Almacena los datos de entrada byte a byte en el buffer de peticion
-         ir++;
-         if (ir==Rsize){                              //Verifica que se haya terminado de llenar la trama de datos
-            BanP = 1;                                 //Habilita la bandera de lectura de datos
-         }
-         PIR1.F5 = 0;                                 //Limpia la bandera de interrupcion
+        ir++;
+        if (ir==Rsize){                              //Verifica que se haya terminado de llenar la trama de datos
+           BanP = 1;                                 //Habilita la bandera de lectura de datos
+        }
+        PIR1.F5 = 0;                              //Limpia la bandera de interrupcion
      }
-
 }
 
 // Configuracion //
@@ -64,12 +62,14 @@ void Configuracion(){
      ANSELB = 0;                                       //Configura el PORTB como digital
 
      TRISC5_bit = 0;                                   //Configura el pin C5 como salida
+     TRISA0_bit = 1;
      TRISA1_bit = 0;
 
      GIE_bit = 1;                                      //Habilita las interrupciones globales
      PEIE_bit = 1;                                     //Habilita las interrupciones perifericas
      RC1IE_bit = 1;                                    //Habilita la interrupcion en UART1 receive
      TX1IE_bit = 0;                                    //Desabilita la interrupcion en UART1 transmit
+     PIR1.F5 = 0;                                      //Limpia la bandera de interrupcion
 
      UART1_Init(9600);                                 //Inicializa el UART a 9600 bps
      Delay_ms(100);                                    //Espera para que el modulo UART se estabilice
@@ -85,7 +85,7 @@ void main() {
 
      Lcd_Out(1, 1, "Hello!");
      delay_ms(1);
-     ptrTT2 = &TT2;
+     ptrDst = &Dst;
 
      Ptcn[0]=Hdr;
      Ptcn[1]=Tp;
@@ -93,19 +93,51 @@ void main() {
      Ptcn[3]=End;
 
      Bb=0;
-     T2=0;
+     Dst=0;
 
      while (1){
+     
+           if ((RA0_bit==1)&&(Bb==0)){
+               Bb = 1;
+               for (ip=0;ip<Psize;ip++){
+                    UART1_WRITE(Ptcn[ip]);                          //Manda por Uart la trama de peticion
+               }
+               //while(UART_Tx_Idle()==0);                            //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+            }
 
-           T2 = 265;
-           IntToStr(T2,txt1);
+            if (BanP==1){
+               if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
+                  if ((Rspt[1]==TP)&&(Rspt[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
-           Lcd_Out(1, 1, "T2: ");
+                      for (ir=3;ir<5;ir++){
+                        *(ptrDst+(ir-3)) = Rspt[ir];               //Asigna a TT2 los datos tomados de la trama de peticion
+                      }
+                      for (ir=0;ir<(Rsize-1);ir++){
+                           Rspt[ir]=0;;                            //Limpia los bits de datos de la trama de respuesta
+                      }
+                      
+                      BanP = 0;
+                      ir=0;                                        //Limpia el subindice de la trama de peticion
+                      
+                  }
+               } else {
+               
+                      for (ir=0;ir<(Rsize-1);ir++){
+                           Rspt[ir]=0;;                            //Limpia los bits de datos de la trama de respuesta
+                      }
+                      BanP = 0;
+                      ir=0;
+               
+               }
+            }
+     
+           IntToStr(Dst,txt1);
+
+           Lcd_Out(1, 1, "T2");
            Lcd_Out(2,1,txt1);
 
-           RA1_bit = ~RA1_bit;
-
-           Delay_ms(20);
+           Delay_ms(10);
+           Bb = 0;
 
      }
 }

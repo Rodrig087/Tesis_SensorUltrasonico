@@ -26,10 +26,6 @@ main
 		_Compare_Le_Fp
 			_Compare_Fp
 	UART1_Write
-	UART_Tx_Idle
-		UART1_Read
-		UART1_Data_Ready
-		UART1_Tx_Idle
 UART1_Interrupt
 	UART1_Read
 Timer2Interrupt

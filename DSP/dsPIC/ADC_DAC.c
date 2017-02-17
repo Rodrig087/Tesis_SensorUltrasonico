@@ -351,7 +351,7 @@ void main() {
      
      UART1_Init(9600);                                           // Initialize UART module at 9600 bps
      Delay_ms(100);                                              // Wait for UART module to stabilize
-     RB5_bit = 0;                                                //Establece el Max485 en modo de lectura;
+     //RB5_bit = 0;                                                //Establece el Max485 en modo de lectura;
 
      TpId = (PORTB&0xFF00)>>8;
      TP = TpId>>4;
@@ -372,7 +372,7 @@ void main() {
                        Distancia();                              //Realiza un calculo de distancia
                        
                        for (ir=0;ir<Rsize;ir++){
-                           RB5_bit = 1;                          //Establece el Max485 en modo de escritura
+                           //RB5_bit = 1;                          //Establece el Max485 en modo de escritura
                            UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
                        }
                        for (ip=0;ip<Psize;ip++){
@@ -382,8 +382,8 @@ void main() {
                            Rspt[ip]=0;;                          //Limpia los bits de datos de la trama de respuesta
                        }
                        
-                       while(UART_Tx_Idle()==0);                 //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
-                       RB5_bit = 0;                              //Establece el Max485 en modo de lectura;
+                       //while(UART_Tx_Idle()==0);                 //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+                       //RB5_bit = 0;                              //Establece el Max485 en modo de lectura;
                        BanP = 0;
                        ip=0;                                     //Limpia el subindice de la trama de peticion
                        

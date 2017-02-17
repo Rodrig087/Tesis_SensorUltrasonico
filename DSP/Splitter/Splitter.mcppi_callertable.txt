@@ -19,6 +19,7 @@ main
 				Delay_1us
 				Delay_5500us
 				Delay_50us
+	UART1_Write
 	IntToStr
 		WordToStr
 			Div_16X16_U

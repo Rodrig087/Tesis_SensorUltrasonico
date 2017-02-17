@@ -338,7 +338,7 @@ void main() {
 
  UART1_Init(9600);
  Delay_ms(100);
- RB5_bit = 0;
+
 
  TpId = (PORTB&0xFF00)>>8;
  TP = TpId>>4;
@@ -359,7 +359,7 @@ void main() {
  Distancia();
 
  for (ir=0;ir<Rsize;ir++){
- RB5_bit = 1;
+
  UART1_Write(Rspt[ir]);
  }
  for (ip=0;ip<Psize;ip++){
@@ -369,8 +369,8 @@ void main() {
  Rspt[ip]=0;;
  }
 
- while(UART_Tx_Idle()==0);
- RB5_bit = 0;
+
+
  BanP = 0;
  ip=0;
 
