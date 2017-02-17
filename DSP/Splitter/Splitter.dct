@@ -598,6 +598,7 @@ dacr3
 dacr3_bit
 dacr4
 dacr4_bit
+dato
 dc
 dc_bit
 dc1b0
@@ -2270,6 +2271,7 @@ txsta
 txsta1
 txsta2
 txt1
+txt2
 ua
 ua_bit
 ua_ssp1stat_bit
