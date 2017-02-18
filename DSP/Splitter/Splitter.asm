@@ -41,7 +41,7 @@ L_interrupt1:
 L_interrupt0:
 ;Splitter.c,58 :: 		}
 L_end_interrupt:
-L__interrupt33:
+L__interrupt35:
 	RETFIE      1
 ; end of _interrupt
 
@@ -143,7 +143,7 @@ L_main3:
 	XORLW       0
 	BTFSS       STATUS+0, 2 
 	GOTO        L_main7
-L__main31:
+L__main33:
 ;Splitter.c,103 :: 		Bb = 1;
 	MOVLW       1
 	MOVWF       _Bb+0 
@@ -177,37 +177,48 @@ L_main8:
 ;Splitter.c,106 :: 		}
 	GOTO        L_main8
 L_main9:
-;Splitter.c,108 :: 		}
+;Splitter.c,107 :: 		Dst = 0;
+	CLRF        _Dst+0 
+	CLRF        _Dst+1 
+;Splitter.c,109 :: 		} else if (RA0_bit==0){
+	GOTO        L_main11
 L_main7:
-;Splitter.c,110 :: 		if (BanP==1){
+	BTFSC       RA0_bit+0, BitPos(RA0_bit+0) 
+	GOTO        L_main12
+;Splitter.c,110 :: 		Bb = 0;
+	CLRF        _Bb+0 
+;Splitter.c,111 :: 		}
+L_main12:
+L_main11:
+;Splitter.c,113 :: 		if (BanP==1){
 	MOVF        _BanP+0, 0 
 	XORLW       1
 	BTFSS       STATUS+0, 2 
-	GOTO        L_main11
-;Splitter.c,111 :: 		if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
+	GOTO        L_main13
+;Splitter.c,114 :: 		if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
 	MOVF        _Rspt+0, 0 
 	XORLW       238
 	BTFSS       STATUS+0, 2 
-	GOTO        L_main14
+	GOTO        L_main16
 	MOVF        _Rspt+5, 0 
 	XORLW       255
 	BTFSS       STATUS+0, 2 
-	GOTO        L_main14
-L__main30:
-;Splitter.c,112 :: 		if ((Rspt[1]==TP)&&(Rspt[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
+	GOTO        L_main16
+L__main32:
+;Splitter.c,115 :: 		if ((Rspt[1]==TP)&&(Rspt[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
 	MOVF        _Rspt+1, 0 
 	XORLW       1
 	BTFSS       STATUS+0, 2 
-	GOTO        L_main17
+	GOTO        L_main19
 	MOVF        _Rspt+2, 0 
 	XORLW       7
 	BTFSS       STATUS+0, 2 
-	GOTO        L_main17
-L__main29:
-;Splitter.c,114 :: 		for (ir=3;ir<5;ir++){
+	GOTO        L_main19
+L__main31:
+;Splitter.c,117 :: 		for (ir=3;ir<5;ir++){
 	MOVLW       3
 	MOVWF       _ir+0 
-L_main18:
+L_main20:
 	MOVLW       128
 	XORWF       _ir+0, 0 
 	MOVWF       R0 
@@ -215,8 +226,8 @@ L_main18:
 	XORLW       5
 	SUBWF       R0, 0 
 	BTFSC       STATUS+0, 0 
-	GOTO        L_main19
-;Splitter.c,115 :: 		*(ptrDst+(ir-3)) = Rspt[ir];               //Asigna a TT2 los datos tomados de la trama de peticion
+	GOTO        L_main21
+;Splitter.c,118 :: 		*(ptrDst+(ir-3)) = Rspt[ir];               //Asigna a TT2 los datos tomados de la trama de peticion
 	MOVLW       3
 	SUBWF       _ir+0, 0 
 	MOVWF       R0 
@@ -244,51 +255,14 @@ L_main18:
 	ADDWFC      FSR0H, 1 
 	MOVF        POSTINC0+0, 0 
 	MOVWF       POSTINC1+0 
-;Splitter.c,114 :: 		for (ir=3;ir<5;ir++){
-	INCF        _ir+0, 1 
-;Splitter.c,116 :: 		}
-	GOTO        L_main18
-L_main19:
-;Splitter.c,117 :: 		for (ir=0;ir<(Rsize-1);ir++){
-	CLRF        _ir+0 
-L_main21:
-	MOVLW       128
-	XORWF       _ir+0, 0 
-	MOVWF       R0 
-	MOVLW       128
-	XORLW       5
-	SUBWF       R0, 0 
-	BTFSC       STATUS+0, 0 
-	GOTO        L_main22
-;Splitter.c,118 :: 		Rspt[ir]=0;;                            //Limpia los bits de datos de la trama de respuesta
-	MOVLW       _Rspt+0
-	MOVWF       FSR1 
-	MOVLW       hi_addr(_Rspt+0)
-	MOVWF       FSR1H 
-	MOVF        _ir+0, 0 
-	ADDWF       FSR1, 1 
-	MOVLW       0
-	BTFSC       _ir+0, 7 
-	MOVLW       255
-	ADDWFC      FSR1H, 1 
-	CLRF        POSTINC1+0 
-;Splitter.c,117 :: 		for (ir=0;ir<(Rsize-1);ir++){
+;Splitter.c,117 :: 		for (ir=3;ir<5;ir++){
 	INCF        _ir+0, 1 
 ;Splitter.c,119 :: 		}
-	GOTO        L_main21
-L_main22:
-;Splitter.c,121 :: 		BanP = 0;
-	CLRF        _BanP+0 
-;Splitter.c,122 :: 		ir=0;                                        //Limpia el subindice de la trama de peticion
+	GOTO        L_main20
+L_main21:
+;Splitter.c,120 :: 		for (ir=0;ir<(Rsize-1);ir++){
 	CLRF        _ir+0 
-;Splitter.c,124 :: 		}
-L_main17:
-;Splitter.c,125 :: 		} else {
-	GOTO        L_main24
-L_main14:
-;Splitter.c,127 :: 		for (ir=0;ir<(Rsize-1);ir++){
-	CLRF        _ir+0 
-L_main25:
+L_main23:
 	MOVLW       128
 	XORWF       _ir+0, 0 
 	MOVWF       R0 
@@ -296,8 +270,8 @@ L_main25:
 	XORLW       5
 	SUBWF       R0, 0 
 	BTFSC       STATUS+0, 0 
-	GOTO        L_main26
-;Splitter.c,128 :: 		Rspt[ir]=0;;                            //Limpia los bits de datos de la trama de respuesta
+	GOTO        L_main24
+;Splitter.c,121 :: 		Rspt[ir]=0;;                            //Limpia los bits de datos de la trama de respuesta
 	MOVLW       _Rspt+0
 	MOVWF       FSR1 
 	MOVLW       hi_addr(_Rspt+0)
@@ -309,20 +283,57 @@ L_main25:
 	MOVLW       255
 	ADDWFC      FSR1H, 1 
 	CLRF        POSTINC1+0 
-;Splitter.c,127 :: 		for (ir=0;ir<(Rsize-1);ir++){
+;Splitter.c,120 :: 		for (ir=0;ir<(Rsize-1);ir++){
 	INCF        _ir+0, 1 
-;Splitter.c,129 :: 		}
-	GOTO        L_main25
-L_main26:
-;Splitter.c,130 :: 		BanP = 0;
-	CLRF        _BanP+0 
-;Splitter.c,131 :: 		ir=0;
-	CLRF        _ir+0 
-;Splitter.c,133 :: 		}
+;Splitter.c,122 :: 		}
+	GOTO        L_main23
 L_main24:
-;Splitter.c,134 :: 		}
-L_main11:
-;Splitter.c,136 :: 		IntToStr(Dst,txt1);
+;Splitter.c,124 :: 		BanP = 0;
+	CLRF        _BanP+0 
+;Splitter.c,125 :: 		ir=0;                                        //Limpia el subindice de la trama de peticion
+	CLRF        _ir+0 
+;Splitter.c,127 :: 		}
+L_main19:
+;Splitter.c,128 :: 		} else {
+	GOTO        L_main26
+L_main16:
+;Splitter.c,130 :: 		for (ir=0;ir<(Rsize-1);ir++){
+	CLRF        _ir+0 
+L_main27:
+	MOVLW       128
+	XORWF       _ir+0, 0 
+	MOVWF       R0 
+	MOVLW       128
+	XORLW       5
+	SUBWF       R0, 0 
+	BTFSC       STATUS+0, 0 
+	GOTO        L_main28
+;Splitter.c,131 :: 		Rspt[ir]=0;;                            //Limpia los bits de datos de la trama de respuesta
+	MOVLW       _Rspt+0
+	MOVWF       FSR1 
+	MOVLW       hi_addr(_Rspt+0)
+	MOVWF       FSR1H 
+	MOVF        _ir+0, 0 
+	ADDWF       FSR1, 1 
+	MOVLW       0
+	BTFSC       _ir+0, 7 
+	MOVLW       255
+	ADDWFC      FSR1H, 1 
+	CLRF        POSTINC1+0 
+;Splitter.c,130 :: 		for (ir=0;ir<(Rsize-1);ir++){
+	INCF        _ir+0, 1 
+;Splitter.c,132 :: 		}
+	GOTO        L_main27
+L_main28:
+;Splitter.c,133 :: 		BanP = 0;
+	CLRF        _BanP+0 
+;Splitter.c,134 :: 		ir=0;
+	CLRF        _ir+0 
+;Splitter.c,136 :: 		}
+L_main26:
+;Splitter.c,137 :: 		}
+L_main13:
+;Splitter.c,139 :: 		IntToStr(Dst,txt1);
 	MOVF        _Dst+0, 0 
 	MOVWF       FARG_IntToStr_input+0 
 	MOVF        _Dst+1, 0 
@@ -332,7 +343,7 @@ L_main11:
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_IntToStr_output+1 
 	CALL        _IntToStr+0, 0
-;Splitter.c,138 :: 		Lcd_Out(1,1,"Distancia:");
+;Splitter.c,141 :: 		Lcd_Out(1,1,"Distancia:");
 	MOVLW       1
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -342,7 +353,7 @@ L_main11:
 	MOVLW       hi_addr(?lstr1_Splitter+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;Splitter.c,139 :: 		Lcd_Out(2,1,txt1);
+;Splitter.c,142 :: 		Lcd_Out(2,1,txt1);
 	MOVLW       2
 	MOVWF       FARG_Lcd_Out_row+0 
 	MOVLW       1
@@ -352,23 +363,21 @@ L_main11:
 	MOVLW       hi_addr(_txt1+0)
 	MOVWF       FARG_Lcd_Out_text+1 
 	CALL        _Lcd_Out+0, 0
-;Splitter.c,141 :: 		Delay_ms(20);
+;Splitter.c,144 :: 		Delay_ms(20);
 	MOVLW       52
 	MOVWF       R12, 0
 	MOVLW       241
 	MOVWF       R13, 0
-L_main28:
+L_main30:
 	DECFSZ      R13, 1, 1
-	BRA         L_main28
+	BRA         L_main30
 	DECFSZ      R12, 1, 1
-	BRA         L_main28
+	BRA         L_main30
 	NOP
 	NOP
-;Splitter.c,142 :: 		Bb = 0;
-	CLRF        _Bb+0 
-;Splitter.c,144 :: 		}
+;Splitter.c,146 :: 		}
 	GOTO        L_main3
-;Splitter.c,145 :: 		}
+;Splitter.c,147 :: 		}
 L_end_main:
 	GOTO        $+0
 ; end of _main

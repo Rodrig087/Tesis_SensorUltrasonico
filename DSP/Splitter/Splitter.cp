@@ -95,7 +95,10 @@ void main() {
  for (ip=0;ip<Psize;ip++){
  UART1_WRITE(Ptcn[ip]);
  }
+ Dst = 0;
 
+ } else if (RA0_bit==0){
+ Bb = 0;
  }
 
  if (BanP==1){
@@ -130,7 +133,6 @@ void main() {
  Lcd_Out(2,1,txt1);
 
  Delay_ms(20);
- Bb = 0;
 
  }
 }

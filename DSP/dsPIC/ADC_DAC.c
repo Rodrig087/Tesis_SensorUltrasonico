@@ -189,12 +189,12 @@ void Pulse(){
 
 //Funcion para el calculo de la distancia
 void Distancia(){
-     conts = 0;                               //Limpia el contador de secuencias
+     /*conts = 0;                               //Limpia el contador de secuencias
      T2sum = 0.0;
      T2prom = 0.0;
      T2a = 0.0;
      T2b = 0.0;
-     
+
      while (conts<Nsm){
            Pulse();                           //Inicia una secuencia de medicion
            T2b = T2;
@@ -209,22 +209,17 @@ void Distancia(){
 
      //Velocidad();                             //Calcula la velocidad del sonido
      VSnd = 343.2;
-     
+
      TOF = (T1+T2prom-T2adj)/2.0e6;           //Calcula el TOF en seg
-     Dst = VSnd * TOF * 1000.0;               //Calcula la distancia en mm
+     Dst = VSnd * TOF * 1000.0;               //Calcula la distancia en mm*/
+     
+     Dst = 345.5;
      IDst = (unsigned int)(Dst);              //Tranforma el dato de distancia de float a entero sin signo
      chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
 
      for (ip=3;ip<5;ip++){
          Rspt[ip]=(*chIDst++);                //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la distancia calculada
      }
-     
-      /*TT2 = T2prom * 100.0;
-      chTT2 = (unsigned char *) & TT2;
-
-      for (ip=(Rsize-2);ip>2;ip--){
-         Rspt[ip]=(*chTT2++);
-      }*/
      
 }
 
@@ -353,9 +348,12 @@ void main() {
      Delay_ms(100);                                              // Wait for UART module to stabilize
      //RB5_bit = 0;                                                //Establece el Max485 en modo de lectura;
 
-     TpId = (PORTB&0xFF00)>>8;
+     /*TpId = (PORTB&0xFF00)>>8;
      TP = TpId>>4;
-     Id = TPId&0xF;
+     Id = TPId&0xF;*/
+     
+     TP = 0x01;
+     Id = 0x07;
      
      Rspt[0] = Hdr;                                              //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
      Rspt[1] = Tp;                                               //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor

@@ -183,36 +183,15 @@ void Pulse(){
 
 
 void Distancia(){
- conts = 0;
- T2sum = 0.0;
- T2prom = 0.0;
- T2a = 0.0;
- T2b = 0.0;
-
- while (conts<Nsm){
- Pulse();
- T2b = T2;
- if ((T2b-T2a)<=T2umb){
- T2sum = T2sum + T2b;
- conts++;
- }
- T2a = T2b;
- }
-
- T2prom = T2sum/Nsm;
-
-
- VSnd = 343.2;
-
- TOF = (T1+T2prom-T2adj)/2.0e6;
- Dst = VSnd * TOF * 1000.0;
+#line 216 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+ Dst = 345.5;
  IDst = (unsigned int)(Dst);
  chIDst = (unsigned char *) & IDst;
 
  for (ip=3;ip<5;ip++){
  Rspt[ip]=(*chIDst++);
  }
-#line 229 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+
 }
 
 
@@ -338,11 +317,9 @@ void main() {
 
  UART1_Init(9600);
  Delay_ms(100);
-
-
- TpId = (PORTB&0xFF00)>>8;
- TP = TpId>>4;
- Id = TPId&0xF;
+#line 355 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+ TP = 0x01;
+ Id = 0x07;
 
  Rspt[0] = Hdr;
  Rspt[1] = Tp;

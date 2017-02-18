@@ -8,23 +8,7 @@ main
 		_Modulus_32x32
 		_Divide_32x32
 	Distancia
-		Pulse
-			Vector_Max
-			Vector_Min
-			_Long2Float
-			_Sub_FP
-				_AddSub_FP
-			_Mul_FP
-			_AddSub_FP
-			_Div_FP
-			_Float2Longint
-		_Div_FP
-		_AddSub_FP
-		_Sub_FP
-		_Mul_FP
 		_Float2Longint
-		_Compare_Le_Fp
-			_Compare_Fp
 	UART1_Write
 UART1_Interrupt
 	UART1_Read
