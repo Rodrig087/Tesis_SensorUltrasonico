@@ -29,7 +29,7 @@ sbit LCD_D7_Direction at TRISB0_bit;
 const short TP = 0x01;                                  //Identificador de tipo de sensor
 const short Id = 0x07;                                  //Identificador de numero de esclavo
 const short Psize = 4;                                  //Constante de longitud de trama de Peticion
-const short Rsize = 1;                                  //Constante de longitud de trama de Respuesta
+const short Rsize = 6;                                  //Constante de longitud de trama de Respuesta
 const short Hdr = 0xEE;                                 //Constante de delimitador de inicio de trama
 const short End = 0xFF;                                 //Constante de delimitador de final de trama
 unsigned char Ptcn[Psize];
@@ -47,15 +47,13 @@ unsigned int Dst;
 
 void interrupt(void){
      if(PIR1.F5==1){                                 //Verifica la bandera de interrupcion del Uart1
-        /*RA1_bit = ~RA1_bit;
+        RA1_bit = ~RA1_bit;
         Rspt[ir] = UART1_Read();                     //Almacena los datos de entrada byte a byte en el buffer de peticion
         ir++;
         if (ir==Rsize){                              //Verifica que se haya terminado de llenar la trama de datos
            BanP = 1;                                 //Habilita la bandera de lectura de datos
         }
-        PIR1.F5 = 0;*/                            //Limpia la bandera de interrupcion
-        dato = UART1_Read();
-        BanP = 1;
+        PIR1.F5 = 0;                            //Limpia la bandera de interrupcion
      }
 }
 
@@ -109,7 +107,7 @@ void main() {
                //while(UART_Tx_Idle()==0);                            //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
             }
 
-            /*if (BanP==1){
+            if (BanP==1){
                if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
                   if ((Rspt[1]==TP)&&(Rspt[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
@@ -133,12 +131,7 @@ void main() {
                       ir=0;
 
                }
-            }*/
-
-           if (BanP==1){
-               Dst = Dst+1;
-               BanP=0;
-           }
+            }
 
            IntToStr(Dst,txt1);
 

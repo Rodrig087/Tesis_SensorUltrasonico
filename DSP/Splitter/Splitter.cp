@@ -1,5 +1,5 @@
-#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/Splitter/Splitter.c"
-#line 12 "D:/Git/Tesis_SensorUltrasonico/DSP/Splitter/Splitter.c"
+#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Splitter/Splitter.c"
+#line 12 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Splitter/Splitter.c"
 sbit LCD_RS at RB5_bit;
 sbit LCD_EN at RB4_bit;
 sbit LCD_D4 at RB3_bit;
@@ -20,7 +20,7 @@ sbit LCD_D7_Direction at TRISB0_bit;
 const short TP = 0x01;
 const short Id = 0x07;
 const short Psize = 4;
-const short Rsize = 1;
+const short Rsize = 6;
 const short Hdr = 0xEE;
 const short End = 0xFF;
 unsigned char Ptcn[Psize];
@@ -38,9 +38,13 @@ unsigned int Dst;
 
 void interrupt(void){
  if(PIR1.F5==1){
-#line 57 "D:/Git/Tesis_SensorUltrasonico/DSP/Splitter/Splitter.c"
- dato = UART1_Read();
+ RA1_bit = ~RA1_bit;
+ Rspt[ir] = UART1_Read();
+ ir++;
+ if (ir==Rsize){
  BanP = 1;
+ }
+ PIR1.F5 = 0;
  }
 }
 
@@ -93,10 +97,31 @@ void main() {
  }
 
  }
-#line 138 "D:/Git/Tesis_SensorUltrasonico/DSP/Splitter/Splitter.c"
+
  if (BanP==1){
- Dst = Dst+1;
- BanP=0;
+ if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
+ if ((Rspt[1]==TP)&&(Rspt[2]==Id)){
+
+ for (ir=3;ir<5;ir++){
+ *(ptrDst+(ir-3)) = Rspt[ir];
+ }
+ for (ir=0;ir<(Rsize-1);ir++){
+ Rspt[ir]=0;;
+ }
+
+ BanP = 0;
+ ir=0;
+
+ }
+ } else {
+
+ for (ir=0;ir<(Rsize-1);ir++){
+ Rspt[ir]=0;;
+ }
+ BanP = 0;
+ ir=0;
+
+ }
  }
 
  IntToStr(Dst,txt1);
