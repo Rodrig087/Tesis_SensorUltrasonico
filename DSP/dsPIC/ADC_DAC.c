@@ -225,12 +225,15 @@ void Distancia(){
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
 //Interrupcion por recepcion de datos a travez de UART
-void UART1_Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
-     Ptcn[ip] = UART1_Read();                       //Almacena los datos de entrada byte a byte en el buffer de peticion
+void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
+     RB2_bit = ~RB2_bit;
+     OERR_bit = 0;                                  //Revisar
+     /*Ptcn[ip] = UART1_Read();                       //Almacena los datos de entrada byte a byte en el buffer de peticion
      ip++;
      if (ip==(Psize)){                            //Verifica que se haya terminado de llenar la trama de datos
         BanP = 1;                                   //Habilita la bandera de peticion de datos
-     }
+     }*/
+     BanP = 1;
      U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
 }
 
@@ -326,13 +329,14 @@ void Configuracion(){
 
       //Configuracion UART
      RPINR18bits.U1RXR = 0x07;                   //Asisgna Rx a RP12
-     RPOR3bits.RP6R = 0x03;                     //Asigna Tx a RP13
-     IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato po UART
+     RPOR3bits.RP6R = 0x03;                      //Asigna Tx a RP13
+     IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato por UART
+     U1RXIF_bit = 0;                             //Limpia la bandera de interrupcion de UARTRX
      
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
-     IPC0bits.T1IP = 0x07;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
-     IPC1bits.T2IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
-     IPC2bits.U1RXIP = 0x05;                     //Nivel de prioridad de la interrupcion UARTRX
+     IPC0bits.T1IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
+     IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
+     IPC2bits.U1RXIP = 0x07;                     //Nivel de prioridad de la interrupcion UARTRX
      
 
      
@@ -361,10 +365,15 @@ void main() {
      Rspt[Rsize-1] = End;                                        //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 
      while(1){
+               //BanP = 1;
+               Ptcn[0]=Hdr;
+               Ptcn[Psize-1]=End;
+               Ptcn[1]=Tp;
+               Ptcn[2]=Id;
 
               if (BanP==1){                                      //Verifica si se realizo una peticion
                  if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
-                    RB2_bit = ~RB2_bit;
+
                     if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
                        Distancia();                              //Realiza un calculo de distancia

@@ -196,12 +196,11 @@ void Distancia(){
 
 
 
-void UART1_Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
- Ptcn[ip] = UART1_Read();
- ip++;
- if (ip==(Psize)){
+void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
+ RB2_bit = ~RB2_bit;
+ OERR_bit = 0;
+#line 236 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  BanP = 1;
- }
  U1RXIF_bit = 0;
 }
 
@@ -299,11 +298,12 @@ void Configuracion(){
  RPINR18bits.U1RXR = 0x07;
  RPOR3bits.RP6R = 0x03;
  IEC0.U1RXIE = 1;
+ U1RXIF_bit = 0;
 
 
- IPC0bits.T1IP = 0x07;
- IPC1bits.T2IP = 0x06;
- IPC2bits.U1RXIP = 0x05;
+ IPC0bits.T1IP = 0x06;
+ IPC1bits.T2IP = 0x05;
+ IPC2bits.U1RXIP = 0x07;
 
 
 
@@ -317,7 +317,7 @@ void main() {
 
  UART1_Init(9600);
  Delay_ms(100);
-#line 355 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 359 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  TP = 0x01;
  Id = 0x07;
 
@@ -328,9 +328,14 @@ void main() {
 
  while(1){
 
+ Ptcn[0]=Hdr;
+ Ptcn[Psize-1]=End;
+ Ptcn[1]=Tp;
+ Ptcn[2]=Id;
+
  if (BanP==1){
  if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){
- RB2_bit = ~RB2_bit;
+
  if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){
 
  Distancia();

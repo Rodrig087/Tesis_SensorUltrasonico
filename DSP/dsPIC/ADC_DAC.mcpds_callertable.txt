@@ -10,7 +10,6 @@ main
 	Distancia
 		_Float2Longint
 	UART1_Write
-UART1_Interrupt
-	UART1_Read
+UART1Interrupt
 Timer2Interrupt
 Timer1Interrupt

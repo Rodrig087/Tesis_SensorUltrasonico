@@ -5815,12 +5815,12 @@ uart1
 uart1_data_ready
 uart1_init
 uart1_init_advanced
-uart1_interrupt
 uart1_read
 uart1_read_text
 uart1_tx_idle
 uart1_write
 uart1_write_text
+uart1interrupt
 uarten
 uarten
 uarten_bit
