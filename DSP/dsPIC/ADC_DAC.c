@@ -22,10 +22,10 @@ const short Hdr = 0xEE;                                 //Constante de delimitad
 const short End = 0xFF;                                 //Constante de delimitador de final de trama (0x0D)
 unsigned char Ptcn[Psize];                              //Trama de peticion
 unsigned char Rspt[Rsize];                              //Trama de respuesta
-short ir,ip;                                            //Subindices para las tramas de peticion y respuesta
-short BanP, BanT;                                             //Bandera de peticion de datos
+unsigned short ir, ip, ipp;                                            //Subindices para las tramas de peticion y respuesta
+unsigned short BanP, BanT;                                             //Bandera de peticion de datos
 const short Nsm=3;                                      //Numero maximo de secuencias de medicion
-unsigned char Dato;
+unsigned short Dato;
 
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
@@ -214,16 +214,14 @@ void Distancia(){
 
      TOF = (T1+T2prom-T2adj)/2.0e6;           //Calcula el TOF en seg
      Dst = VSnd * TOF * 1000.0;               //Calcula la distancia en mm
-
-     //Dst = 345.5;
      
      IDst = (unsigned int)(Dst);              //Tranforma el dato de distancia de float a entero sin signo
      chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
 
-     for (ip=3;ip<5;ip++){
-         Rspt[ip]=(*chIDst++);                //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la distancia calculada
+     for (ir=3;ir<5;ir++){
+         Rspt[ir]=(*chIDst++);                //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la distancia calculada
      }
-     Rb2_bit = 0;
+
 }
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
@@ -246,8 +244,8 @@ void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
      ip++;                                         //Aumenta el subindice una unidad
      if (ip==Psize){                               //Verifica que se haya terminado de llenar la trama de datos
          BanP = 1;                                 //Habilita la bandera de lectura de datos
+         BanT = 0;
          ip=0;                                     //Limpia el subindice de la trama de peticion para permitir una nueva secuencia de recepcion de datos
-         Rb2_bit = 1;
      }
      
      U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
@@ -256,7 +254,7 @@ void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
 
 //Interrupcion por desbordamiento del TMR1
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
-     RB1_bit = ~RB1_bit;
+
      SAMP_bit = 0;                                 //Limpia el bit SAMP para iniciar la conversion del ADC
      while (!AD1CON1bits.DONE);                    //Espera hasta que se complete la conversion
      if (i<nm){
@@ -374,6 +372,8 @@ void main() {
      TP = TpId>>4;
      Id = TPId&0xF;*/
      
+     ip=0;
+     
      TP = 0x01;
      Id = 0x07;
      
@@ -383,43 +383,34 @@ void main() {
      Rspt[Rsize-1] = End;                                        //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 
      while(1){
-               //BanP = 1;
-               Ptcn[0]=Hdr;
-               Ptcn[Psize-1]=End;
-               Ptcn[1]=Tp;
-               Ptcn[2]=Id;
 
               if (BanP==1){                                      //Verifica si se realizo una peticion
                  if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
-
                     if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
                        Distancia();                              //Realiza un calculo de distancia
-                       //UART1_Write(0xAA);
-                       //UART1_Write(0xEA);
+
                        for (ir=0;ir<Rsize;ir++){
                            //RB5_bit = 1;                          //Establece el Max485 en modo de escritura
                            UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
                        }
-                       for (ip=0;ip<Psize;ip++){
-                           Ptcn[ip]=0;                           //Limpia la trama de peticion
+                       for (ipp=0;ipp<Psize;ipp++){
+                           Ptcn[ipp]=0;                           //Limpia la trama de peticion
                        }
-                       for (ip=3;ip<5;ip++){
-                           Rspt[ip]=0;;                          //Limpia los bits de datos de la trama de respuesta
+                       for (ipp=3;ipp<5;ipp++){
+                           Rspt[ipp]=0;;                          //Limpia los bits de datos de la trama de respuesta
                        }
                        
                        //while(UART_Tx_Idle()==0);                 //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
                        //RB5_bit = 0;                              //Establece el Max485 en modo de lectura;
                        BanP = 0;
-                       ip=0;                                     //Limpia el subindice de la trama de peticion
                        
                     }
                  }else{
-                       for (ip=0;ip<Psize;ip++){
-                           Ptcn[ip]=0;                           //Limpia la trama de peticion
+                       for (ipp=0;ipp<Psize;ipp++){
+                           Ptcn[ipp]=0;                           //Limpia la trama de peticion
                        }
                        BanP = 0;
-                       ip=0;                                     //Limpia el subindice de la trama de peticion
                  }
               }
               
