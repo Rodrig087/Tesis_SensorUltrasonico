@@ -5,11 +5,11 @@ Configuracion: dsPIC P33FJ32MC202, XT=8MHz, PLL=80MHz
 Descripcion:
 1.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR (Fs=200KHz, T/2=650us)
-const float ca1 = 0.006745773600345;
-const float ca2 = 0.013491547200690;
-const float cb2 = -1.754594315763869;
-const float cb3 = 0.781577410165250;
+//Coeficientes filtro IIR (Fs=200KHz, T/2=1000us)
+const float ca1 = 0.004482805534581;
+const float ca2 = 0.008965611069163;
+const float cb2 = -1.801872917973333;
+const float cb3 = 0.819804140111658;
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la peticion y respuesta de datos
@@ -23,9 +23,9 @@ const short End = 0xFF;                                 //Constante de delimitad
 unsigned char Ptcn[Psize];                              //Trama de peticion
 unsigned char Rspt[Rsize];                              //Trama de respuesta
 short ir,ip;                                            //Subindices para las tramas de peticion y respuesta
-short BanP;                                             //Bandera de peticion de datos
+short BanP, BanT;                                             //Bandera de peticion de datos
 const short Nsm=3;                                      //Numero maximo de secuencias de medicion
-unsigned char dato;
+unsigned char Dato;
 
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
@@ -62,7 +62,7 @@ short conts;
 float T2a, T2b;
 const float T2umb = 3.0;
 const float T1 = 1375.0;
-const float T2adj = 185.0;            //Factor de calibracion de T2: Con Temp=20 Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
+const float T2adj = 479.0;            //Factor de calibracion de T2: Con Temp=20 Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
 float T2sum,T2prom;
 float T2, TOF, Dst;
 unsigned int IDst;
@@ -190,7 +190,8 @@ void Pulse(){
 
 //Funcion para el calculo de la distancia
 void Distancia(){
-     /*conts = 0;                               //Limpia el contador de secuencias
+
+     conts = 0;                               //Limpia el contador de secuencias
      T2sum = 0.0;
      T2prom = 0.0;
      T2a = 0.0;
@@ -208,37 +209,49 @@ void Distancia(){
 
      T2prom = T2sum/Nsm;
 
-     //Velocidad();                             //Calcula la velocidad del sonido
-     VSnd = 343.2;
+     Velocidad();                             //Calcula la velocidad del sonido
+     //VSnd = 343.2;
 
      TOF = (T1+T2prom-T2adj)/2.0e6;           //Calcula el TOF en seg
-     Dst = VSnd * TOF * 1000.0;               //Calcula la distancia en mm*/
+     Dst = VSnd * TOF * 1000.0;               //Calcula la distancia en mm
+
+     //Dst = 345.5;
      
-     Dst = 345.5;
      IDst = (unsigned int)(Dst);              //Tranforma el dato de distancia de float a entero sin signo
      chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
 
      for (ip=3;ip<5;ip++){
          Rspt[ip]=(*chIDst++);                //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la distancia calculada
      }
-     
+     Rb2_bit = 0;
 }
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
 //Interrupcion por recepcion de datos a travez de UART
 void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
-     RB2_bit = ~RB2_bit;
-     /*Ptcn[ip] = UART1_Read();                    //Almacena los datos de entrada byte a byte en el buffer de peticion
-     ip++;
-     if (ip==(Psize)){                             //Verifica que se haya terminado de llenar la trama de datos
-        BanP = 1;                                  //Habilita la bandera de peticion de datos
-     }*/
-     dato = UART1_Read();
-     BanP = 1;
-    /*if (U1STA.OERR==1){
-        U1STA.OERR = 0;                            //Revisar
-     }*/
+
+     Dato = UART1_Read();
+     
+     if ((Dato==Hdr)&&(ip==0)){                    //Verifica que el primer dato en llegar sea el identificador de inicio de trama
+         BanT = 1;                                 //Activa la bandera de trama
+         Ptcn[ip] = Dato;                          //Almacena el Dato en la trama de peticion
+     }
+     if ((Dato!=Hdr)&&(ip==0)){                    //Verifica si el primer dato en llegar es diferente al identificador del inicio de trama
+         ip=-1;                                    //Si es asi: reduce el subindice en una unidad
+     }
+     if ((BanT==1)&&(ip!=0)){
+         Ptcn[ip] = Dato;                          //Almacena el resto de datos en la trama de peticion si la bandera de trama esta activada
+     }
+     
+     ip++;                                         //Aumenta el subindice una unidad
+     if (ip==Psize){                               //Verifica que se haya terminado de llenar la trama de datos
+         BanP = 1;                                 //Habilita la bandera de lectura de datos
+         ip=0;                                     //Limpia el subindice de la trama de peticion para permitir una nueva secuencia de recepcion de datos
+         Rb2_bit = 1;
+     }
+     
      U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
+     
 }
 
 //Interrupcion por desbordamiento del TMR1
@@ -382,8 +395,8 @@ void main() {
                     if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
                        Distancia();                              //Realiza un calculo de distancia
-                       UART1_Write(0xAA);
-                       UART1_Write(0xEA);
+                       //UART1_Write(0xAA);
+                       //UART1_Write(0xEA);
                        for (ir=0;ir<Rsize;ir++){
                            //RB5_bit = 1;                          //Establece el Max485 en modo de escritura
                            UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
