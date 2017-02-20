@@ -342,7 +342,8 @@ void main() {
  if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){
 
  Distancia();
-
+ UART1_Write(0xAA);
+ UART1_Write(0xEA);
  for (ir=0;ir<Rsize;ir++){
 
  UART1_Write(Rspt[ir]);

@@ -994,7 +994,13 @@ L__main80:
 L__main52:
 ;ADC_DAC.c,384 :: 		Distancia();                              //Realiza un calculo de distancia
 	CALL	_Distancia
-;ADC_DAC.c,386 :: 		for (ir=0;ir<Rsize;ir++){
+;ADC_DAC.c,385 :: 		UART1_Write(0xAA);
+	MOV	#170, W10
+	CALL	_UART1_Write
+;ADC_DAC.c,386 :: 		UART1_Write(0xEA);
+	MOV	#234, W10
+	CALL	_UART1_Write
+;ADC_DAC.c,387 :: 		for (ir=0;ir<Rsize;ir++){
 	MOV	#lo_addr(_ir), W1
 	CLR	W0
 	MOV.B	W0, [W1]
@@ -1005,21 +1011,21 @@ L_main36:
 	BRA LT	L__main81
 	GOTO	L_main37
 L__main81:
-;ADC_DAC.c,388 :: 		UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
+;ADC_DAC.c,389 :: 		UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
 	MOV	#lo_addr(_ir), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_Rspt), W0
 	ADD	W0, W1, W0
 	ZE	[W0], W10
 	CALL	_UART1_Write
-;ADC_DAC.c,386 :: 		for (ir=0;ir<Rsize;ir++){
+;ADC_DAC.c,387 :: 		for (ir=0;ir<Rsize;ir++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ir), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,389 :: 		}
+;ADC_DAC.c,390 :: 		}
 	GOTO	L_main36
 L_main37:
-;ADC_DAC.c,390 :: 		for (ip=0;ip<Psize;ip++){
+;ADC_DAC.c,391 :: 		for (ip=0;ip<Psize;ip++){
 	MOV	#lo_addr(_ip), W1
 	CLR	W0
 	MOV.B	W0, [W1]
@@ -1030,21 +1036,21 @@ L_main39:
 	BRA LT	L__main82
 	GOTO	L_main40
 L__main82:
-;ADC_DAC.c,391 :: 		Ptcn[ip]=0;                           //Limpia la trama de peticion
+;ADC_DAC.c,392 :: 		Ptcn[ip]=0;                           //Limpia la trama de peticion
 	MOV	#lo_addr(_ip), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_Ptcn), W0
 	ADD	W0, W1, W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,390 :: 		for (ip=0;ip<Psize;ip++){
+;ADC_DAC.c,391 :: 		for (ip=0;ip<Psize;ip++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ip), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,392 :: 		}
+;ADC_DAC.c,393 :: 		}
 	GOTO	L_main39
 L_main40:
-;ADC_DAC.c,393 :: 		for (ip=3;ip<5;ip++){
+;ADC_DAC.c,394 :: 		for (ip=3;ip<5;ip++){
 	MOV	#lo_addr(_ip), W1
 	MOV.B	#3, W0
 	MOV.B	W0, [W1]
@@ -1055,37 +1061,37 @@ L_main42:
 	BRA LT	L__main83
 	GOTO	L_main43
 L__main83:
-;ADC_DAC.c,394 :: 		Rspt[ip]=0;;                          //Limpia los bits de datos de la trama de respuesta
+;ADC_DAC.c,395 :: 		Rspt[ip]=0;;                          //Limpia los bits de datos de la trama de respuesta
 	MOV	#lo_addr(_ip), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_Rspt), W0
 	ADD	W0, W1, W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,393 :: 		for (ip=3;ip<5;ip++){
+;ADC_DAC.c,394 :: 		for (ip=3;ip<5;ip++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ip), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,395 :: 		}
+;ADC_DAC.c,396 :: 		}
 	GOTO	L_main42
 L_main43:
-;ADC_DAC.c,399 :: 		BanP = 0;
+;ADC_DAC.c,400 :: 		BanP = 0;
 	MOV	#lo_addr(_BanP), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,400 :: 		ip=0;                                     //Limpia el subindice de la trama de peticion
+;ADC_DAC.c,401 :: 		ip=0;                                     //Limpia el subindice de la trama de peticion
 	MOV	#lo_addr(_ip), W1
 	CLR	W0
 	MOV.B	W0, [W1]
 ;ADC_DAC.c,382 :: 		if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 L__main55:
 L__main54:
-;ADC_DAC.c,403 :: 		}else{
+;ADC_DAC.c,404 :: 		}else{
 	GOTO	L_main45
 ;ADC_DAC.c,380 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
 L__main57:
 L__main56:
-;ADC_DAC.c,404 :: 		for (ip=0;ip<Psize;ip++){
+;ADC_DAC.c,405 :: 		for (ip=0;ip<Psize;ip++){
 	MOV	#lo_addr(_ip), W1
 	CLR	W0
 	MOV.B	W0, [W1]
@@ -1096,33 +1102,33 @@ L_main46:
 	BRA LT	L__main84
 	GOTO	L_main47
 L__main84:
-;ADC_DAC.c,405 :: 		Ptcn[ip]=0;                           //Limpia la trama de peticion
+;ADC_DAC.c,406 :: 		Ptcn[ip]=0;                           //Limpia la trama de peticion
 	MOV	#lo_addr(_ip), W0
 	SE	[W0], W1
 	MOV	#lo_addr(_Ptcn), W0
 	ADD	W0, W1, W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,404 :: 		for (ip=0;ip<Psize;ip++){
+;ADC_DAC.c,405 :: 		for (ip=0;ip<Psize;ip++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ip), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,406 :: 		}
+;ADC_DAC.c,407 :: 		}
 	GOTO	L_main46
 L_main47:
-;ADC_DAC.c,407 :: 		BanP = 0;
+;ADC_DAC.c,408 :: 		BanP = 0;
 	MOV	#lo_addr(_BanP), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,408 :: 		ip=0;                                     //Limpia el subindice de la trama de peticion
+;ADC_DAC.c,409 :: 		ip=0;                                     //Limpia el subindice de la trama de peticion
 	MOV	#lo_addr(_ip), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,409 :: 		}
-L_main45:
 ;ADC_DAC.c,410 :: 		}
+L_main45:
+;ADC_DAC.c,411 :: 		}
 L_main29:
-;ADC_DAC.c,414 :: 		Delay_ms(10);
+;ADC_DAC.c,415 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
 L_main49:
@@ -1130,9 +1136,9 @@ L_main49:
 	BRA NZ	L_main49
 	DEC	W8
 	BRA NZ	L_main49
-;ADC_DAC.c,416 :: 		}
+;ADC_DAC.c,417 :: 		}
 	GOTO	L_main27
-;ADC_DAC.c,418 :: 		}
+;ADC_DAC.c,419 :: 		}
 L_end_main:
 	POP	W11
 	POP	W10

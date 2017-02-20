@@ -181,6 +181,7 @@ b6
 b7
 banked
 banp
+bant
 baud1con
 baud2con
 baudcon
@@ -895,6 +896,7 @@ irng0
 irng0_bit
 irng1
 irng1_bit
+irr
 irvst
 irvst_bit
 itrim0

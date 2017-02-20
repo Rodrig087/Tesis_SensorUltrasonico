@@ -34,9 +34,9 @@ const short Hdr = 0xEE;                                 //Constante de delimitad
 const short End = 0xFF;                                 //Constante de delimitador de final de trama
 unsigned char Ptcn[Psize];
 unsigned char Rspt[Rsize];
-short ir,ip,j;                                          //Subindices para las tramas de peticion y respuesta
-unsigned short BanP;
-unsigned short dato;
+short ir, irr, ip, j;                                          //Subindices para las tramas de peticion y respuesta
+unsigned short BanP, BanT;
+unsigned short Dato;
 
 //Variables para visualizar el dato en la LCD
 short Bb;
@@ -46,16 +46,28 @@ unsigned short  *ptrDst;
 unsigned int Dst;
 
 void interrupt(void){
-     if(PIR1.F5==1){                                 //Verifica la bandera de interrupcion del Uart1
-       /*RA1_bit = ~RA1_bit;
-        Rspt[ir] = UART1_Read();                     //Almacena los datos de entrada byte a byte en el buffer de peticion
-        ir++;
+     if(PIR1.F5==1){
+
+        Dato = UART1_Read();
+        
+        if ((Dato==Hdr)&&(ir==0)){                   //Verifica que el primer dato en llegar sea el identificador de inicio de trama
+           BanT = 1;                                 //Activa una bandera de trama
+           Rspt[ir] = Dato;                          //Almacena el Dato en la trama de respuesta
+        }
+        if ((Dato!=Hdr)&&(ir==0)){                   //Verifica si el primer dato en llegar es diferente al identificador del inicio de trama
+           ir=-1;                                    //Si es asi, reduce el subindice en una unidad
+        }
+        if ((BanT==1)&&(ir!=0)){
+           Rspt[ir] = Dato;                          //Almacena el resto de datos en la trama de respuesta si la bandera de trama esta activada
+        }
+        
+        ir++;                                        //Aumenta el subindice una unidad
         if (ir==Rsize){                              //Verifica que se haya terminado de llenar la trama de datos
            BanP = 1;                                 //Habilita la bandera de lectura de datos
-        }*/
-        dato = UART1_Read();
-        BanP=1;
-        PIR1.F5 = 0;                            //Limpia la bandera de interrupcion
+           ir=0;                                     //Limpia el subindice de la trama de peticion para permitir una nueva secuencia de recepcion de datos
+        }
+        
+        PIR1.F5 = 0;                                 //Limpia la bandera de interrupcion
      }
 }
 
@@ -112,35 +124,27 @@ void main() {
                Bb = 0;
             }
 
-            /*if (BanP==1){
+            if (BanP==1){
                if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
                   if ((Rspt[1]==TP)&&(Rspt[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
-                      for (ir=3;ir<5;ir++){
-                        *(ptrDst+(ir-3)) = Rspt[ir];               //Asigna a TT2 los datos tomados de la trama de peticion
+                      for (irr=3;irr<5;irr++){
+                        *(ptrDst+(irr-3)) = Rspt[irr];               //Asigna a TT2 los datos tomados de la trama de peticion
                       }
-                      for (ir=0;ir<(Rsize-1);ir++){
-                           Rspt[ir]=0;;                            //Limpia los bits de datos de la trama de respuesta
+                      for (irr=0;irr<(Rsize-1);irr++){
+                           Rspt[irr]=0;;                            //Limpia los bits de datos de la trama de respuesta
                       }
-
                       BanP = 0;
-                      ir=0;                                        //Limpia el subindice de la trama de peticion
 
                   }
                } else {
 
-                      for (ir=0;ir<(Rsize-1);ir++){
-                           Rspt[ir]=0;;                            //Limpia los bits de datos de la trama de respuesta
+                      for (irr=0;irr<(Rsize-1);irr++){
+                           Rspt[irr]=0;;                            //Limpia los bits de datos de la trama de respuesta
                       }
                       BanP = 0;
-                      ir=0;
 
                }
-            }*/
-            
-            if (BanP==1){
-               Dst = Dst+1;
-               BanP=0;
             }
             
 

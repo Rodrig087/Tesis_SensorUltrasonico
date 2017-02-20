@@ -25,9 +25,9 @@ const short Hdr = 0xEE;
 const short End = 0xFF;
 unsigned char Ptcn[Psize];
 unsigned char Rspt[Rsize];
-short ir,ip,j;
-unsigned short BanP;
-unsigned short dato;
+short ir, irr, ip, j;
+unsigned short BanP, BanT;
+unsigned short Dato;
 
 
 short Bb;
@@ -38,9 +38,26 @@ unsigned int Dst;
 
 void interrupt(void){
  if(PIR1.F5==1){
-#line 56 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Splitter/Splitter.c"
- dato = UART1_Read();
- BanP=1;
+
+ Dato = UART1_Read();
+
+ if ((Dato==Hdr)&&(ir==0)){
+ BanT = 1;
+ Rspt[ir] = Dato;
+ }
+ if ((Dato!=Hdr)&&(ir==0)){
+ ir=-1;
+ }
+ if ((BanT==1)&&(ir!=0)){
+ Rspt[ir] = Dato;
+ }
+
+ ir++;
+ if (ir==Rsize){
+ BanP = 1;
+ ir=0;
+ }
+
  PIR1.F5 = 0;
  }
 }
@@ -97,10 +114,28 @@ void main() {
  } else if (RA0_bit==0){
  Bb = 0;
  }
-#line 141 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Splitter/Splitter.c"
+
  if (BanP==1){
- Dst = Dst+1;
- BanP=0;
+ if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
+ if ((Rspt[1]==TP)&&(Rspt[2]==Id)){
+
+ for (irr=3;irr<5;irr++){
+ *(ptrDst+(irr-3)) = Rspt[irr];
+ }
+ for (irr=0;irr<(Rsize-1);irr++){
+ Rspt[irr]=0;;
+ }
+ BanP = 0;
+
+ }
+ } else {
+
+ for (irr=0;irr<(Rsize-1);irr++){
+ Rspt[irr]=0;;
+ }
+ BanP = 0;
+
+ }
  }
 
 

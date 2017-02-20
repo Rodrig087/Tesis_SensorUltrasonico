@@ -382,7 +382,8 @@ void main() {
                     if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
                        Distancia();                              //Realiza un calculo de distancia
-                       
+                       UART1_Write(0xAA);
+                       UART1_Write(0xEA);
                        for (ir=0;ir<Rsize;ir++){
                            //RB5_bit = 1;                          //Establece el Max485 en modo de escritura
                            UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
