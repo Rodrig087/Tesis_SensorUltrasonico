@@ -19,6 +19,7 @@ unsigned char Rspt[Rsize];
 short ir,ip;
 short BanP;
 const short Nsm=3;
+unsigned char dato;
 
 
 unsigned int contp;
@@ -183,7 +184,7 @@ void Pulse(){
 
 
 void Distancia(){
-#line 216 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 217 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  Dst = 345.5;
  IDst = (unsigned int)(Dst);
  chIDst = (unsigned char *) & IDst;
@@ -198,9 +199,10 @@ void Distancia(){
 
 void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
  RB2_bit = ~RB2_bit;
- OERR_bit = 0;
 #line 236 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+ dato = UART1_Read();
  BanP = 1;
+#line 241 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  U1RXIF_bit = 0;
 }
 
@@ -301,6 +303,7 @@ void Configuracion(){
  U1RXIF_bit = 0;
 
 
+
  IPC0bits.T1IP = 0x06;
  IPC1bits.T2IP = 0x05;
  IPC2bits.U1RXIP = 0x07;
@@ -317,7 +320,7 @@ void main() {
 
  UART1_Init(9600);
  Delay_ms(100);
-#line 359 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 364 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  TP = 0x01;
  Id = 0x07;
 

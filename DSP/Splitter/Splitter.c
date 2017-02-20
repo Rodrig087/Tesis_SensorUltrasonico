@@ -47,12 +47,14 @@ unsigned int Dst;
 
 void interrupt(void){
      if(PIR1.F5==1){                                 //Verifica la bandera de interrupcion del Uart1
-        RA1_bit = ~RA1_bit;
+       /*RA1_bit = ~RA1_bit;
         Rspt[ir] = UART1_Read();                     //Almacena los datos de entrada byte a byte en el buffer de peticion
         ir++;
         if (ir==Rsize){                              //Verifica que se haya terminado de llenar la trama de datos
            BanP = 1;                                 //Habilita la bandera de lectura de datos
-        }
+        }*/
+        dato = UART1_Read();
+        BanP=1;
         PIR1.F5 = 0;                            //Limpia la bandera de interrupcion
      }
 }
@@ -110,7 +112,7 @@ void main() {
                Bb = 0;
             }
 
-            if (BanP==1){
+            /*if (BanP==1){
                if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
                   if ((Rspt[1]==TP)&&(Rspt[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
@@ -134,7 +136,13 @@ void main() {
                       ir=0;
 
                }
+            }*/
+            
+            if (BanP==1){
+               Dst = Dst+1;
+               BanP=0;
             }
+            
 
            IntToStr(Dst,txt1);
 

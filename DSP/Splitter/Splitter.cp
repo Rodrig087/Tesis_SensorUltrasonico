@@ -38,12 +38,9 @@ unsigned int Dst;
 
 void interrupt(void){
  if(PIR1.F5==1){
- RA1_bit = ~RA1_bit;
- Rspt[ir] = UART1_Read();
- ir++;
- if (ir==Rsize){
- BanP = 1;
- }
+#line 56 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Splitter/Splitter.c"
+ dato = UART1_Read();
+ BanP=1;
  PIR1.F5 = 0;
  }
 }
@@ -100,32 +97,12 @@ void main() {
  } else if (RA0_bit==0){
  Bb = 0;
  }
-
+#line 141 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Splitter/Splitter.c"
  if (BanP==1){
- if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
- if ((Rspt[1]==TP)&&(Rspt[2]==Id)){
-
- for (ir=3;ir<5;ir++){
- *(ptrDst+(ir-3)) = Rspt[ir];
- }
- for (ir=0;ir<(Rsize-1);ir++){
- Rspt[ir]=0;;
+ Dst = Dst+1;
+ BanP=0;
  }
 
- BanP = 0;
- ir=0;
-
- }
- } else {
-
- for (ir=0;ir<(Rsize-1);ir++){
- Rspt[ir]=0;;
- }
- BanP = 0;
- ir=0;
-
- }
- }
 
  IntToStr(Dst,txt1);
 

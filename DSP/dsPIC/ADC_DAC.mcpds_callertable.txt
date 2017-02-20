@@ -11,5 +11,6 @@ main
 		_Float2Longint
 	UART1_Write
 UART1Interrupt
+	UART1_Read
 Timer2Interrupt
 Timer1Interrupt

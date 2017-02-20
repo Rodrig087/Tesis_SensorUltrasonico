@@ -25,6 +25,7 @@ unsigned char Rspt[Rsize];                              //Trama de respuesta
 short ir,ip;                                            //Subindices para las tramas de peticion y respuesta
 short BanP;                                             //Bandera de peticion de datos
 const short Nsm=3;                                      //Numero maximo de secuencias de medicion
+unsigned char dato;
 
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
@@ -227,13 +228,16 @@ void Distancia(){
 //Interrupcion por recepcion de datos a travez de UART
 void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
      RB2_bit = ~RB2_bit;
-     OERR_bit = 0;                                  //Revisar
-     /*Ptcn[ip] = UART1_Read();                       //Almacena los datos de entrada byte a byte en el buffer de peticion
+     /*Ptcn[ip] = UART1_Read();                    //Almacena los datos de entrada byte a byte en el buffer de peticion
      ip++;
-     if (ip==(Psize)){                            //Verifica que se haya terminado de llenar la trama de datos
-        BanP = 1;                                   //Habilita la bandera de peticion de datos
+     if (ip==(Psize)){                             //Verifica que se haya terminado de llenar la trama de datos
+        BanP = 1;                                  //Habilita la bandera de peticion de datos
      }*/
+     dato = UART1_Read();
      BanP = 1;
+    /*if (U1STA.OERR==1){
+        U1STA.OERR = 0;                            //Revisar
+     }*/
      U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
 }
 
@@ -332,6 +336,7 @@ void Configuracion(){
      RPOR3bits.RP6R = 0x03;                      //Asigna Tx a RP13
      IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato por UART
      U1RXIF_bit = 0;                             //Limpia la bandera de interrupcion de UARTRX
+     //U1STAbits.URXISEL = 0x11;
      
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
      IPC0bits.T1IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
