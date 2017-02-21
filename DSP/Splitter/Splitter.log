@@ -2,12 +2,12 @@
 hint: 0	1139	Available RAM: 1515 [bytes], Available ROM: 32768 [bytes]	 
 diagnostics: 0	122	Compilation Started	Splitter.c
 warning: 92	1509	Generated baud rate is 9615 bps (error = 0.16 percent)	Splitter.c
-warning: 104	1505	Suspicious pointer conversion	Splitter.c
-diagnostics: 159	123	Compiled Successfully	Splitter.c
-diagnostics: 0	127	All files Compiled in 109 ms	 
+warning: 105	1505	Suspicious pointer conversion	Splitter.c
+diagnostics: 162	123	Compiled Successfully	Splitter.c
+diagnostics: 0	127	All files Compiled in 141 ms	 
 hint: 0	1144	Used RAM (bytes): 82 (5%)  Free RAM (bytes): 1433 (95%)	Used RAM (bytes): 82 (5%)  Free RAM (bytes): 1433 (95%)
-hint: 0	1144	Used ROM (bytes): 1656 (5%)  Free ROM (bytes): 31112 (95%)	Used ROM (bytes): 1656 (5%)  Free ROM (bytes): 31112 (95%)
+hint: 0	1144	Used ROM (bytes): 1766 (5%)  Free ROM (bytes): 31002 (95%)	Used ROM (bytes): 1766 (5%)  Free ROM (bytes): 31002 (95%)
 diagnostics: 0	125	Project Linked Successfully	Splitter.mcppi
 diagnostics: 0	128	Linked in 94 ms	 
-diagnostics: 0	129	Project 'Splitter.mcppi' completed: 281 ms	 
-diagnostics: 0	103	Finished successfully: 20 feb. 2017, 04:08:31	Splitter.mcppi
+diagnostics: 0	129	Project 'Splitter.mcppi' completed: 297 ms	 
+diagnostics: 0	103	Finished successfully: 20 feb. 2017, 18:14:35	Splitter.mcppi

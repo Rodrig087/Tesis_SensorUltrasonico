@@ -48,6 +48,10 @@ main
 		_Float2Longint
 		_Compare_Le_Fp
 	UART1_Write
+	UART_Tx_Idle
+		UART1_Read
+		UART1_Data_Ready
+		UART1_Tx_Idle
 UART1Interrupt
 	UART1_Read
 Timer2Interrupt

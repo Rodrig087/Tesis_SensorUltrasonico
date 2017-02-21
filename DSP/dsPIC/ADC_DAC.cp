@@ -360,6 +360,7 @@ void main() {
 
  UART1_Init(9600);
  Delay_ms(100);
+ RB5_bit = 0;
 #line 375 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  ip=0;
 
@@ -380,7 +381,7 @@ void main() {
  Distancia();
 
  for (ir=0;ir<Rsize;ir++){
-
+ RB5_bit = 1;
  UART1_Write(Rspt[ir]);
  }
  for (ipp=0;ipp<Psize;ipp++){
@@ -390,8 +391,8 @@ void main() {
  Rspt[ipp]=0;;
  }
 
-
-
+ while(UART_Tx_Idle()==0);
+ RB5_bit = 0;
  BanP = 0;
 
  }

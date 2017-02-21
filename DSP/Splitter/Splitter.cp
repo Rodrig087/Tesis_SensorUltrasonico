@@ -91,6 +91,7 @@ void Configuracion(){
 void main() {
 
  Configuracion();
+ RC5_bit = 0;
 
  ptrDst = &Dst;
 
@@ -106,11 +107,13 @@ void main() {
 
  if ((RA0_bit==1)&&(Bb==0)){
  Bb = 1;
+ RC5_bit = 1;
  for (ip=0;ip<Psize;ip++){
  UART1_WRITE(Ptcn[ip]);
  }
  Dst = 0;
-
+ while(UART_Tx_Idle()==0);
+ RC5_bit = 0;
  } else if (RA0_bit==0){
  Bb = 0;
  }

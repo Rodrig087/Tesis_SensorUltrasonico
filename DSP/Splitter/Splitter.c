@@ -100,6 +100,7 @@ void Configuracion(){
 void main() {
 
      Configuracion();
+     RC5_bit = 0;                                                   //Establece el Max485 en modo de lectura;
 
      ptrDst = &Dst;
 
@@ -115,11 +116,13 @@ void main() {
 
            if ((RA0_bit==1)&&(Bb==0)){
                Bb = 1;
+               RC5_bit = 1;                                         //Establece el Max485 en modo de escritura
                for (ip=0;ip<Psize;ip++){
                     UART1_WRITE(Ptcn[ip]);                          //Manda por Uart la trama de peticion
                }
                Dst = 0;
-               //while(UART_Tx_Idle()==0);                            //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+               while(UART_Tx_Idle()==0);                            //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+               RC5_bit = 0;                                         //Establece el Max485 en modo de lectura;
             } else if (RA0_bit==0){
                Bb = 0;
             }
