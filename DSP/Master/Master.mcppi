@@ -6,7 +6,7 @@ Value=0
 [BUILD_TYPE]
 Value=0
 [ACTIVE_TAB]
-Value=Splitter.c
+Value=Master.c
 [USE_EEPROM]
 Value=0
 [USE_HEAP]
@@ -17,15 +17,14 @@ Value=0
 Value=
 [FILES]
 Count=1
-File0=Splitter.c
+File0=Master.c
 [BINARIES]
 Count=0
 [IMAGES]
 Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
-Count=1
-File0=Splitter.c
+Count=0
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
@@ -36,7 +35,7 @@ Count=0
 Count=3
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
-Path2=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\Splitter\
+Path2=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\Master\
 [HEADER_PATH]
 Count=0
 [HEADERS]
@@ -45,11 +44,11 @@ Count=0
 Count=0
 [Useses]
 Count=5
-File0=Conversions
-File1=C_String
-File2=Lcd
-File3=Lcd_Constants
-File4=UART
+File0=UART
+File1=Lcd
+File2=Lcd_Constants
+File3=Conversions
+File4=C_String
 [EXPANDED_NODES]
 Node0=Sources
 Count=1
