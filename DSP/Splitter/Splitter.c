@@ -28,6 +28,7 @@ unsigned short ByRspt, ByPtcn;                          //Bytes de peticion y re
 void interrupt(void){
 //Interrupcion UART1
      if(PIR1.F5==1){
+        RC5_bit = 0;                               //Establece el Max485-1 en modo de lectura;
         ByPtcn = UART1_Read();                     //Lee el byte de peticion
         if ((ByPtcn==Hdr)&&(ip==0)){               //Verifica que el primer dato en llegar sea el identificador de inicio de trama
            BanAP = 1;                              //Activa la bandera de almacenamiento de trama de peticion
@@ -49,6 +50,7 @@ void interrupt(void){
      }
 //Interrupcion UART2
      if (PIR3.F5==1){
+        RB5_bit = 0;                               //Establece el Max485-2 en modo de lectura;
         ByRspt = UART2_Read();                     //Lee el byte de respuesta
         if ((ByRspt==Hdr)&&(ir==0)){               //Verifica que el primer dato en llegar sea el identificador de inicio de trama
            BanAR = 1;                              //Activa la bandera de almacenamiento de trama de respuesta
@@ -100,6 +102,8 @@ void Configuracion(){
 void main() {
 
      Configuracion();
+     RC5_bit = 0;                                                   //Establece el Max485-1 en modo de lectura;
+     RB5_bit = 0;                                                   //Establece el Max485-2 en modo de lectura;
      ip=0;
      ir=0;
 
@@ -109,12 +113,19 @@ void main() {
                if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){           //Verifica que el primer y el ultimo elemento de la trama correspondan a los delimitadores de inicio y fin de trama
                   if ((Ptcn[1]==TP)&&(Ptcn[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
 
+                     RB5_bit = 1;                                   //Establece el Max485-2 en modo de escritura
+                     
                      for (ipp=0;ipp<(Psize);ipp++){
                           UART2_Write(Ptcn[ipp]);                   //Reenvia la trama de peticion a travez del UART2
                      }
+                     
+                     while(UART2_Tx_Idle()==0);                     //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+                     RB5_bit = 0;                                   //Establece el Max485-2 en modo de lectura;
+                     
                      for (ipp=0;ipp<(Psize);ipp++){
                           Ptcn[ipp]=0;;                             //Limpia la trama de peticion
                      }
+                     
                      BanLP = 0;                                     //Limpia la bandera de lectura de la trama de peticion
                      
                   }
@@ -123,6 +134,7 @@ void main() {
                       for (ipp=0;ipp<(Psize-1);ipp++){
                            Ptcn[ipp]=0;;                            //Limpia la trama de peticion
                       }
+                      
                       BanLP = 0;                                    //Limpia la bandera de lectura de la trama de peticion
 
                }
@@ -132,13 +144,20 @@ void main() {
             if (BanLR==1){                                          //Verifica la bandera de lectura de la trama de respuesta
                if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){           //Verifica que el primer y el ultimo elemento de la trama correspondan a los delimitadores de inicio y fin de trama
                   if ((Rspt[1]==TP)&&(Rspt[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
-
+                      
+                      RC5_bit = 1;                                  //Establece el Max485-1 en modo de escritura
+                      
                       for (irr=0;irr<(Rsize);irr++){
                            UART1_Write(Rspt[irr]);                  //Reenvia la trama de respuesta a travez del UART1
                       }
+                      
+                      while(UART1_Tx_Idle()==0);                     //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+                      RC5_bit = 0;                                   //Establece el Max485-2 en modo de lectura;
+                      
                       for (irr=0;irr<(Rsize);irr++){
                            Rspt[irr]=0;;                            //Limpia la trama de respuesta
                       }
+                      
                       BanLR = 0;                                    //Limpia la bandera de lectura de la trama de respuesta
 
                   }

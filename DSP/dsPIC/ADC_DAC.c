@@ -394,6 +394,9 @@ void main() {
                        for (ir=0;ir<Rsize;ir++){
                            UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
                        }
+                       while(UART1_Tx_Idle()==0);                 //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+                       RB5_bit = 0;                              //Establece el Max485 en modo de lectura;
+                       
                        for (ipp=0;ipp<Psize;ipp++){
                            Ptcn[ipp]=0;                           //Limpia la trama de peticion
                        }
@@ -401,8 +404,6 @@ void main() {
                            Rspt[ipp]=0;;                          //Limpia los bits de datos de la trama de respuesta
                        }
                        
-                       while(UART_Tx_Idle()==0);                 //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
-                       RB5_bit = 0;                              //Establece el Max485 en modo de lectura;
                        BanP = 0;
                        
                     }

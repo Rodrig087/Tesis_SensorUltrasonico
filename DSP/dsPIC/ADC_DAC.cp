@@ -380,10 +380,13 @@ void main() {
 
  Distancia();
 
- for (ir=0;ir<Rsize;ir++){
  RB5_bit = 1;
+ for (ir=0;ir<Rsize;ir++){
  UART1_Write(Rspt[ir]);
  }
+ while(UART1_Tx_Idle()==0);
+ RB5_bit = 0;
+
  for (ipp=0;ipp<Psize;ipp++){
  Ptcn[ipp]=0;
  }
@@ -391,8 +394,6 @@ void main() {
  Rspt[ipp]=0;;
  }
 
- while(UART_Tx_Idle()==0);
- RB5_bit = 0;
  BanP = 0;
 
  }

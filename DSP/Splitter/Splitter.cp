@@ -18,6 +18,7 @@ unsigned short ByRspt, ByPtcn;
 void interrupt(void){
 
  if(PIR1.F5==1){
+ RC5_bit = 0;
  ByPtcn = UART1_Read();
  if ((ByPtcn==Hdr)&&(ip==0)){
  BanAP = 1;
@@ -39,6 +40,7 @@ void interrupt(void){
  }
 
  if (PIR3.F5==1){
+ RB5_bit = 0;
  ByRspt = UART2_Read();
  if ((ByRspt==Hdr)&&(ir==0)){
  BanAR = 1;
@@ -90,6 +92,8 @@ void Configuracion(){
 void main() {
 
  Configuracion();
+ RC5_bit = 0;
+ RB5_bit = 0;
  ip=0;
  ir=0;
 
@@ -99,12 +103,19 @@ void main() {
  if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){
  if ((Ptcn[1]==TP)&&(Ptcn[2]==Id)){
 
+ RB5_bit = 1;
+
  for (ipp=0;ipp<(Psize);ipp++){
  UART2_Write(Ptcn[ipp]);
  }
+
+ while(UART2_Tx_Idle()==0);
+ RB5_bit = 0;
+
  for (ipp=0;ipp<(Psize);ipp++){
  Ptcn[ipp]=0;;
  }
+
  BanLP = 0;
 
  }
@@ -113,6 +124,7 @@ void main() {
  for (ipp=0;ipp<(Psize-1);ipp++){
  Ptcn[ipp]=0;;
  }
+
  BanLP = 0;
 
  }
@@ -123,12 +135,19 @@ void main() {
  if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
  if ((Rspt[1]==TP)&&(Rspt[2]==Id)){
 
+ RC5_bit = 1;
+
  for (irr=0;irr<(Rsize);irr++){
  UART1_Write(Rspt[irr]);
  }
+
+ while(UART1_Tx_Idle()==0);
+ RC5_bit = 0;
+
  for (irr=0;irr<(Rsize);irr++){
  Rspt[irr]=0;;
  }
+
  BanLR = 0;
 
  }
