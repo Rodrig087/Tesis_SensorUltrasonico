@@ -73,18 +73,18 @@ void Velocidad(){
  unsigned int Rint;
  float Rfrac;
 
- Ow_Reset(&PORTA, 1);
- Ow_Write(&PORTA, 1, 0xCC);
- Ow_Write(&PORTA, 1, 0x44);
+ Ow_Reset(&PORTA, 0);
+ Ow_Write(&PORTA, 0, 0xCC);
+ Ow_Write(&PORTA, 0, 0x44);
  Delay_us(100);
 
- Ow_Reset(&PORTA, 1);
- Ow_Write(&PORTA, 1, 0xCC);
- Ow_Write(&PORTA, 1, 0xBE);
+ Ow_Reset(&PORTA, 0);
+ Ow_Write(&PORTA, 0, 0xCC);
+ Ow_Write(&PORTA, 0, 0xBE);
  Delay_us(100);
 
- Temp = Ow_Read(&PORTA, 1);
- Temp = (Ow_Read(&PORTA, 1) << 8) + Temp;
+ Temp = Ow_Read(&PORTA, 0);
+ Temp = (Ow_Read(&PORTA, 0) << 8) + Temp;
 
  if (Temp & 0x8000) {
  Temp = 0;
@@ -294,9 +294,8 @@ void Configuracion(){
  CLKDIVbits.PLLPOST = 0;
 
 
- AD1PCFGL = 0xFFFE;
- TRISA0_bit = 1;
- TRISA4_bit = 1;
+ AD1PCFGL = 0xFFFD;
+ TRISA1_bit = 1;
  TRISB = 0xFF80;
 
 
@@ -317,7 +316,11 @@ void Configuracion(){
  AD1CON3bits.ADCS = 0x02;
  AD1CON3bits.SAMC = 0x02;
 
- AD1CHS0 = 0;
+ AD1CHS0.CH0NB = 0;
+ AD1CHS0bits.CH0SB = 0x01;
+ AD1CHS0.CH0NA = 0;
+ AD1CHS0bits.CH0SA = 0x01;
+
  AD1CHS123 = 0;
 
  AD1CSSL = 0x00;
@@ -361,7 +364,7 @@ void main() {
  UART1_Init(9600);
  Delay_ms(100);
  RB5_bit = 0;
-#line 375 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 378 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  ip=0;
 
  TP = 0x01;

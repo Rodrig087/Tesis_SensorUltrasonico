@@ -3,21 +3,21 @@ _Velocidad:
 	LNK	#4
 
 ;ADC_DAC.c,77 :: 		void Velocidad(){
-;ADC_DAC.c,82 :: 		Ow_Reset(&PORTA, 1);                          //Onewire reset signal
+;ADC_DAC.c,82 :: 		Ow_Reset(&PORTA, 0);                          //Onewire reset signal
 	PUSH	W10
 	PUSH	W11
 	PUSH	W12
-	MOV	#1, W11
+	CLR	W11
 	MOV	#lo_addr(PORTA), W10
 	CALL	_Ow_Reset
-;ADC_DAC.c,83 :: 		Ow_Write(&PORTA, 1, 0xCC);                    //Issue command SKIP_ROM
+;ADC_DAC.c,83 :: 		Ow_Write(&PORTA, 0, 0xCC);                    //Issue command SKIP_ROM
 	MOV.B	#204, W12
-	MOV	#1, W11
+	CLR	W11
 	MOV	#lo_addr(PORTA), W10
 	CALL	_Ow_Write
-;ADC_DAC.c,84 :: 		Ow_Write(&PORTA, 1, 0x44);                    //Issue command CONVERT_T
+;ADC_DAC.c,84 :: 		Ow_Write(&PORTA, 0, 0x44);                    //Issue command CONVERT_T
 	MOV.B	#68, W12
-	MOV	#1, W11
+	CLR	W11
 	MOV	#lo_addr(PORTA), W10
 	CALL	_Ow_Write
 ;ADC_DAC.c,85 :: 		Delay_us(100);
@@ -26,18 +26,18 @@ L_Velocidad0:
 	DEC	W7
 	BRA NZ	L_Velocidad0
 	NOP
-;ADC_DAC.c,87 :: 		Ow_Reset(&PORTA, 1);
-	MOV	#1, W11
+;ADC_DAC.c,87 :: 		Ow_Reset(&PORTA, 0);
+	CLR	W11
 	MOV	#lo_addr(PORTA), W10
 	CALL	_Ow_Reset
-;ADC_DAC.c,88 :: 		Ow_Write(&PORTA, 1, 0xCC);                    //Issue command SKIP_ROM
+;ADC_DAC.c,88 :: 		Ow_Write(&PORTA, 0, 0xCC);                    //Issue command SKIP_ROM
 	MOV.B	#204, W12
-	MOV	#1, W11
+	CLR	W11
 	MOV	#lo_addr(PORTA), W10
 	CALL	_Ow_Write
-;ADC_DAC.c,89 :: 		Ow_Write(&PORTA, 1, 0xBE);                    //Issue command READ_SCRATCHPAD
+;ADC_DAC.c,89 :: 		Ow_Write(&PORTA, 0, 0xBE);                    //Issue command READ_SCRATCHPAD
 	MOV.B	#190, W12
-	MOV	#1, W11
+	CLR	W11
 	MOV	#lo_addr(PORTA), W10
 	CALL	_Ow_Write
 ;ADC_DAC.c,90 :: 		Delay_us(100);
@@ -46,14 +46,14 @@ L_Velocidad2:
 	DEC	W7
 	BRA NZ	L_Velocidad2
 	NOP
-;ADC_DAC.c,92 :: 		Temp =  Ow_Read(&PORTA, 1);
-	MOV	#1, W11
+;ADC_DAC.c,92 :: 		Temp =  Ow_Read(&PORTA, 0);
+	CLR	W11
 	MOV	#lo_addr(PORTA), W10
 	CALL	_Ow_Read
 ; Temp start address is: 10 (W5)
 	ZE	W0, W5
-;ADC_DAC.c,93 :: 		Temp = (Ow_Read(&PORTA, 1) << 8) + Temp;
-	MOV	#1, W11
+;ADC_DAC.c,93 :: 		Temp = (Ow_Read(&PORTA, 0) << 8) + Temp;
+	CLR	W11
 	MOV	#lo_addr(PORTA), W10
 	CALL	_Ow_Read
 	ZE	W0, W0
@@ -927,55 +927,53 @@ _Configuracion:
 	AND.B	W1, W0, W1
 	MOV	#lo_addr(CLKDIVbits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,303 :: 		AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
-	MOV	#65534, W0
+;ADC_DAC.c,303 :: 		AD1PCFGL = 0xFFFD;                          //Configura el puerto AN1 como entrada analogica y todas las demas como digitales
+	MOV	#65533, W0
 	MOV	WREG, AD1PCFGL
-;ADC_DAC.c,304 :: 		TRISA0_bit = 1;                             //Set RA0 pin as input
-	BSET	TRISA0_bit, BitPos(TRISA0_bit+0)
-;ADC_DAC.c,305 :: 		TRISA4_bit = 1;                             //Set RA4 pin as input
-	BSET	TRISA4_bit, BitPos(TRISA4_bit+0)
-;ADC_DAC.c,306 :: 		TRISB = 0xFF80;                             //TRISB = 11111111 10000000
+;ADC_DAC.c,304 :: 		TRISA1_bit = 1;                             //Establece el pin RA1 como entrada
+	BSET	TRISA1_bit, BitPos(TRISA1_bit+0)
+;ADC_DAC.c,305 :: 		TRISB = 0xFF80;                             //TRISB = 11111111 10000000
 	MOV	#65408, W0
 	MOV	WREG, TRISB
-;ADC_DAC.c,309 :: 		AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
+;ADC_DAC.c,308 :: 		AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
 	BCLR	AD1CON1, #10
-;ADC_DAC.c,310 :: 		AD1CON1bits.FORM = 0x00;                    //Formato de la canversion: 00->(0_1023)|01->(-512_511)|02->(0_0.999)|03->(-1_0.999)
+;ADC_DAC.c,309 :: 		AD1CON1bits.FORM = 0x00;                    //Formato de la canversion: 00->(0_1023)|01->(-512_511)|02->(0_0.999)|03->(-1_0.999)
 	MOV	AD1CON1bits, W1
 	MOV	#64767, W0
 	AND	W1, W0, W0
 	MOV	WREG, AD1CON1bits
-;ADC_DAC.c,311 :: 		AD1CON1.SIMSAM = 0;                         //0 -> Muestrea múltiples canales individualmente en secuencia
+;ADC_DAC.c,310 :: 		AD1CON1.SIMSAM = 0;                         //0 -> Muestrea múltiples canales individualmente en secuencia
 	BCLR	AD1CON1, #3
-;ADC_DAC.c,312 :: 		AD1CON1.ADSIDL = 0;                         //Continua con la operacion del modulo durante el modo desocupado
+;ADC_DAC.c,311 :: 		AD1CON1.ADSIDL = 0;                         //Continua con la operacion del modulo durante el modo desocupado
 	BCLR	AD1CON1, #13
-;ADC_DAC.c,313 :: 		AD1CON1.ASAM = 1;                           //Muestreo automatico
+;ADC_DAC.c,312 :: 		AD1CON1.ASAM = 1;                           //Muestreo automatico
 	BSET	AD1CON1, #2
-;ADC_DAC.c,314 :: 		AD1CON1bits.SSRC = 0x00;                    //Conversion manual
+;ADC_DAC.c,313 :: 		AD1CON1bits.SSRC = 0x00;                    //Conversion manual
 	MOV	#lo_addr(AD1CON1bits), W0
 	MOV.B	[W0], W1
 	MOV.B	#31, W0
 	AND.B	W1, W0, W1
 	MOV	#lo_addr(AD1CON1bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,316 :: 		AD1CON2bits.VCFG = 0;                       //Selecciona AVDD y AVSS como fuentes de voltaje de referencia
+;ADC_DAC.c,315 :: 		AD1CON2bits.VCFG = 0;                       //Selecciona AVDD y AVSS como fuentes de voltaje de referencia
 	MOV	AD1CON2bits, W1
 	MOV	#8191, W0
 	AND	W1, W0, W0
 	MOV	WREG, AD1CON2bits
-;ADC_DAC.c,317 :: 		AD1CON2bits.CHPS = 0;                       //Selecciona unicamente el canal CH0
+;ADC_DAC.c,316 :: 		AD1CON2bits.CHPS = 0;                       //Selecciona unicamente el canal CH0
 	MOV	AD1CON2bits, W1
 	MOV	#64767, W0
 	AND	W1, W0, W0
 	MOV	WREG, AD1CON2bits
-;ADC_DAC.c,318 :: 		AD1CON2.CSCNA = 0;                          //No escanea las entradas de CH0 durante la Muestra A
+;ADC_DAC.c,317 :: 		AD1CON2.CSCNA = 0;                          //No escanea las entradas de CH0 durante la Muestra A
 	BCLR	AD1CON2, #10
-;ADC_DAC.c,319 :: 		AD1CON2.BUFM = 0;                           //Bit de selección del modo de relleno del búfer, 0 -> Siempre comienza a llenar el buffer desde el principio
+;ADC_DAC.c,318 :: 		AD1CON2.BUFM = 0;                           //Bit de selección del modo de relleno del búfer, 0 -> Siempre comienza a llenar el buffer desde el principio
 	BCLR	AD1CON2, #1
-;ADC_DAC.c,320 :: 		AD1CON2.ALTS = 0x00;                        //Utiliza siempre la selección de entrada de canal para la muestra A
+;ADC_DAC.c,319 :: 		AD1CON2.ALTS = 0x00;                        //Utiliza siempre la selección de entrada de canal para la muestra A
 	BCLR	AD1CON2, #0
-;ADC_DAC.c,322 :: 		AD1CON3.ADRC = 0;                           //Selecciona el reloj de conversion del ADC derivado del reloj del sistema
+;ADC_DAC.c,321 :: 		AD1CON3.ADRC = 0;                           //Selecciona el reloj de conversion del ADC derivado del reloj del sistema
 	BCLR	AD1CON3, #15
-;ADC_DAC.c,323 :: 		AD1CON3bits.ADCS = 0x02;                    //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
+;ADC_DAC.c,322 :: 		AD1CON3bits.ADCS = 0x02;                    //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
 	MOV.B	#2, W0
 	MOV.B	W0, W1
 	MOV	#lo_addr(AD1CON3bits), W0
@@ -986,7 +984,7 @@ _Configuracion:
 	XOR.B	W1, [W0], W1
 	MOV	#lo_addr(AD1CON3bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,324 :: 		AD1CON3bits.SAMC = 0x02;                    //Auto Sample Time bits, 2 -> 2*TAD (minimo periodo de muestreo para 10 bits)
+;ADC_DAC.c,323 :: 		AD1CON3bits.SAMC = 0x02;                    //Auto Sample Time bits, 2 -> 2*TAD (minimo periodo de muestreo para 10 bits)
 	MOV	#512, W0
 	MOV	W0, W1
 	MOV	#lo_addr(AD1CON3bits), W0
@@ -996,35 +994,57 @@ _Configuracion:
 	MOV	#lo_addr(AD1CON3bits), W0
 	XOR	W1, [W0], W1
 	MOV	W1, AD1CON3bits
-;ADC_DAC.c,326 :: 		AD1CHS0 = 0;                                //ADC1 INPUT CHANNEL 0 SELECT REGISTER
-	CLR	AD1CHS0
-;ADC_DAC.c,327 :: 		AD1CHS123 = 0;                              //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
+;ADC_DAC.c,325 :: 		AD1CHS0.CH0NB = 0;                          //Channel 0 negative input is VREF-
+	BCLR	AD1CHS0, #15
+;ADC_DAC.c,326 :: 		AD1CHS0bits.CH0SB = 0x01;                   //Channel 0 positive input is AN1
+	MOV	#256, W0
+	MOV	W0, W1
+	MOV	#lo_addr(AD1CHS0bits), W0
+	XOR	W1, [W0], W1
+	MOV	#7936, W0
+	AND	W1, W0, W1
+	MOV	#lo_addr(AD1CHS0bits), W0
+	XOR	W1, [W0], W1
+	MOV	W1, AD1CHS0bits
+;ADC_DAC.c,327 :: 		AD1CHS0.CH0NA = 0;                          //Channel 0 negative input is VREF-
+	BCLR	AD1CHS0, #7
+;ADC_DAC.c,328 :: 		AD1CHS0bits.CH0SA = 0x01;                   //Channel 0 positive input is AN1
+	MOV.B	#1, W0
+	MOV.B	W0, W1
+	MOV	#lo_addr(AD1CHS0bits), W0
+	XOR.B	W1, [W0], W1
+	AND.B	W1, #31, W1
+	MOV	#lo_addr(AD1CHS0bits), W0
+	XOR.B	W1, [W0], W1
+	MOV	#lo_addr(AD1CHS0bits), W0
+	MOV.B	W1, [W0]
+;ADC_DAC.c,330 :: 		AD1CHS123 = 0;                              //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
 	CLR	AD1CHS123
-;ADC_DAC.c,329 :: 		AD1CSSL = 0x00;                             //Se salta todos los puertos ANx para los escaneos de entrada
+;ADC_DAC.c,332 :: 		AD1CSSL = 0x00;                             //Se salta todos los puertos ANx para los escaneos de entrada
 	CLR	AD1CSSL
-;ADC_DAC.c,331 :: 		AD1CON1.ADON = 1;                           //Enciende el modulo ADC
+;ADC_DAC.c,334 :: 		AD1CON1.ADON = 1;                           //Enciende el modulo ADC
 	BSET	AD1CON1, #15
-;ADC_DAC.c,334 :: 		T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
+;ADC_DAC.c,337 :: 		T1CON = 0x8000;                             //Habilita el TMR1, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
 	MOV	#32768, W0
 	MOV	WREG, T1CON
-;ADC_DAC.c,335 :: 		IEC0.T1IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR1 desabilitada para no interferir con la lectura del sensor de temperatura
+;ADC_DAC.c,338 :: 		IEC0.T1IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR1 desabilitada para no interferir con la lectura del sensor de temperatura
 	BCLR	IEC0, #3
-;ADC_DAC.c,336 :: 		T1IF_bit = 0;                               //Limpia la bandera de interrupcion
+;ADC_DAC.c,339 :: 		T1IF_bit = 0;                               //Limpia la bandera de interrupcion
 	BCLR	T1IF_bit, BitPos(T1IF_bit+0)
-;ADC_DAC.c,337 :: 		PR1 = 200;                                  //Genera una interrupcion cada 5us (Fs=200KHz)
+;ADC_DAC.c,340 :: 		PR1 = 200;                                  //Genera una interrupcion cada 5us (Fs=200KHz)
 	MOV	#200, W0
 	MOV	WREG, PR1
-;ADC_DAC.c,340 :: 		T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
+;ADC_DAC.c,343 :: 		T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
 	MOV	#32768, W0
 	MOV	WREG, T2CON
-;ADC_DAC.c,341 :: 		IEC0.T2IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR2 desabilitada para no interferir con la lectura del sensor de temperatura
+;ADC_DAC.c,344 :: 		IEC0.T2IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR2 desabilitada para no interferir con la lectura del sensor de temperatura
 	BCLR	IEC0, #7
-;ADC_DAC.c,342 :: 		T2IF_bit = 0;                               //Limpia la bandera de interrupcion
+;ADC_DAC.c,345 :: 		T2IF_bit = 0;                               //Limpia la bandera de interrupcion
 	BCLR	T2IF_bit, BitPos(T2IF_bit+0)
-;ADC_DAC.c,343 :: 		PR2 = 500;                                  //Genera una interrupcion cada 12.5us
+;ADC_DAC.c,346 :: 		PR2 = 500;                                  //Genera una interrupcion cada 12.5us
 	MOV	#500, W0
 	MOV	WREG, PR2
-;ADC_DAC.c,346 :: 		RPINR18bits.U1RXR = 0x07;                   //Asisgna Rx a RP12
+;ADC_DAC.c,349 :: 		RPINR18bits.U1RXR = 0x07;                   //Asisgna Rx a RP12
 	MOV.B	#7, W0
 	MOV.B	W0, W1
 	MOV	#lo_addr(RPINR18bits), W0
@@ -1034,7 +1054,7 @@ _Configuracion:
 	XOR.B	W1, [W0], W1
 	MOV	#lo_addr(RPINR18bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,347 :: 		RPOR3bits.RP6R = 0x03;                      //Asigna Tx a RP13
+;ADC_DAC.c,350 :: 		RPOR3bits.RP6R = 0x03;                      //Asigna Tx a RP13
 	MOV.B	#3, W0
 	MOV.B	W0, W1
 	MOV	#lo_addr(RPOR3bits), W0
@@ -1044,11 +1064,11 @@ _Configuracion:
 	XOR.B	W1, [W0], W1
 	MOV	#lo_addr(RPOR3bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,348 :: 		IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato por UART
+;ADC_DAC.c,351 :: 		IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato por UART
 	BSET	IEC0, #11
-;ADC_DAC.c,349 :: 		U1RXIF_bit = 0;                             //Limpia la bandera de interrupcion de UARTRX
+;ADC_DAC.c,352 :: 		U1RXIF_bit = 0;                             //Limpia la bandera de interrupcion de UARTRX
 	BCLR	U1RXIF_bit, BitPos(U1RXIF_bit+0)
-;ADC_DAC.c,353 :: 		IPC0bits.T1IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
+;ADC_DAC.c,356 :: 		IPC0bits.T1IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
 	MOV	#24576, W0
 	MOV	W0, W1
 	MOV	#lo_addr(IPC0bits), W0
@@ -1058,7 +1078,7 @@ _Configuracion:
 	MOV	#lo_addr(IPC0bits), W0
 	XOR	W1, [W0], W1
 	MOV	W1, IPC0bits
-;ADC_DAC.c,354 :: 		IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
+;ADC_DAC.c,357 :: 		IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
 	MOV	#20480, W0
 	MOV	W0, W1
 	MOV	#lo_addr(IPC1bits), W0
@@ -1068,12 +1088,12 @@ _Configuracion:
 	MOV	#lo_addr(IPC1bits), W0
 	XOR	W1, [W0], W1
 	MOV	W1, IPC1bits
-;ADC_DAC.c,355 :: 		IPC2bits.U1RXIP = 0x07;                     //Nivel de prioridad de la interrupcion UARTRX
+;ADC_DAC.c,358 :: 		IPC2bits.U1RXIP = 0x07;                     //Nivel de prioridad de la interrupcion UARTRX
 	MOV	IPC2bits, W1
 	MOV	#28672, W0
 	IOR	W1, W0, W0
 	MOV	WREG, IPC2bits
-;ADC_DAC.c,359 :: 		}
+;ADC_DAC.c,362 :: 		}
 L_end_Configuracion:
 	RETURN
 ; end of _Configuracion
@@ -1087,16 +1107,16 @@ _main:
 	MOV	#4, W0
 	IOR	68
 
-;ADC_DAC.c,363 :: 		void main() {
-;ADC_DAC.c,365 :: 		Configuracion();
+;ADC_DAC.c,366 :: 		void main() {
+;ADC_DAC.c,368 :: 		Configuracion();
 	PUSH	W10
 	PUSH	W11
 	CALL	_Configuracion
-;ADC_DAC.c,367 :: 		UART1_Init(9600);                                           // Initialize UART module at 9600 bps
+;ADC_DAC.c,370 :: 		UART1_Init(9600);                                           // Initialize UART module at 9600 bps
 	MOV	#9600, W10
 	MOV	#0, W11
 	CALL	_UART1_Init
-;ADC_DAC.c,368 :: 		Delay_ms(100);                                              // Wait for UART module to stabilize
+;ADC_DAC.c,371 :: 		Delay_ms(100);                                              // Wait for UART module to stabilize
 	MOV	#21, W8
 	MOV	#22619, W7
 L_main38:
@@ -1104,46 +1124,46 @@ L_main38:
 	BRA NZ	L_main38
 	DEC	W8
 	BRA NZ	L_main38
-;ADC_DAC.c,369 :: 		RB5_bit = 0;                                                //Establece el Max485 en modo de lectura;
+;ADC_DAC.c,372 :: 		RB5_bit = 0;                                                //Establece el Max485 en modo de lectura;
 	BCLR	RB5_bit, BitPos(RB5_bit+0)
-;ADC_DAC.c,375 :: 		ip=0;
+;ADC_DAC.c,378 :: 		ip=0;
 	MOV	#lo_addr(_ip), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,377 :: 		TP = 0x01;
+;ADC_DAC.c,380 :: 		TP = 0x01;
 	MOV	#lo_addr(_TP), W1
 	MOV.B	#1, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,378 :: 		Id = 0x07;
+;ADC_DAC.c,381 :: 		Id = 0x07;
 	MOV	#lo_addr(_Id), W1
 	MOV.B	#7, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,380 :: 		Rspt[0] = Hdr;                                              //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
+;ADC_DAC.c,383 :: 		Rspt[0] = Hdr;                                              //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
 	MOV	#lo_addr(_Rspt), W1
 	MOV.B	#238, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,381 :: 		Rspt[1] = Tp;                                               //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
+;ADC_DAC.c,384 :: 		Rspt[1] = Tp;                                               //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
 	MOV	#lo_addr(_Rspt+1), W1
 	MOV.B	#1, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,382 :: 		Rspt[2] = Id;                                               //Se rellena el tercer byte de la trama de repuesta con el Id de esclavo
+;ADC_DAC.c,385 :: 		Rspt[2] = Id;                                               //Se rellena el tercer byte de la trama de repuesta con el Id de esclavo
 	MOV	#lo_addr(_Rspt+2), W1
 	MOV.B	#7, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,383 :: 		Rspt[Rsize-1] = End;                                        //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
+;ADC_DAC.c,386 :: 		Rspt[Rsize-1] = End;                                        //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 	MOV	#lo_addr(_Rspt+5), W1
 	MOV.B	#255, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,385 :: 		while(1){
+;ADC_DAC.c,388 :: 		while(1){
 L_main40:
-;ADC_DAC.c,387 :: 		if (BanP==1){                                      //Verifica si se realizo una peticion
+;ADC_DAC.c,390 :: 		if (BanP==1){                                      //Verifica si se realizo una peticion
 	MOV	#lo_addr(_BanP), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
 	BRA Z	L__main110
 	GOTO	L_main42
 L__main110:
-;ADC_DAC.c,388 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
+;ADC_DAC.c,391 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
 	MOV	#lo_addr(_Ptcn), W0
 	MOV.B	[W0], W1
 	MOV.B	#238, W0
@@ -1159,7 +1179,7 @@ L__main111:
 	GOTO	L__main80
 L__main112:
 L__main77:
-;ADC_DAC.c,389 :: 		if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
+;ADC_DAC.c,392 :: 		if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 	MOV	#lo_addr(_Ptcn+1), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_TP), W0
@@ -1177,11 +1197,11 @@ L__main113:
 	GOTO	L__main78
 L__main114:
 L__main76:
-;ADC_DAC.c,391 :: 		Distancia();                              //Realiza un calculo de distancia
+;ADC_DAC.c,394 :: 		Distancia();                              //Realiza un calculo de distancia
 	CALL	_Distancia
-;ADC_DAC.c,393 :: 		RB5_bit = 1;                              //Establece el Max485 en modo de escritura
+;ADC_DAC.c,396 :: 		RB5_bit = 1;                              //Establece el Max485 en modo de escritura
 	BSET	RB5_bit, BitPos(RB5_bit+0)
-;ADC_DAC.c,394 :: 		for (ir=0;ir<Rsize;ir++){
+;ADC_DAC.c,397 :: 		for (ir=0;ir<Rsize;ir++){
 	MOV	#lo_addr(_ir), W1
 	CLR	W0
 	MOV.B	W0, [W1]
@@ -1192,21 +1212,21 @@ L_main49:
 	BRA LTU	L__main115
 	GOTO	L_main50
 L__main115:
-;ADC_DAC.c,395 :: 		UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
+;ADC_DAC.c,398 :: 		UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
 	MOV	#lo_addr(_ir), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_Rspt), W0
 	ADD	W0, W1, W0
 	ZE	[W0], W10
 	CALL	_UART1_Write
-;ADC_DAC.c,394 :: 		for (ir=0;ir<Rsize;ir++){
+;ADC_DAC.c,397 :: 		for (ir=0;ir<Rsize;ir++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ir), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,396 :: 		}
+;ADC_DAC.c,399 :: 		}
 	GOTO	L_main49
 L_main50:
-;ADC_DAC.c,397 :: 		while(UART1_Tx_Idle()==0);                 //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+;ADC_DAC.c,400 :: 		while(UART1_Tx_Idle()==0);                 //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
 L_main52:
 	CALL	_UART1_Tx_Idle
 	CP	W0, #0
@@ -1215,9 +1235,9 @@ L_main52:
 L__main116:
 	GOTO	L_main52
 L_main53:
-;ADC_DAC.c,398 :: 		RB5_bit = 0;                              //Establece el Max485 en modo de lectura;
+;ADC_DAC.c,401 :: 		RB5_bit = 0;                              //Establece el Max485 en modo de lectura;
 	BCLR	RB5_bit, BitPos(RB5_bit+0)
-;ADC_DAC.c,400 :: 		for (ipp=0;ipp<Psize;ipp++){
+;ADC_DAC.c,403 :: 		for (ipp=0;ipp<Psize;ipp++){
 	MOV	#lo_addr(_ipp), W1
 	CLR	W0
 	MOV.B	W0, [W1]
@@ -1228,21 +1248,21 @@ L_main54:
 	BRA LTU	L__main117
 	GOTO	L_main55
 L__main117:
-;ADC_DAC.c,401 :: 		Ptcn[ipp]=0;                           //Limpia la trama de peticion
+;ADC_DAC.c,404 :: 		Ptcn[ipp]=0;                           //Limpia la trama de peticion
 	MOV	#lo_addr(_ipp), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_Ptcn), W0
 	ADD	W0, W1, W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,400 :: 		for (ipp=0;ipp<Psize;ipp++){
+;ADC_DAC.c,403 :: 		for (ipp=0;ipp<Psize;ipp++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ipp), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,402 :: 		}
+;ADC_DAC.c,405 :: 		}
 	GOTO	L_main54
 L_main55:
-;ADC_DAC.c,403 :: 		for (ipp=3;ipp<5;ipp++){
+;ADC_DAC.c,406 :: 		for (ipp=3;ipp<5;ipp++){
 	MOV	#lo_addr(_ipp), W1
 	MOV.B	#3, W0
 	MOV.B	W0, [W1]
@@ -1253,33 +1273,33 @@ L_main57:
 	BRA LTU	L__main118
 	GOTO	L_main58
 L__main118:
-;ADC_DAC.c,404 :: 		Rspt[ipp]=0;;                          //Limpia los bits de datos de la trama de respuesta
+;ADC_DAC.c,407 :: 		Rspt[ipp]=0;;                          //Limpia los bits de datos de la trama de respuesta
 	MOV	#lo_addr(_ipp), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_Rspt), W0
 	ADD	W0, W1, W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,403 :: 		for (ipp=3;ipp<5;ipp++){
+;ADC_DAC.c,406 :: 		for (ipp=3;ipp<5;ipp++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ipp), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,405 :: 		}
+;ADC_DAC.c,408 :: 		}
 	GOTO	L_main57
 L_main58:
-;ADC_DAC.c,407 :: 		BanP = 0;
+;ADC_DAC.c,410 :: 		BanP = 0;
 	MOV	#lo_addr(_BanP), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,389 :: 		if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
+;ADC_DAC.c,392 :: 		if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
 L__main79:
 L__main78:
-;ADC_DAC.c,410 :: 		}else{
+;ADC_DAC.c,413 :: 		}else{
 	GOTO	L_main60
-;ADC_DAC.c,388 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
+;ADC_DAC.c,391 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
 L__main81:
 L__main80:
-;ADC_DAC.c,411 :: 		for (ipp=0;ipp<Psize;ipp++){
+;ADC_DAC.c,414 :: 		for (ipp=0;ipp<Psize;ipp++){
 	MOV	#lo_addr(_ipp), W1
 	CLR	W0
 	MOV.B	W0, [W1]
@@ -1290,29 +1310,29 @@ L_main61:
 	BRA LTU	L__main119
 	GOTO	L_main62
 L__main119:
-;ADC_DAC.c,412 :: 		Ptcn[ipp]=0;                           //Limpia la trama de peticion
+;ADC_DAC.c,415 :: 		Ptcn[ipp]=0;                           //Limpia la trama de peticion
 	MOV	#lo_addr(_ipp), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_Ptcn), W0
 	ADD	W0, W1, W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,411 :: 		for (ipp=0;ipp<Psize;ipp++){
+;ADC_DAC.c,414 :: 		for (ipp=0;ipp<Psize;ipp++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ipp), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,413 :: 		}
+;ADC_DAC.c,416 :: 		}
 	GOTO	L_main61
 L_main62:
-;ADC_DAC.c,414 :: 		BanP = 0;
+;ADC_DAC.c,417 :: 		BanP = 0;
 	MOV	#lo_addr(_BanP), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,415 :: 		}
+;ADC_DAC.c,418 :: 		}
 L_main60:
-;ADC_DAC.c,416 :: 		}
+;ADC_DAC.c,419 :: 		}
 L_main42:
-;ADC_DAC.c,420 :: 		Delay_ms(10);
+;ADC_DAC.c,423 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
 L_main64:
@@ -1320,9 +1340,9 @@ L_main64:
 	BRA NZ	L_main64
 	DEC	W8
 	BRA NZ	L_main64
-;ADC_DAC.c,422 :: 		}
+;ADC_DAC.c,425 :: 		}
 	GOTO	L_main40
-;ADC_DAC.c,424 :: 		}
+;ADC_DAC.c,427 :: 		}
 L_end_main:
 	POP	W11
 	POP	W10

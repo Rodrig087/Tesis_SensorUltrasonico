@@ -79,18 +79,18 @@ void Velocidad(){
      unsigned int Rint;
      float Rfrac;
 
-     Ow_Reset(&PORTA, 1);                          //Onewire reset signal
-     Ow_Write(&PORTA, 1, 0xCC);                    //Issue command SKIP_ROM
-     Ow_Write(&PORTA, 1, 0x44);                    //Issue command CONVERT_T
+     Ow_Reset(&PORTA, 0);                          //Onewire reset signal
+     Ow_Write(&PORTA, 0, 0xCC);                    //Issue command SKIP_ROM
+     Ow_Write(&PORTA, 0, 0x44);                    //Issue command CONVERT_T
      Delay_us(100);
 
-     Ow_Reset(&PORTA, 1);
-     Ow_Write(&PORTA, 1, 0xCC);                    //Issue command SKIP_ROM
-     Ow_Write(&PORTA, 1, 0xBE);                    //Issue command READ_SCRATCHPAD
+     Ow_Reset(&PORTA, 0);
+     Ow_Write(&PORTA, 0, 0xCC);                    //Issue command SKIP_ROM
+     Ow_Write(&PORTA, 0, 0xBE);                    //Issue command READ_SCRATCHPAD
      Delay_us(100);
 
-     Temp =  Ow_Read(&PORTA, 1);
-     Temp = (Ow_Read(&PORTA, 1) << 8) + Temp;
+     Temp =  Ow_Read(&PORTA, 0);
+     Temp = (Ow_Read(&PORTA, 0) << 8) + Temp;
 
      if (Temp & 0x8000) {
         Temp = 0;                                  //Si la temperatura es negativa la establece como cero.
@@ -300,9 +300,8 @@ void Configuracion(){
      CLKDIVbits.PLLPOST = 0;                     //PLLPOST<1:0> = 0 ->  N2 = 2    160MHz / 2 = 80MHz
 
      //Configuracion de puertos
-     AD1PCFGL = 0xFFFE;                          //Configura el puerto AN0 como entrada analogica y todas las demas como digitales
-     TRISA0_bit = 1;                             //Set RA0 pin as input
-     TRISA4_bit = 1;                             //Set RA4 pin as input
+     AD1PCFGL = 0xFFFD;                          //Configura el puerto AN1 como entrada analogica y todas las demas como digitales
+     TRISA1_bit = 1;                             //Establece el pin RA1 como entrada
      TRISB = 0xFF80;                             //TRISB = 11111111 10000000
 
      //Configuracion del ADC
@@ -323,7 +322,11 @@ void Configuracion(){
      AD1CON3bits.ADCS = 0x02;                    //Configura el periodo del reloj del ADC fijando el valor de los bits ADCS segun la formula: TAD = TCY*(ADCS+1) = 75ns  -> ADCS = 2
      AD1CON3bits.SAMC = 0x02;                    //Auto Sample Time bits, 2 -> 2*TAD (minimo periodo de muestreo para 10 bits)
 
-     AD1CHS0 = 0;                                //ADC1 INPUT CHANNEL 0 SELECT REGISTER
+     AD1CHS0.CH0NB = 0;                          //Channel 0 negative input is VREF-
+     AD1CHS0bits.CH0SB = 0x01;                   //Channel 0 positive input is AN1
+     AD1CHS0.CH0NA = 0;                          //Channel 0 negative input is VREF-
+     AD1CHS0bits.CH0SA = 0x01;                   //Channel 0 positive input is AN1
+     
      AD1CHS123 = 0;                              //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
 
      AD1CSSL = 0x00;                             //Se salta todos los puertos ANx para los escaneos de entrada
