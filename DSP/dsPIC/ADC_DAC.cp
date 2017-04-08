@@ -365,51 +365,21 @@ void main() {
  Delay_ms(100);
  RB5_bit = 0;
 
+ Rspt[0] = Hdr;
+ Rspt[3] = End;
+
+ while(1){
+
  TpId = (PORTB&0xFF00)>>8;
  TP = TpId>>4;
  Id = TPId&0xF;
 
- ip=0;
-#line 383 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
- Rspt[0] = Hdr;
  Rspt[1] = Tp;
  Rspt[2] = Id;
- Rspt[Rsize-1] = End;
 
- while(1){
-
- if (BanP==1){
- if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){
- if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){
-
- Distancia();
-
- RB5_bit = 1;
- for (ir=0;ir<Rsize;ir++){
+ for (ir=0;ir<4;ir++){
  UART1_Write(Rspt[ir]);
  }
- while(UART1_Tx_Idle()==0);
- RB5_bit = 0;
-
- for (ipp=0;ipp<Psize;ipp++){
- Ptcn[ipp]=0;
- }
- for (ipp=3;ipp<5;ipp++){
- Rspt[ipp]=0;;
- }
-
- BanP = 0;
-
- }
- }else{
- for (ipp=0;ipp<Psize;ipp++){
- Ptcn[ipp]=0;
- }
- BanP = 0;
- }
- }
-
-
 
  Delay_ms(10);
 

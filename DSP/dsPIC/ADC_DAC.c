@@ -370,55 +370,22 @@ void main() {
      UART1_Init(9600);                                           // Initialize UART module at 9600 bps
      Delay_ms(100);                                              // Wait for UART module to stabilize
      RB5_bit = 0;                                                //Establece el Max485 en modo de lectura;
-
-     TpId = (PORTB&0xFF00)>>8;
-     TP = TpId>>4;
-     Id = TPId&0xF;
-     
-     ip=0;
-     
-     /*TP = 0x01;
-     Id = 0x07;*/
      
      Rspt[0] = Hdr;                                              //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
-     Rspt[1] = Tp;                                               //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
-     Rspt[2] = Id;                                               //Se rellena el tercer byte de la trama de repuesta con el Id de esclavo
-     Rspt[Rsize-1] = End;                                        //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
+     Rspt[3] = End;                                              //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 
      while(1){
 
-              if (BanP==1){                                      //Verifica si se realizo una peticion
-                 if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){      //Verifica que el primer y el ultimo elemento sean los delimitador de trama
-                    if ((Ptcn[1]==Tp)&&(Ptcn[2]==Id)){           //Verifica el identificador de tipo de sensor y el identificador de esclavo
-
-                       Distancia();                              //Realiza un calculo de distancia
-
-                       RB5_bit = 1;                              //Establece el Max485 en modo de escritura
-                       for (ir=0;ir<Rsize;ir++){
-                           UART1_Write(Rspt[ir]);                //Envia la trama de respuesta
-                       }
-                       while(UART1_Tx_Idle()==0);                 //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
-                       RB5_bit = 0;                              //Establece el Max485 en modo de lectura;
-                       
-                       for (ipp=0;ipp<Psize;ipp++){
-                           Ptcn[ipp]=0;                           //Limpia la trama de peticion
-                       }
-                       for (ipp=3;ipp<5;ipp++){
-                           Rspt[ipp]=0;;                          //Limpia los bits de datos de la trama de respuesta
-                       }
-                       
-                       BanP = 0;
-                       
-                    }
-                 }else{
-                       for (ipp=0;ipp<Psize;ipp++){
-                           Ptcn[ipp]=0;                           //Limpia la trama de peticion
-                       }
-                       BanP = 0;
-                 }
-              }
-              
-              
+             TpId = (PORTB&0xFF00)>>8;
+             TP = TpId>>4;
+             Id = TPId&0xF;
+             
+             Rspt[1] = Tp;                                       //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
+             Rspt[2] = Id;                                       //Se rellena el tercer byte de la trama de repuesta con el Id de esclavo
+             
+             for (ir=0;ir<4;ir++){
+                 UART1_Write(Rspt[ir]);                          //Envia la trama de respuesta
+             }
               
               Delay_ms(10);
               
