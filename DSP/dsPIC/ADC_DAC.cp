@@ -92,7 +92,8 @@ void Velocidad(){
 
  Rint = Temp >> 4;
  Rfrac = ((Temp & 0x000F) * 625) / 10000.;
- DSTemp = Rint + Rfrac;
+
+ DSTemp = 17.0;
 
  VSnd = 331.45 * sqrt(1+(DsTemp/273));
 }
@@ -365,21 +366,28 @@ void main() {
  Delay_ms(100);
  RB5_bit = 0;
 
- Rspt[0] = Hdr;
- Rspt[3] = End;
-
- while(1){
-
  TpId = (PORTB&0xFF00)>>8;
  TP = TpId>>4;
  Id = TPId&0xF;
 
+ Rspt[0] = Hdr;
  Rspt[1] = Tp;
  Rspt[2] = Id;
+ Rspt[Rsize-1] = End;
 
- for (ir=0;ir<4;ir++){
+ while(1){
+
+ Distancia();
+
+ for (ir=0;ir<Rsize;ir++){
  UART1_Write(Rspt[ir]);
  }
+ UART1_Write(0x0D);
+ for (ipp=3;ipp<5;ipp++){
+ Rspt[ipp]=0;;
+ }
+
+ BanP = 0;
 
  Delay_ms(10);
 

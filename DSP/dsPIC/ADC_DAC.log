@@ -7,14 +7,15 @@ diagnostics: 0	122	Compilation Started	ADC_DAC.c
 hint: 0	1004	interrupt handler (UART1Interrupt at 0x002A)	ADC_DAC.c
 hint: 0	1004	interrupt handler (Timer1Interrupt at 0x001A)	ADC_DAC.c
 hint: 0	1004	interrupt handler (Timer2Interrupt at 0x0022)	ADC_DAC.c
-diagnostics: 394	123	Compiled Successfully	ADC_DAC.c
-warning: 377	1519	Logical expression is always: 'False'	ADC_DAC.c
+diagnostics: 402	123	Compiled Successfully	ADC_DAC.c
+warning: 384	1519	Logical expression is always: 'False'	ADC_DAC.c
+hint: 79	1164	Variable 'Rint' has been eliminated by optimizer	ADC_DAC.c
 hint: 80	1164	Variable 'Rfrac' has been eliminated by optimizer	ADC_DAC.c
 diagnostics: 0	127	All files Compiled in 156 ms	 
 hint: 0	1144	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)
-hint: 0	1144	Static RAM (bytes): 731   Dynamic RAM (bytes): 1316	Static RAM (bytes): 731   Dynamic RAM (bytes): 1316
-hint: 0	1144	Used ROM (bytes): 1728 (8%)  Free ROM (bytes): 20800 (92%)	Used ROM (bytes): 1728 (8%)  Free ROM (bytes): 20800 (92%)
+hint: 0	1144	Static RAM (bytes): 855   Dynamic RAM (bytes): 1192	Static RAM (bytes): 855   Dynamic RAM (bytes): 1192
+hint: 0	1144	Used ROM (bytes): 4806 (21%)  Free ROM (bytes): 17722 (79%)	Used ROM (bytes): 4806 (21%)  Free ROM (bytes): 17722 (79%)
 diagnostics: 0	125	Project Linked Successfully	ADC_DAC.mcpds
-diagnostics: 0	128	Linked in 204 ms	 
-diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 547 ms	 
-diagnostics: 0	103	Finished successfully: 07 abr. 2017, 19:28:10	ADC_DAC.mcpds
+diagnostics: 0	128	Linked in 282 ms	 
+diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 641 ms	 
+diagnostics: 0	103	Finished successfully: 07 abr. 2017, 23:42:53	ADC_DAC.mcpds

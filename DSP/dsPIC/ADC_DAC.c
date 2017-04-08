@@ -98,7 +98,8 @@ void Velocidad(){
 
      Rint = Temp >> 4;                             //Extrae la parte entera de la respuesta del sensor
      Rfrac = ((Temp & 0x000F) * 625) / 10000.;     //Extrae la parte decimal de la respuesta del sensor
-     DSTemp = Rint + Rfrac;
+     //DSTemp = Rint + Rfrac;
+     DSTemp = 17.0;                                //Temperatura Arduino
 
      VSnd = 331.45 * sqrt(1+(DsTemp/273));         //Expresa la temperatura en punto flotante
 }
@@ -162,18 +163,18 @@ void Pulse(){
                yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
                i1b = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1a
                i1a = 0;
-              
+
                while (M[i1a]<yy1){
                      i1a++;
                }
-               
+
                i1 = i1a+((i1b-i1a)/2);
                i0 = i1 - dix;
                i2 = i1 + dix;
-               
+
                yy0 = M[i0];
                yy2 = M[i2];
-               
+
                yf0 = (float)(yy0);
                yf1 = (float)(yy1);
                yf2 = (float)(yy2);
@@ -214,7 +215,7 @@ void Distancia(){
 
      TOF = (T1+T2prom-T2adj)/2.0e6;           //Calcula el TOF en seg
      Dst = VSnd * TOF * 1000.0;               //Calcula la distancia en mm
-     
+
      IDst = (unsigned int)(Dst);              //Tranforma el dato de distancia de float a entero sin signo
      chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
 
@@ -229,7 +230,7 @@ void Distancia(){
 void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
 
      Dato = UART1_Read();
-     
+
      if ((Dato==Hdr)&&(ip==0)){                    //Verifica que el primer dato en llegar sea el identificador de inicio de trama
          BanT = 1;                                 //Activa la bandera de trama
          Ptcn[ip] = Dato;                          //Almacena el Dato en la trama de peticion
@@ -240,16 +241,16 @@ void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
      if ((BanT==1)&&(ip!=0)){
          Ptcn[ip] = Dato;                          //Almacena el resto de datos en la trama de peticion si la bandera de trama esta activada
      }
-     
+
      ip++;                                         //Aumenta el subindice una unidad
      if (ip==Psize){                               //Verifica que se haya terminado de llenar la trama de datos
          BanP = 1;                                 //Habilita la bandera de lectura de datos
          BanT = 0;
          ip=0;                                     //Limpia el subindice de la trama de peticion para permitir una nueva secuencia de recepcion de datos
      }
-     
+
      U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
-     
+
 }
 
 //Interrupcion por desbordamiento del TMR1
@@ -326,7 +327,7 @@ void Configuracion(){
      AD1CHS0bits.CH0SB = 0x01;                   //Channel 0 positive input is AN1
      AD1CHS0.CH0NA = 0;                          //Channel 0 negative input is VREF-
      AD1CHS0bits.CH0SA = 0x01;                   //Channel 0 positive input is AN1
-     
+
      AD1CHS123 = 0;                              //AD1CHS123: ADC1 INPUT CHANNEL 1, 2, 3 SELECT REGISTER
 
      AD1CSSL = 0x00;                             //Se salta todos los puertos ANx para los escaneos de entrada
@@ -338,7 +339,7 @@ void Configuracion(){
      IEC0.T1IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR1 desabilitada para no interferir con la lectura del sensor de temperatura
      T1IF_bit = 0;                               //Limpia la bandera de interrupcion
      PR1 = 200;                                  //Genera una interrupcion cada 5us (Fs=200KHz)
-     
+
      ////Configuracion del TMR2
      T2CON = 0x8000;                             //Habilita el TMR2, selecciona el reloj interno, desabilita el modo Gated Timer, selecciona el preescalador 1:1,
      IEC0.T2IE = 0;                              //Inicializa el programa con la interrupcion por desborde de TMR2 desabilitada para no interferir con la lectura del sensor de temperatura
@@ -351,14 +352,14 @@ void Configuracion(){
      IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato por UART
      U1RXIF_bit = 0;                             //Limpia la bandera de interrupcion de UARTRX
      //U1STAbits.URXISEL = 0x11;
-     
+
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
      IPC0bits.T1IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
      IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
      IPC2bits.U1RXIP = 0x07;                     //Nivel de prioridad de la interrupcion UARTRX
-     
 
-     
+
+
 }
 
 
@@ -366,29 +367,36 @@ void Configuracion(){
 void main() {
 
      Configuracion();
-     
+
      UART1_Init(9600);                                           // Initialize UART module at 9600 bps
      Delay_ms(100);                                              // Wait for UART module to stabilize
      RB5_bit = 0;                                                //Establece el Max485 en modo de lectura;
-     
+
+     TpId = (PORTB&0xFF00)>>8;
+     TP = TpId>>4;
+     Id = TPId&0xF;
+
      Rspt[0] = Hdr;                                              //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
-     Rspt[3] = End;                                              //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
+     Rspt[1] = Tp;                                               //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
+     Rspt[2] = Id;                                               //Se rellena el tercer byte de la trama de repuesta con el Id de esclavo
+     Rspt[Rsize-1] = End;                                        //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 
      while(1){
 
-             TpId = (PORTB&0xFF00)>>8;
-             TP = TpId>>4;
-             Id = TPId&0xF;
-             
-             Rspt[1] = Tp;                                       //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
-             Rspt[2] = Id;                                       //Se rellena el tercer byte de la trama de repuesta con el Id de esclavo
-             
-             for (ir=0;ir<4;ir++){
-                 UART1_Write(Rspt[ir]);                          //Envia la trama de respuesta
-             }
+              Distancia();                                       //Realiza un calculo de Distancia
               
+              for (ir=0;ir<Rsize;ir++){
+                  UART1_Write(Rspt[ir]);                         //Envia la trama de respuesta
+              }
+              UART1_Write(0x0D);                                 //Salto de linea
+              for (ipp=3;ipp<5;ipp++){
+                  Rspt[ipp]=0;;                                 //Limpia los bits de datos de la trama de respuesta
+              }
+              
+              BanP = 0;
+
               Delay_ms(10);
-              
+
      }
 
 }
