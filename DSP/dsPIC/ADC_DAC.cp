@@ -364,12 +364,13 @@ void main() {
  UART1_Init(9600);
  Delay_ms(100);
  RB5_bit = 0;
-#line 378 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+
+ TpId = (PORTB&0xFF00)>>8;
+ TP = TpId>>4;
+ Id = TPId&0xF;
+
  ip=0;
-
- TP = 0x01;
- Id = 0x07;
-
+#line 383 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  Rspt[0] = Hdr;
  Rspt[1] = Tp;
  Rspt[2] = Id;

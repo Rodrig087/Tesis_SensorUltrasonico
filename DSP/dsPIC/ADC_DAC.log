@@ -10,11 +10,11 @@ hint: 0	1004	interrupt handler (Timer2Interrupt at 0x0022)	ADC_DAC.c
 diagnostics: 427	123	Compiled Successfully	ADC_DAC.c
 warning: 388	1519	Logical expression is always: 'False'	ADC_DAC.c
 hint: 80	1164	Variable 'Rfrac' has been eliminated by optimizer	ADC_DAC.c
-diagnostics: 0	127	All files Compiled in 156 ms	 
+diagnostics: 0	127	All files Compiled in 203 ms	 
 hint: 0	1144	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)
-hint: 0	1144	Static RAM (bytes): 854   Dynamic RAM (bytes): 1194	Static RAM (bytes): 854   Dynamic RAM (bytes): 1194
-hint: 0	1144	Used ROM (bytes): 5006 (22%)  Free ROM (bytes): 17522 (78%)	Used ROM (bytes): 5006 (22%)  Free ROM (bytes): 17522 (78%)
+hint: 0	1144	Static RAM (bytes): 855   Dynamic RAM (bytes): 1192	Static RAM (bytes): 855   Dynamic RAM (bytes): 1192
+hint: 0	1144	Used ROM (bytes): 5016 (22%)  Free ROM (bytes): 17512 (78%)	Used ROM (bytes): 5016 (22%)  Free ROM (bytes): 17512 (78%)
 diagnostics: 0	125	Project Linked Successfully	ADC_DAC.mcpds
-diagnostics: 0	128	Linked in 406 ms	 
-diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 750 ms	 
-diagnostics: 0	103	Finished successfully: 06 mar. 2017, 18:00:36	ADC_DAC.mcpds
+diagnostics: 0	128	Linked in 266 ms	 
+diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 657 ms	 
+diagnostics: 0	103	Finished successfully: 07 abr. 2017, 19:09:14	ADC_DAC.mcpds

@@ -371,14 +371,14 @@ void main() {
      Delay_ms(100);                                              // Wait for UART module to stabilize
      RB5_bit = 0;                                                //Establece el Max485 en modo de lectura;
 
-     /*TpId = (PORTB&0xFF00)>>8;
+     TpId = (PORTB&0xFF00)>>8;
      TP = TpId>>4;
-     Id = TPId&0xF;*/
+     Id = TPId&0xF;
      
      ip=0;
      
-     TP = 0x01;
-     Id = 0x07;
+     /*TP = 0x01;
+     Id = 0x07;*/
      
      Rspt[0] = Hdr;                                              //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
      Rspt[1] = Tp;                                               //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor

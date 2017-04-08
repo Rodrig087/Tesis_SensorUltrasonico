@@ -1126,30 +1126,36 @@ L_main38:
 	BRA NZ	L_main38
 ;ADC_DAC.c,372 :: 		RB5_bit = 0;                                                //Establece el Max485 en modo de lectura;
 	BCLR	RB5_bit, BitPos(RB5_bit+0)
+;ADC_DAC.c,374 :: 		TpId = (PORTB&0xFF00)>>8;
+	MOV	PORTB, W1
+	MOV	#65280, W0
+	AND	W1, W0, W0
+	LSR	W0, #8, W1
+	MOV	#lo_addr(_TpId), W0
+	MOV.B	W1, [W0]
+;ADC_DAC.c,375 :: 		TP = TpId>>4;
+	SE	W1, W0
+	ASR	W0, #4, W2
+	MOV	#lo_addr(_TP), W0
+	MOV.B	W2, [W0]
+;ADC_DAC.c,376 :: 		Id = TPId&0xF;
+	MOV	#lo_addr(_Id), W0
+	AND.B	W1, #15, [W0]
 ;ADC_DAC.c,378 :: 		ip=0;
 	MOV	#lo_addr(_ip), W1
 	CLR	W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,380 :: 		TP = 0x01;
-	MOV	#lo_addr(_TP), W1
-	MOV.B	#1, W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,381 :: 		Id = 0x07;
-	MOV	#lo_addr(_Id), W1
-	MOV.B	#7, W0
 	MOV.B	W0, [W1]
 ;ADC_DAC.c,383 :: 		Rspt[0] = Hdr;                                              //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
 	MOV	#lo_addr(_Rspt), W1
 	MOV.B	#238, W0
 	MOV.B	W0, [W1]
 ;ADC_DAC.c,384 :: 		Rspt[1] = Tp;                                               //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
-	MOV	#lo_addr(_Rspt+1), W1
-	MOV.B	#1, W0
-	MOV.B	W0, [W1]
+	MOV	#lo_addr(_Rspt+1), W0
+	MOV.B	W2, [W0]
 ;ADC_DAC.c,385 :: 		Rspt[2] = Id;                                               //Se rellena el tercer byte de la trama de repuesta con el Id de esclavo
 	MOV	#lo_addr(_Rspt+2), W1
-	MOV.B	#7, W0
-	MOV.B	W0, [W1]
+	MOV	#lo_addr(_Id), W0
+	MOV.B	[W0], [W1]
 ;ADC_DAC.c,386 :: 		Rspt[Rsize-1] = End;                                        //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 	MOV	#lo_addr(_Rspt+5), W1
 	MOV.B	#255, W0
