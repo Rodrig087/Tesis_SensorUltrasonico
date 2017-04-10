@@ -143,7 +143,7 @@ void Pulse(){
  x1 = x0;
 
  YY = (unsigned int)(y0);
-
+ M[k] = YY;
 
  }
 
@@ -178,6 +178,14 @@ void Pulse(){
  tmax = i1*tx;
 
  T2 = tmax+dx;
+
+ imax = (unsigned int)(T2/tx);
+ M[0]=500;
+ M[i0]=250;
+ M[i1]=350;
+ M[imax]=800;
+ M[i2]=250;
+ M[nm-2]=500;
 
  }
 

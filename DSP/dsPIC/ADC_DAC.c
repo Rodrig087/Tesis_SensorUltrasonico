@@ -149,7 +149,7 @@ void Pulse(){
                     x1 = x0;
 
                     YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
-                    //M[k] = YY;
+                    M[k] = YY;
 
                 }
 
@@ -184,6 +184,14 @@ void Pulse(){
                tmax = i1*tx;
 
                T2 = tmax+dx;
+               
+               imax = (unsigned int)(T2/tx);
+               M[0]=500;
+               M[i0]=250;
+               M[i1]=350;
+               M[imax]=800;
+               M[i2]=250;
+               M[nm-2]=500;
 
             }
 
@@ -404,7 +412,7 @@ void main() {
                UART1_Write(0x00);                                //Indica el final de una secuencia de muestreo
                UART1_Write(0x0D);
 
-              Delay_ms(10);
+               Delay_ms(10);
 
      }
 
