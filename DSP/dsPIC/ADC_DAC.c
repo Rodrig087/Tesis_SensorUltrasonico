@@ -22,8 +22,8 @@ const short Hdr = 0xEE;                                 //Constante de delimitad
 const short End = 0xFF;                                 //Constante de delimitador de final de trama (0x0D)
 unsigned char Ptcn[Psize];                              //Trama de peticion
 unsigned char Rspt[Rsize];                              //Trama de respuesta
-unsigned short ir, ip, ipp;                                            //Subindices para las tramas de peticion y respuesta
-unsigned short BanP, BanT;                                             //Bandera de peticion de datos
+unsigned short ir, ip, ipp;                             //Subindices para las tramas de peticion y respuesta
+unsigned short BanP, BanT;                              //Bandera de peticion de datos
 const short Nsm=3;                                      //Numero maximo de secuencias de medicion
 unsigned short Dato;
 
@@ -34,8 +34,7 @@ float DSTemp, VSnd;
 //Variables para el almacenamiento de la señal muestreada:
 const unsigned int nm = 350;
 unsigned int M[nm];
-unsigned int i;
-unsigned int k;
+unsigned int i, j, k, l;
 short bm;
 //Variables para la deteccion de la Envolvente de la señal
 unsigned int value = 0;
@@ -70,6 +69,7 @@ unsigned char *chIDst;
 
 long TT2;
 unsigned char *chTT2;
+unsigned char trama[4];
 
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
@@ -149,7 +149,7 @@ void Pulse(){
                     x1 = x0;
 
                     YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
-                    M[k] = YY;
+                    //M[k] = YY;
 
                 }
 
@@ -160,8 +160,8 @@ void Pulse(){
             // Cálculo del punto maximo y TOF
             if (bm==2){
 
-               yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
-               i1b = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1a
+               yy1 = Vector_Max(M, nm, &maxIndex);                       //Encuentra el valor maximo del vector R
+               i1b = maxIndex;                                           //Asigna el subindice del valor maximo a la variable i1a
                i1a = 0;
 
                while (M[i1a]<yy1){
@@ -383,17 +383,26 @@ void main() {
 
      while(1){
 
-              Distancia();                                       //Realiza un calculo de Distancia
+              UART1_Write(0x00);                                 //Indica el comienzo de una secuencia de muestreo
+              UART1_Write(0x0D);
               
-              for (ir=0;ir<Rsize;ir++){
-                  UART1_Write(Rspt[ir]);                         //Envia la trama de respuesta
-              }
-              UART1_Write(0x0D);                                 //Salto de linea
-              for (ipp=3;ipp<5;ipp++){
-                  Rspt[ipp]=0;;                                 //Limpia los bits de datos de la trama de respuesta
-              }
+              Pulse();                                           //Realiza una secuencia de muestreo y estimacion del punto maximo
               
-              BanP = 0;
+              for (ir=0;ir<nm;ir++){
+                   while(UART_Tx_Idle()==0);                     //Espera hasta que se haya terminado de enviar todos los datos antes de continuar
+                   TT2 = M[ir];                                  //Guarda cada uno de los valores de M en TT2
+                   chTT2 = (unsigned char *) & TT2;
+                   for (l=0;l<2;l++){                            //Genera la trama de 2 Bytes
+                       trama[l]=(*chTT2++);
+                   }
+                   for (l=1;l>=0;l--){                           //Envia la trama de 2 Bytes
+                       UART1_Write(trama[l]);
+                   }
+                   UART1_Write(0x0D);                            //Salto de linea
+               }
+               
+               UART1_Write(0x00);                                //Indica el final de una secuencia de muestreo
+               UART1_Write(0x0D);
 
               Delay_ms(10);
 

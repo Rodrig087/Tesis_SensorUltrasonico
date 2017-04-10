@@ -28,8 +28,7 @@ float DSTemp, VSnd;
 
 const unsigned int nm = 350;
 unsigned int M[nm];
-unsigned int i;
-unsigned int k;
+unsigned int i, j, k, l;
 short bm;
 
 unsigned int value = 0;
@@ -64,6 +63,7 @@ unsigned char *chIDst;
 
 long TT2;
 unsigned char *chTT2;
+unsigned char trama[4];
 
 
 
@@ -143,7 +143,7 @@ void Pulse(){
  x1 = x0;
 
  YY = (unsigned int)(y0);
- M[k] = YY;
+
 
  }
 
@@ -377,17 +377,26 @@ void main() {
 
  while(1){
 
- Distancia();
+ UART1_Write(0x00);
+ UART1_Write(0x0D);
 
- for (ir=0;ir<Rsize;ir++){
- UART1_Write(Rspt[ir]);
+ Pulse();
+
+ for (ir=0;ir<nm;ir++){
+ while(UART_Tx_Idle()==0);
+ TT2 = M[ir];
+ chTT2 = (unsigned char *) & TT2;
+ for (l=0;l<2;l++){
+ trama[l]=(*chTT2++);
+ }
+ for (l=1;l>=0;l--){
+ UART1_Write(trama[l]);
  }
  UART1_Write(0x0D);
- for (ipp=3;ipp<5;ipp++){
- Rspt[ipp]=0;;
  }
 
- BanP = 0;
+ UART1_Write(0x00);
+ UART1_Write(0x0D);
 
  Delay_ms(10);
 
