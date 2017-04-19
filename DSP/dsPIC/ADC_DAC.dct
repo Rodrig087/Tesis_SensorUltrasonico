@@ -1049,6 +1049,8 @@ b6
 b7
 b8
 b9
+banp
+bant
 bcd2dec
 bcd2dec16
 bcl
@@ -1059,7 +1061,6 @@ bm
 bor
 bor
 bor_bit
-bp
 bren
 bren
 bren_bit
@@ -1192,6 +1193,7 @@ ch123sa_bit
 ch123sb
 ch123sb
 ch123sb_bit
+chidst
 chps
 chps_0
 chps_0_bit
@@ -1199,7 +1201,7 @@ chps_1
 chps_1_bit
 chps0
 chps1
-cht2
+chtt2
 cke
 cke
 cke_bit
@@ -1422,6 +1424,7 @@ d_a_bit
 da
 da
 da_bit
+dato
 dc
 dc
 dc_bit
@@ -1518,6 +1521,7 @@ disslw
 disslw
 disslw
 disslw_bit
+distancia
 div0err
 div0err
 div0err_bit
@@ -1642,7 +1646,6 @@ dozen
 dozen_bit
 dst
 dstemp
-dt2
 dta
 dta
 dta
@@ -1805,6 +1808,7 @@ dx
 edt
 edt
 edt_bit
+end
 erase
 erase_
 erase_bit
@@ -1974,6 +1978,7 @@ gcstat
 gcstat_bit
 get_fosc_khz
 get_fosc_per_cyc
+hdr
 i
 i0
 i1
@@ -2473,9 +2478,11 @@ icxcon
 icxcon
 icxcon
 icxcon
+id
 idle
 idle
 idle_bit
+idst
 iec0
 iec0bits
 iec1
@@ -2649,6 +2656,7 @@ iolock_bit
 iopuwr
 iopuwr
 iopuwr_bit
+ip
 ipc0
 ipc0bits
 ipc1
@@ -2688,6 +2696,8 @@ ipmien
 ipmien
 ipmien
 ipmien_bit
+ipp
+ir
 iren
 iren
 iren_bit
@@ -2828,9 +2838,7 @@ iwcol
 iwcol
 iwcol
 iwcol_bit
-j
 k
-l
 lata
 lata0
 lata0
@@ -3012,6 +3020,7 @@ nosc_2_bit
 nosc0
 nosc1
 nosc2
+nsm
 nstdis
 nstdis
 nstdis_bit
@@ -3852,6 +3861,7 @@ pr3_8
 pr3_8_bit
 pr3_9
 pr3_9_bit
+psize
 psv
 psv
 psv_bit
@@ -3889,6 +3899,7 @@ ptckps0
 ptckps1
 ptckps1
 ptckps1
+ptcn
 ptcon
 ptconbits
 ptdir
@@ -4780,6 +4791,8 @@ rsen
 rsen
 rsen
 rsen_bit
+rsize
+rspt
 rtrim
 rtsmd
 rtsmd
@@ -5285,6 +5298,7 @@ t1md
 t1md_bit
 t2
 t2a
+t2adj
 t2b
 t2ckr
 t2ckr_0
@@ -5323,6 +5337,9 @@ t2ip2
 t2md
 t2md
 t2md_bit
+t2prom
+t2sum
+t2umb
 t32
 t32
 t32_bit
@@ -5565,6 +5582,8 @@ ton_bit
 ton_t1con_bit
 ton_t2con_bit
 ton_t3con_bit
+tp
+tpid
 tqckps
 tqckps
 tqckps_0
@@ -5583,7 +5602,6 @@ tqgate
 tqgate
 tqgate
 tqgate_bit
-trama
 trapr
 trapr
 trapr_bit
@@ -5693,10 +5711,6 @@ tun3
 tun4
 tun5
 tx
-txt1
-txt2
-txt3
-txt4
 u1brg
 u1ctsr
 u1ctsr_0
@@ -5809,6 +5823,7 @@ uart1_read_text
 uart1_tx_idle
 uart1_write
 uart1_write_text
+uart1interrupt
 uarten
 uarten
 uarten_bit
@@ -5979,7 +5994,6 @@ vector_subtract
 vectorpower
 vectorscale
 velocidad
-vp
 vregs
 vregs
 vregs_bit
