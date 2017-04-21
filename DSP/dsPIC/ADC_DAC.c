@@ -22,11 +22,10 @@ const short Hdr = 0xEE;                                 //Constante de delimitad
 const short End = 0xFF;                                 //Constante de delimitador de final de trama (0x0D)
 unsigned char Ptcn[Psize];                              //Trama de peticion
 unsigned char Rspt[Rsize];                              //Trama de respuesta
-unsigned short ir, ip, ipp;                                            //Subindices para las tramas de peticion y respuesta
-unsigned short BanP, BanT;                                             //Bandera de peticion de datos
+unsigned short ir, ip, ipp;                             //Subindices para las tramas de peticion y respuesta
+unsigned short BanP, BanT;                              //Bandera de peticion de datos
 const short Nsm=3;                                      //Numero maximo de secuencias de medicion
 unsigned short Dato;
-
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
 //Variables para el calculo de la Velocidad del sonido:
@@ -65,10 +64,10 @@ const float T1 = 1375.0;
 const float T2adj = 479.0;            //Factor de calibracion de T2: Con Temp=20 Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
 float T2sum,T2prom;
 float T2, TOF, Dst;
+//Variables para trabajar con punteros
 unsigned int IDst;
 unsigned char *chIDst;
-
-long TT2;
+unsigned int TT2;
 unsigned char *chTT2;
 
 
@@ -191,7 +190,7 @@ void Pulse(){
 //Funcion para el calculo de la distancia
 void Distancia(){
 
-     conts = 0;                               //Limpia el contador de secuencias
+     /*conts = 0;                               //Limpia el contador de secuencias
      T2sum = 0.0;
      T2prom = 0.0;
      T2a = 0.0;
@@ -213,12 +212,16 @@ void Distancia(){
 
      TOF = (T1+T2prom-T2adj)/2.0e6;           //Calcula el TOF en seg
      Dst = VSnd * TOF * 1000.0;               //Calcula la distancia en mm
-     
+
      IDst = (unsigned int)(Dst);              //Tranforma el dato de distancia de float a entero sin signo
-     chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
+     chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst*/
+
+     Pulse();                                 //Inicia una secuencia de medicion
+     TT2 = (unsigned int)(T2);                //Tranforma el dato de T2 de float a entero sin signo
+     chTT2 = (unsigned char *) & TT2;         //Asocia el valor calculado de T2 al puntero chTT2
 
      for (ir=4;ir>=3;ir--){
-         Rspt[ir]=(*chIDst++);                //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la distancia calculada
+         Rspt[ir]=(*chTT2++);                 //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la distancia calculada
      }
 
 }

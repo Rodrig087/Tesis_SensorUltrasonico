@@ -1,5 +1,5 @@
-#line 1 "C:/Users/milto/Desktop/Versiones_sensor/rs485_ultimo/Correcciones definitivas/dsPIC/ADC_DAC.c"
-#line 9 "C:/Users/milto/Desktop/Versiones_sensor/rs485_ultimo/Correcciones definitivas/dsPIC/ADC_DAC.c"
+#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 9 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
 const float ca1 = 0.004482805534581;
 const float ca2 = 0.008965611069163;
 const float cb2 = -1.801872917973333;
@@ -20,7 +20,6 @@ unsigned short ir, ip, ipp;
 unsigned short BanP, BanT;
 const short Nsm=3;
 unsigned short Dato;
-
 
 unsigned int contp;
 
@@ -59,10 +58,10 @@ const float T1 = 1375.0;
 const float T2adj = 479.0;
 float T2sum,T2prom;
 float T2, TOF, Dst;
+
 unsigned int IDst;
 unsigned char *chIDst;
-
-long TT2;
+unsigned int TT2;
 unsigned char *chTT2;
 
 
@@ -184,36 +183,13 @@ void Pulse(){
 
 
 void Distancia(){
-
- conts = 0;
- T2sum = 0.0;
- T2prom = 0.0;
- T2a = 0.0;
- T2b = 0.0;
-
- while (conts<Nsm){
+#line 219 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  Pulse();
- T2b = T2;
- if ((T2b-T2a)<=T2umb){
- T2sum = T2sum + T2b;
- conts++;
- }
- T2a = T2b;
- }
-
- T2prom = T2sum/Nsm;
-
- Velocidad();
-
-
- TOF = (T1+T2prom-T2adj)/2.0e6;
- Dst = VSnd * TOF * 1000.0;
-
- IDst = (unsigned int)(Dst);
- chIDst = (unsigned char *) & IDst;
+ TT2 = (unsigned int)(T2);
+ chTT2 = (unsigned char *) & TT2;
 
  for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chIDst++);
+ Rspt[ir]=(*chTT2++);
  }
 
 }
@@ -370,7 +346,7 @@ void main() {
  Id = TPId&0xF;
 
  ip=0;
-#line 383 "C:/Users/milto/Desktop/Versiones_sensor/rs485_ultimo/Correcciones definitivas/dsPIC/ADC_DAC.c"
+#line 385 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  Rspt[0] = Hdr;
  Rspt[1] = Tp;
  Rspt[2] = Id;
@@ -389,7 +365,7 @@ void main() {
  for (ipp=3;ipp<5;ipp++){
  Rspt[ipp]=0;;
  }
-#line 435 "C:/Users/milto/Desktop/Versiones_sensor/rs485_ultimo/Correcciones definitivas/dsPIC/ADC_DAC.c"
+#line 437 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  Delay_ms(10);
 
  }
