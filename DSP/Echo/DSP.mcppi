@@ -33,10 +33,11 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=5
+Count=4
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\
-Path2=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\Echo\
+Path2=D:\Git\Tesis_SensorUltrasonico\DSP\Echo\
+Path3=D:\Git\Tesis_Test\DSP\
 [HEADER_PATH]
 Count=0
 [HEADERS]

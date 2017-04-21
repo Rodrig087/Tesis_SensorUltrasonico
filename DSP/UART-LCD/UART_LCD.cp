@@ -1,4 +1,4 @@
-#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/UART-LCD/UART_LCD.c"
+#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/UART-LCD/UART_LCD.c"
 
 sbit LCD_RS at RB0_bit;
 sbit LCD_EN at RB1_bit;
@@ -18,33 +18,29 @@ sbit LCD_D7_Direction at TRISB5_bit;
 
 
 
-const short TP = 0x01;
-const short Id = 0x07;
-const short Psize = 4;
-const short Rsize = 6;
-const short Hdr = 0xEE;
-const short End = 0xFF;
-unsigned char Ptcn[Psize];
-unsigned char Rspt[Rsize];
-short ir,ip,j;
-unsigned short BanP;
+char Dato;
+unsigned short i, j;
+unsigned char trama[5];
+unsigned char trama2[4];
 
-
-short Bb;
+unsigned short BanP, BanL;
 char txt1[15];
+
 unsigned short *ptrTT2;
 unsigned long TT2;
-unsigned int T2;
+float T2;
+
+
 
 
 void interrupt(void){
 
  if (PIR1.F5){
  LATD0_bit = ~LATD0_bit;
- Rspt[ir] = UART1_Read();
- ir++;
- if (ir==Rsize){
- BanP = 1;
+ trama[i] = UART1_Read();
+ i++;
+ if (i==4){
+ BanL = 1;
  }
  PIR1.F5 = 0;
  }
@@ -55,8 +51,6 @@ void interrupt(void){
 void Configuracion(){
 
  TRISD0_bit = 0;
- TRISD1_bit = 1;
- TRISC0_bit = 0;
 
  INTCON.GIE = 1;
  INTCON.PEIE = 1;
@@ -82,56 +76,36 @@ void Configuracion(){
 void main() {
 
  Configuracion();
- LATC0_bit = 0;
  Lcd_Out(1, 1, "Hello!");
  delay_ms(1);
  ptrTT2 = &TT2;
 
- Ptcn[0]=Hdr;
- Ptcn[1]=Tp;
- Ptcn[2]=Id;
- Ptcn[3]=End;
-
- Bb=0;
- T2=0;
-
  while (1){
 
- if ((RD1_bit==1)&&(Bb==0)){
- Bb = 1;
- for (ip=0;ip<Psize;ip++){
- LATC0_bit = 1;
- UART1_WRITE(Ptcn[ip]);
+
+ if (BanL==1){
+
+ for (j=1;j<5;j++){
+
+ trama2[j-1]= trama[j];
  }
- while(UART_Tx_Idle()==0);
-
- LATC0_bit = 0;
- }
-
- if (BanP==1){
- if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
- if ((Rspt[1]==TP)&&(Rspt[2]==Id)){
-
- for (ir=3;ir<5;ir++){
- *(ptrTT2+(ir-3)) = Rspt[ir];
+ for (j=0;j<4;j++){
+ UART1_WRITE(trama2[j]);
+ *(ptrTT2+j) = trama2[j];
  }
 
- BanP = 0;
- ir=0;
- }
- }
+ BanL = 0;
+ i=0;
+
  }
 
-
- T2 = TT2;
- IntToStr(T2,txt1);
+ T2 = TT2 / 100.0;
+ FloatToStr(T2,txt1);
 
  Lcd_Out(1, 1, "T2: ");
  Lcd_Out(2,1,txt1);
 
-
  Delay_ms(10);
- Bb = 0;
 
  }
 
