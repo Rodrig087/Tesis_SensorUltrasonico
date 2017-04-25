@@ -112,7 +112,7 @@ void Pulse(){
             
             //}
             
-            while(bm!=1);                                            //Espera hasta que haya terminado de enviar y recibir todas las muestras
+            while(bm!=1);                                                //Espera hasta que haya terminado de enviar y recibir todas las muestras
 
             // Procesamiento de la señal capturada //
             if (bm==1){
@@ -140,7 +140,7 @@ void Pulse(){
                     x1 = x0;
 
                     YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
-                    //M[k] = YY;
+                    M[k] = YY;
 
                 }
 
@@ -151,8 +151,8 @@ void Pulse(){
             // Cálculo del punto maximo y TOF
             if (bm==2){
 
-               yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
-               i1b = maxIndex;                                              //Asigna el subindice del valor maximo a la variable i1a
+               yy1 = Vector_Max(M, nm, &maxIndex);                      //Encuentra el valor maximo del vector R
+               i1b = maxIndex;                                          //Asigna el subindice del valor maximo a la variable i1a
                i1a = 0;
               
                while (M[i1a]<yy1){
@@ -170,12 +170,17 @@ void Pulse(){
                yf1 = (float)(yy1);
                yf2 = (float)(yy2);
 
-               nx = (yf0-yf2)/(2.0*(yf0-(2.0*yf1)+yf2));                   //Factor de ajuste determinado por interpolacion parabolica
+               nx = (yf0-yf2)/(2.0*(yf0-(2.0*yf1)+yf2));                //Factor de ajuste determinado por interpolacion parabolica
                dx = nx*dix*tx;
                tmax = i1*tx;
 
                T2 = tmax+dx;
                imax = (unsigned int)(T2/tx);
+               
+               M[i0]=40;
+               M[i1]=50;
+               M[imax]=60;
+               M[i2]=40;
 
                IEC0.T1IE = 1;                                           //Habilita la interrupcion por desborde del TMR1 para dar inicio al muestreo del ADC
                TMR1 = 0;                                                //Encera el TMR1
@@ -252,7 +257,7 @@ void Configuracion(){
      AD1PCFGL = 0xFFFD;                          //Configura el puerto AN1 como entrada analogica y todas las demas como digitales
      TRISA0_bit = 1;                             //Set RA0 pin as input
      TRISA4_bit = 1;                             //Set RA4 pin as input
-     TRISB = 0xFF00;                             //TRISB = 11111111 00000000
+     TRISB = 0x00;                             //TRISB = 11111111 00000000
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits

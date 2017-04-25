@@ -1,5 +1,5 @@
-#line 1 "C:/Users/milto/Desktop/Versiones_sensor/muestreo_ultimo/dsPIC/ADC_DAC.c"
-#line 9 "C:/Users/milto/Desktop/Versiones_sensor/muestreo_ultimo/dsPIC/ADC_DAC.c"
+#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 9 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
 const float ca1 = 0.004482805534581;
 const float ca2 = 0.008965611069163;
 const float cb2 = -1.801872917973333;
@@ -134,7 +134,7 @@ void Pulse(){
  x1 = x0;
 
  YY = (unsigned int)(y0);
-
+ M[k] = YY;
 
  }
 
@@ -170,6 +170,11 @@ void Pulse(){
 
  T2 = tmax+dx;
  imax = (unsigned int)(T2/tx);
+
+ M[i0]=40;
+ M[i1]=50;
+ M[imax]=60;
+ M[i2]=40;
 
  IEC0.T1IE = 1;
  TMR1 = 0;
@@ -246,7 +251,7 @@ void Configuracion(){
  AD1PCFGL = 0xFFFD;
  TRISA0_bit = 1;
  TRISA4_bit = 1;
- TRISB = 0xFF00;
+ TRISB = 0x00;
 
 
  AD1CON1.AD12B = 0;
