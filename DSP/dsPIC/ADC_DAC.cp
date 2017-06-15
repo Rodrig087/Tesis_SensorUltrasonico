@@ -7,6 +7,21 @@ const float cb3 = 0.819804140111658;
 
 
 
+short TpId;
+short TP;
+short Id;
+const short Psize = 4;
+const short Rsize = 6;
+const short Hdr = 0xEE;
+const short End = 0xFF;
+unsigned char Ptcn[Psize];
+unsigned char Rspt[Rsize];
+unsigned short ir, ip, ipp;
+unsigned short BanP, BanT;
+const short Nsm=3;
+unsigned short Dato;
+
+
 unsigned int contp;
 
 float DSTemp, VSnd;
@@ -14,7 +29,6 @@ float DSTemp, VSnd;
 const unsigned int nm = 350;
 unsigned int M[nm];
 unsigned int i;
-unsigned int j;
 unsigned int k;
 short bm;
 
@@ -29,29 +43,27 @@ unsigned int Mmin=0;
 unsigned int Mmed=0;
 unsigned int MIndexMax;
 unsigned int MIndexMin;
-
-unsigned int VP=0;
 unsigned int maxIndex;
 unsigned int i0, i1, i2, imax;
 unsigned int i1a, i1b;
-const short dix=15;
+const short dix=16;
 const float tx=5.0;
 int yy0, yy1, yy2;
 float yf0, yf1, yf2;
 float nx, dx, tmax;
 
-float T1, T2;
-float TOF, Dst;
-
-char txt1[6], txt2[6], txt3[6], txt4[6] ;
-
-short bp;
 short conts;
-float T2a,T2b,dT2;
-unsigned long TT2;
-unsigned char *chT2;
-unsigned char trama[4];
-short l;
+float T2a, T2b;
+const float T2umb = 3.0;
+const float T1 = 1375.0;
+const float T2adj = 479.0;
+float T2sum,T2prom;
+float T2, TOF, Dst;
+unsigned int IDst;
+unsigned char *chIDst;
+
+long TT2;
+unsigned char *chTT2;
 
 
 
@@ -89,8 +101,6 @@ void Velocidad(){
 void Pulse(){
 
 
-
-
  contp = 0;
  RB2_bit = 0;
 
@@ -102,8 +112,6 @@ void Pulse(){
  T2CON.TON = 1;
 
  i = 0;
- j = 0;
-
 
 
  while(bm!=1);
@@ -169,29 +177,77 @@ void Pulse(){
  tmax = i1*tx;
 
  T2 = tmax+dx;
- imax = (unsigned int)(T2/tx);
-
- M[i0]=40;
- M[i1]=50;
- M[imax]=60;
- M[i2]=40;
-
- IEC0.T1IE = 1;
- TMR1 = 0;
- T1IF_bit = 0;
- T1CON.TON = 1;
- bm = 3;
 
  }
 
- while(bm!=4);
+}
+
+
+void Distancia(){
+
+ conts = 0;
+ T2sum = 0.0;
+ T2prom = 0.0;
+ T2a = 0.0;
+ T2b = 0.0;
+
+ while (conts<Nsm){
+ Pulse();
+ T2b = T2;
+ if ((T2b-T2a)<=T2umb){
+ T2sum = T2sum + T2b;
+ conts++;
+ }
+ T2a = T2b;
+ }
+
+ T2prom = T2sum/Nsm;
+
+ Velocidad();
+
+ TOF = (T1+T2prom-T2adj)/2.0e6;
+ Dst = VSnd * TOF * 1000.0;
+
+ IDst = (unsigned int)(T2prom);
+ chIDst = (unsigned char *) & IDst;
+
+ for (ir=4;ir>=3;ir--){
+ Rspt[ir]=(*chIDst++);
+ }
+
 }
 
 
 
+void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
+
+ Dato = UART1_Read();
+
+ if ((Dato==Hdr)&&(ip==0)){
+ BanT = 1;
+ Ptcn[ip] = Dato;
+ }
+ if ((Dato!=Hdr)&&(ip==0)){
+ ip=-1;
+ }
+ if ((BanT==1)&&(ip!=0)){
+ Ptcn[ip] = Dato;
+ }
+
+ ip++;
+ if (ip==Psize){
+ BanP = 1;
+ BanT = 0;
+ ip=0;
+ }
+
+ U1RXIF_bit = 0;
+
+}
+
+
 void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  RB3_bit = ~RB3_bit;
- if (bm==0){
  SAMP_bit = 0;
  while (!AD1CON1bits.DONE);
  if (i<nm){
@@ -202,20 +258,9 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
  T1CON.TON = 0;
  IEC0.T1IE = 0;
  }
- }
-
- if (bm==3) {
- if (j<nm){
-
- j++;
- } else {
- bm = 4;
- T1CON.TON = 0;
- IEC0.T1IE = 0;
- }
- }
  T1IF_bit = 0;
 }
+
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  if (contp<10){
@@ -249,9 +294,8 @@ void Configuracion(){
 
 
  AD1PCFGL = 0xFFFD;
- TRISA0_bit = 1;
- TRISA4_bit = 1;
- TRISB = 0x00;
+ TRISA1_bit = 1;
+ TRISB = 0xFF80;
 
 
  AD1CON1.AD12B = 0;
@@ -295,12 +339,18 @@ void Configuracion(){
  PR2 = 500;
 
 
- IPC0bits.T1IP = 0x07;
- IPC1bits.T2IP = 0x06;
-
-
  RPINR18bits.U1RXR = 0x07;
  RPOR3bits.RP6R = 0x03;
+ IEC0.U1RXIE = 1;
+ U1RXIF_bit = 0;
+
+
+
+ IPC0bits.T1IP = 0x06;
+ IPC1bits.T2IP = 0x05;
+ IPC2bits.U1RXIP = 0x07;
+
+
 
 }
 
@@ -312,30 +362,33 @@ void main() {
 
  UART1_Init(9600);
  Delay_ms(100);
+ RB5_bit = 0;
+
+ TpId = (PORTB&0xFF00)>>8;
+ TP = TpId>>4;
+ Id = TPId&0xF;
+
+ ip=0;
+#line 382 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+ Rspt[0] = Hdr;
+ Rspt[1] = Tp;
+ Rspt[2] = Id;
+ Rspt[Rsize-1] = End;
 
  while(1){
 
- UART1_Write(0x00);
- UART1_Write(0x0D);
+ Distancia();
 
- Pulse();
 
- for (j=0;j<nm;j++){
- while(UART_Tx_Idle()==0);
- TT2 = M[j];
- chT2 = (unsigned char *) & TT2;
- for (l=0;l<2;l++){
- trama[l]=(*chT2++);
- }
- for (l=1;l>=0;l--){
- UART1_Write(trama[l]);
+ for (ir=0;ir<Rsize;ir++){
+ UART1_Write(Rspt[ir]);
  }
  UART1_Write(0x0D);
+ while(UART1_Tx_Idle()==0);
+ for (ipp=3;ipp<5;ipp++){
+ Rspt[ipp]=0;;
  }
-
- UART1_Write(0x00);
- UART1_Write(0x0D);
-
+#line 434 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  Delay_ms(10);
 
  }

@@ -1,0 +1,11 @@
+main
+	Configuracion
+		UART1_Init
+		UART2_Init
+	UART2_Write
+	UART2_Tx_Idle
+	UART1_Write
+	UART1_Tx_Idle
+interrupt
+	UART1_Read
+	UART2_Read

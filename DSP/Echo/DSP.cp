@@ -1,8 +1,8 @@
-#line 1 "D:/Git/Tesis_SensorUltrasonico/DSP/Echo/DSP.c"
-#line 11 "D:/Git/Tesis_SensorUltrasonico/DSP/Echo/DSP.c"
+#line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Echo/DSP.c"
+#line 11 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Echo/DSP.c"
 unsigned int contp;
 unsigned short ie;
-const short delay_p = 114;
+const short delay_p = 120;
 const short np = 5;
 
 void Interrupt(){

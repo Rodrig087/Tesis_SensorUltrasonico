@@ -10,7 +10,7 @@ Descripcion:
 // Declaracion de variables //
 unsigned int contp;
 unsigned short ie;
-const short delay_p = 114;
+const short delay_p = 120;
 const short np = 5;
 
 void Interrupt(){

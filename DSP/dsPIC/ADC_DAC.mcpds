@@ -33,18 +33,17 @@ Count=0
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=11
+Count=10
 Path0=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\defs\
 Path1=C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for dsPIC\uses\
 Path2=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\dsPIC\
-Path3=C:\Users\milto\Desktop\Versiones_sensor\muestreo_ultimo\dsPIC\
+Path3=C:\Users\milto\Desktop\Versiones_sensor\rs485_ultimo\Correcciones definitivas\dsPIC\
 Path4=D:\Git\Tesis_SensorUltrasonico\DSP\dsPIC\
-Path5=C:\Users\RSA08-Milton\Desktop\DSP\dsPIC\
-Path6=D:\Git\Tesis_SensorUltrasonico\DSP\
-Path7=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\
-Path8=D:\Git\Tesis_Test\ADC_DAC_dsPIC\
-Path9=E:\Milton\Github\Tesis\Test\ADC_DAC_dsPIC\
-Path10=E:\Milton\Tesis\Programas\MikroC\Ejemplos\ADC_DAC_dsPIC\
+Path5=D:\Git\Tesis_SensorUltrasonico\DSP\
+Path6=E:\Milton\Github\Tesis\SensorUltrasonico\DSP\
+Path7=D:\Git\Tesis_Test\ADC_DAC_dsPIC\
+Path8=E:\Milton\Github\Tesis\Test\ADC_DAC_dsPIC\
+Path9=E:\Milton\Tesis\Programas\MikroC\Ejemplos\ADC_DAC_dsPIC\
 [HEADER_PATH]
 Count=0
 [HEADERS]
