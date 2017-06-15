@@ -999,6 +999,7 @@ aivt_addr_altt3interrupt
 aivt_addr_altu1errinterrupt
 aivt_addr_altu1rxinterrupt
 aivt_addr_altu1txinterrupt
+alt
 altivt
 altivt
 altivt_bit
@@ -1125,6 +1126,9 @@ c
 c_bit
 ca1
 ca2
+calcular
+calibracion
+caudal
 cb2
 cb3
 ceid
@@ -1193,7 +1197,10 @@ ch123sa_bit
 ch123sb
 ch123sb
 ch123sb_bit
+chcaudal
+chdp
 chidst
+chkadj
 chps
 chps_0
 chps_0_bit
@@ -1201,6 +1208,8 @@ chps_1
 chps_1_bit
 chps0
 chps1
+cht2prom
+chtemp
 chtt2
 cke
 cke
@@ -1425,6 +1434,7 @@ da
 da
 da_bit
 dato
+datoptcn
 dc
 dc
 dc_bit
@@ -1521,7 +1531,6 @@ disslw
 disslw
 disslw
 disslw_bit
-distancia
 div0err
 div0err
 div0err_bit
@@ -1862,6 +1871,9 @@ faov3l
 faov3l
 faov3l
 faov3l_bit
+fcaudal
+fcn
+fdreal
 ferr
 ferr
 ferr_bit
@@ -1941,6 +1953,7 @@ fltam
 fltam_bit
 fltam_p1fltacon_bit
 fltam_p2fltacon_bit
+fnivel
 form
 form_0
 form_0_bit
@@ -2701,6 +2714,7 @@ ir
 iren
 iren
 iren_bit
+it2prom
 iue
 iue
 iue
@@ -2839,6 +2853,7 @@ iwcol
 iwcol
 iwcol_bit
 k
+kadj
 lata
 lata0
 lata0
@@ -4480,6 +4495,7 @@ rcount_8
 rcount_8_bit
 rcount_9
 rcount_9_bit
+responder
 ridle
 ridle
 ridle_bit
@@ -5430,6 +5446,7 @@ tcs_bit
 tcs_t1con_bit
 tcs_t2con_bit
 tcs_t3con_bit
+temperatura
 tgate
 tgate
 tgate
@@ -5582,8 +5599,6 @@ ton_bit
 ton_t1con_bit
 ton_t2con_bit
 ton_t3con_bit
-tp
-tpid
 tqckps
 tqckps
 tqckps_0
