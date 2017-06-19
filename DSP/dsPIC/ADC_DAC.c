@@ -74,7 +74,7 @@ float nx, dx, tmax;
 short conts;
 float T2a, T2b;
 const short Nsm=3;                                      //Numero maximo de secuencias de medicion
-const float T2umb = 3.0;                                //Umbral para precision
+const float T2umb = 10.0;                                //Umbral para precision
 const float T1 = 1375.0;                                //T0+T1
 float T2adj;                                            //Variable para la calibracion de T2
 float T2sum,T2prom;
@@ -311,7 +311,7 @@ void Calibracion(unsigned int DReal){
      
      FDReal = (float)(DReal);
      TOF = (2.0*FDReal)/(VSnd*1000.0);        //Calculo del TOF en funcion del valor real de la distancia
-     T2adj = (TOF*1.0e6)-T1-T2prom;           //Calculo del factor de calibracion en us
+     T2adj = T1+T2prom-(TOF*1.0e6);           //Calculo del factor de calibracion en us
      
      Kadj = (unsigned int)(T2adj);            //Tranforma el dato del factor de calibracion de float a entero sin signo
      chKadj = (unsigned char *) & Kadj;       //Asocia el valor calculado del factor de calibracion al puntero chKadj
@@ -367,9 +367,9 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
      if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
-          RB0_bit = ~RB0_bit;                      //Conmuta el valor del pin RB14
+          RB2_bit = ~RB2_bit;                      //Conmuta el valor del pin RB14
      }else {
-          RB0_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
+          RB2_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
 
           if (contp==110){
               IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1
@@ -469,7 +469,7 @@ void main() {
 
      Id = (PORTB&0xFF00)>>8;                                  //Lee el Id de esclavo establecido por el dipswitch
      Alt = 300;                                               //Establece la altura de instalacion del sensor en 300 mm
-     T2adj = 479.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
+     T2adj = 477.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
 
      chDP = &DatoPtcn;                                        //Asocia el valor de DatoPtcn al puntero chDP
      
@@ -482,9 +482,9 @@ void main() {
               Banp=1;
               Ptcn[0]=Hdr;
               Ptcn[1]=Id;
-              Ptcn[2]=0x02;
+              Ptcn[2]=0x01;
               Ptcn[3]=0x00;
-              Ptcn[4]=0x05;
+              Ptcn[4]=0x00;
               Ptcn[5]=End;
 
               if (BanP==1){                                   //Verifica si se realizo una peticion

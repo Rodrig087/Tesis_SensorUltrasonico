@@ -90,10 +90,10 @@ main
 		_Div_FP
 		_Long2Float
 		_Mul_FP
+		_AddSub_FP
 		_Sub_FP
 		_Float2Longint
 		_Compare_Le_Fp
-		_AddSub_FP
 UART1Interrupt
 	UART1_Read
 Timer2Interrupt

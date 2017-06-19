@@ -68,7 +68,7 @@ float nx, dx, tmax;
 short conts;
 float T2a, T2b;
 const short Nsm=3;
-const float T2umb = 3.0;
+const float T2umb = 10.0;
 const float T1 = 1375.0;
 float T2adj;
 float T2sum,T2prom;
@@ -305,7 +305,7 @@ void Calibracion(unsigned int DReal){
 
  FDReal = (float)(DReal);
  TOF = (2.0*FDReal)/(VSnd*1000.0);
- T2adj = (TOF*1.0e6)-T1-T2prom;
+ T2adj = T1+T2prom-(TOF*1.0e6);
 
  Kadj = (unsigned int)(T2adj);
  chKadj = (unsigned char *) & Kadj;
@@ -361,9 +361,9 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
  if (contp<10){
- RB0_bit = ~RB0_bit;
+ RB2_bit = ~RB2_bit;
  }else {
- RB0_bit = 0;
+ RB2_bit = 0;
 
  if (contp==110){
  IEC0.T2IE = 0;
@@ -463,7 +463,7 @@ void main() {
 
  Id = (PORTB&0xFF00)>>8;
  Alt = 300;
- T2adj = 479.0;
+ T2adj = 477.0;
 
  chDP = &DatoPtcn;
 
@@ -476,9 +476,9 @@ void main() {
  Banp=1;
  Ptcn[0]=Hdr;
  Ptcn[1]=Id;
- Ptcn[2]=0x02;
+ Ptcn[2]=0x01;
  Ptcn[3]=0x00;
- Ptcn[4]=0x05;
+ Ptcn[4]=0x00;
  Ptcn[5]=End;
 
  if (BanP==1){

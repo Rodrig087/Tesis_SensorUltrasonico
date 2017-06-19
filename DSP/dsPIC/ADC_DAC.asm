@@ -556,7 +556,7 @@ L__Calcular109:
 	MOV	_T2a+2, W3
 	CALL	__Sub_FP
 	MOV	#0, W2
-	MOV	#16448, W3
+	MOV	#16672, W3
 	CALL	__Compare_Le_Fp
 	CP0	W0
 	CLR.B	W0
@@ -996,7 +996,7 @@ L__Calibracion127:
 	MOV	_T2a+2, W3
 	CALL	__Sub_FP
 	MOV	#0, W2
-	MOV	#16448, W3
+	MOV	#16672, W3
 	CALL	__Compare_Le_Fp
 	CP0	W0
 	CLR.B	W0
@@ -1074,22 +1074,40 @@ L_Calibracion47:
 	CALL	__Div_FP
 	POP	W10
 	POP.D	W2
+	MOV	W0, [W14+0]
+	MOV	W1, [W14+2]
 	MOV	W0, _TOF
 	MOV	W1, _TOF+2
-;ADC_DAC.c,314 :: 		T2adj = (TOF*1.0e6)-T1-T2prom;           //Calculo del factor de calibracion en us
-	PUSH	W10
-	MOV	#9216, W2
-	MOV	#18804, W3
-	CALL	__Mul_FP
+;ADC_DAC.c,314 :: 		T2adj = T1+T2prom-(TOF*1.0e6);           //Calculo del factor de calibracion en us
 	MOV	#57344, W2
 	MOV	#17579, W3
+	MOV	_T2prom, W0
+	MOV	_T2prom+2, W1
+	PUSH	W10
+	CALL	__AddSub_FP
+	MOV	[W14+0], W2
+	MOV	[W14+2], W3
+	MOV	W0, [W14+4]
+	MOV	W1, [W14+6]
+	MOV	#9216, W0
+	MOV	#18804, W1
+	CALL	__Mul_FP
+	POP	W10
+	MOV	W0, [W14+0]
+	MOV	W1, [W14+2]
+	MOV	[W14+4], W0
+	MOV	[W14+6], W1
+	PUSH.D	W2
+	MOV	[W14+0], W2
+	MOV	[W14+2], W3
+	PUSH	W10
 	CALL	__Sub_FP
-	MOV	_T2prom, W2
-	MOV	_T2prom+2, W3
-	CALL	__Sub_FP
+	POP	W10
+	POP.D	W2
 	MOV	W0, _T2adj
 	MOV	W1, _T2adj+2
 ;ADC_DAC.c,316 :: 		Kadj = (unsigned int)(T2adj);            //Tranforma el dato del factor de calibracion de float a entero sin signo
+	PUSH	W10
 	CALL	__Float2Longint
 	MOV	W0, _Kadj
 ;ADC_DAC.c,317 :: 		chKadj = (unsigned char *) & Kadj;       //Asocia el valor calculado del factor de calibracion al puntero chKadj
@@ -1305,13 +1323,13 @@ _Timer2Interrupt:
 	BRA LTU	L__Timer2Interrupt141
 	GOTO	L_Timer2Interrupt63
 L__Timer2Interrupt141:
-;ADC_DAC.c,370 :: 		RB0_bit = ~RB0_bit;                      //Conmuta el valor del pin RB14
-	BTG	RB0_bit, BitPos(RB0_bit+0)
+;ADC_DAC.c,370 :: 		RB2_bit = ~RB2_bit;                      //Conmuta el valor del pin RB14
+	BTG	RB2_bit, BitPos(RB2_bit+0)
 ;ADC_DAC.c,371 :: 		}else {
 	GOTO	L_Timer2Interrupt64
 L_Timer2Interrupt63:
-;ADC_DAC.c,372 :: 		RB0_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
-	BCLR	RB0_bit, BitPos(RB0_bit+0)
+;ADC_DAC.c,372 :: 		RB2_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
+	BCLR	RB2_bit, BitPos(RB2_bit+0)
 ;ADC_DAC.c,374 :: 		if (contp==110){
 	MOV	#110, W1
 	MOV	#lo_addr(_contp), W0
@@ -1584,9 +1602,9 @@ L_main66:
 ;ADC_DAC.c,471 :: 		Alt = 300;                                               //Establece la altura de instalacion del sensor en 300 mm
 	MOV	#300, W0
 	MOV	W0, _Alt
-;ADC_DAC.c,472 :: 		T2adj = 479.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
+;ADC_DAC.c,472 :: 		T2adj = 477.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
 	MOV	#32768, W0
-	MOV	#17391, W1
+	MOV	#17390, W1
 	MOV	W0, _T2adj
 	MOV	W1, _T2adj+2
 ;ADC_DAC.c,474 :: 		chDP = &DatoPtcn;                                        //Asocia el valor de DatoPtcn al puntero chDP
@@ -1617,17 +1635,17 @@ L_main68:
 	MOV	#lo_addr(_Ptcn+1), W1
 	MOV	_Id, W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,485 :: 		Ptcn[2]=0x02;
+;ADC_DAC.c,485 :: 		Ptcn[2]=0x01;
 	MOV	#lo_addr(_Ptcn+2), W1
-	MOV.B	#2, W0
+	MOV.B	#1, W0
 	MOV.B	W0, [W1]
 ;ADC_DAC.c,486 :: 		Ptcn[3]=0x00;
 	MOV	#lo_addr(_Ptcn+3), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,487 :: 		Ptcn[4]=0x05;
+;ADC_DAC.c,487 :: 		Ptcn[4]=0x00;
 	MOV	#lo_addr(_Ptcn+4), W1
-	MOV.B	#5, W0
+	CLR	W0
 	MOV.B	W0, [W1]
 ;ADC_DAC.c,488 :: 		Ptcn[5]=End;
 	MOV	#lo_addr(_Ptcn+5), W1
