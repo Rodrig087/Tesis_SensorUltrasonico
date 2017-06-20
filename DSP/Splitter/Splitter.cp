@@ -1,6 +1,5 @@
 #line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Splitter/Splitter.c"
 #line 13 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/Splitter/Splitter.c"
-const short Id = 0x07;
 const short Psize = 6;
 const short Rsize = 6;
 const short Hdr = 0x3A;
@@ -98,7 +97,7 @@ void main() {
  while (1){
 
  if (BanLP==1){
- if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
+ if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){
 
  RC5_bit = 1;
 
@@ -129,7 +128,7 @@ void main() {
 
 
  if (BanLR==1){
- if ((Rspt[1]==Id)&&(Rspt[Rsize-1]==End)){
+ if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
 
  RB5_bit = 1;
 

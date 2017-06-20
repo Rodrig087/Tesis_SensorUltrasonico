@@ -436,8 +436,8 @@ void Configuracion(){
  PR2 = 500;
 
 
- RPINR18bits.U1RXR = 0x07;
- RPOR3bits.RP6R = 0x03;
+ RPINR18bits.U1RXR = 0x06;
+ RPOR3bits.RP7R = 0x03;
  IEC0.U1RXIE = 1;
  U1RXIF_bit = 0;
 

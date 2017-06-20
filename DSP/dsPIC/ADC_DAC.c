@@ -442,8 +442,8 @@ void Configuracion(){
      PR2 = 500;                                  //Genera una interrupcion cada 12.5us
 
       //Configuracion UART
-     RPINR18bits.U1RXR = 0x07;                   //Asisgna Rx a RP12
-     RPOR3bits.RP6R = 0x03;                      //Asigna Tx a RP13
+     RPINR18bits.U1RXR = 0x06;                   //Asisgna Rx a RP6
+     RPOR3bits.RP7R = 0x03;                      //Asigna Tx a RP7
      IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato por UART
      U1RXIF_bit = 0;                             //Limpia la bandera de interrupcion de UARTRX
      //U1STAbits.URXISEL = 0x11;

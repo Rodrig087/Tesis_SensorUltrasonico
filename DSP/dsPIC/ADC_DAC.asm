@@ -1511,8 +1511,8 @@ _Configuracion:
 ;ADC_DAC.c,442 :: 		PR2 = 500;                                  //Genera una interrupcion cada 12.5us
 	MOV	#500, W0
 	MOV	WREG, PR2
-;ADC_DAC.c,445 :: 		RPINR18bits.U1RXR = 0x07;                   //Asisgna Rx a RP12
-	MOV.B	#7, W0
+;ADC_DAC.c,445 :: 		RPINR18bits.U1RXR = 0x06;                   //Asisgna Rx a RP6
+	MOV.B	#6, W0
 	MOV.B	W0, W1
 	MOV	#lo_addr(RPINR18bits), W0
 	XOR.B	W1, [W0], W1
@@ -1521,16 +1521,16 @@ _Configuracion:
 	XOR.B	W1, [W0], W1
 	MOV	#lo_addr(RPINR18bits), W0
 	MOV.B	W1, [W0]
-;ADC_DAC.c,446 :: 		RPOR3bits.RP6R = 0x03;                      //Asigna Tx a RP13
-	MOV.B	#3, W0
-	MOV.B	W0, W1
+;ADC_DAC.c,446 :: 		RPOR3bits.RP7R = 0x03;                      //Asigna Tx a RP7
+	MOV	#768, W0
+	MOV	W0, W1
 	MOV	#lo_addr(RPOR3bits), W0
-	XOR.B	W1, [W0], W1
-	AND.B	W1, #31, W1
+	XOR	W1, [W0], W1
+	MOV	#7936, W0
+	AND	W1, W0, W1
 	MOV	#lo_addr(RPOR3bits), W0
-	XOR.B	W1, [W0], W1
-	MOV	#lo_addr(RPOR3bits), W0
-	MOV.B	W1, [W0]
+	XOR	W1, [W0], W1
+	MOV	W1, RPOR3bits
 ;ADC_DAC.c,447 :: 		IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato por UART
 	BSET	IEC0, #11
 ;ADC_DAC.c,448 :: 		U1RXIF_bit = 0;                             //Limpia la bandera de interrupcion de UARTRX

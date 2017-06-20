@@ -10,7 +10,6 @@ Descripcion:
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la peticion y respuesta de datos
-const short Id = 0x07;                                  //Identificador de esclavo
 const short Psize = 6;                                  //Constante de longitud de trama de Peticion
 const short Rsize = 6;                                  //Constante de longitud de trama de Respuesta
 const short Hdr = 0x3A;                                 //Constante de delimitador de inicio de trama
@@ -25,7 +24,7 @@ unsigned short ByRspt, ByPtcn;                          //Bytes de peticion y re
 
 ////////////////////////////////////////////////////////////// Interrupciones //////////////////////////////////////////////////////////////
 void interrupt(void){
-//Interrupcion UART2
+//Interrupcion UART1
      if(PIR1.F5==1){
         RC5_bit = 0;                               //Establece el Max485-1 en modo de lectura;
         ByRspt = UART1_Read();                     //Lee el byte de respuesta
@@ -108,7 +107,7 @@ void main() {
      while (1){
 
             if (BanLP==1){                                          //Verifica la bandera de lectura de la trama de peticion
-               if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){            //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
+               if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){            //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
 
                   RC5_bit = 1;                                      //Establece el Max485-2 en modo de escritura
                    
@@ -139,22 +138,22 @@ void main() {
             
             
             if (BanLR==1){                                          //Verifica la bandera de lectura de la trama de respuesta
-               if ((Rspt[1]==Id)&&(Rspt[Rsize-1]==End)){            //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
+               if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){           //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
 
-                  RB5_bit = 1;                                  //Establece el Max485-1 en modo de escritura
+                  RB5_bit = 1;                                      //Establece el Max485-1 en modo de escritura
                     
                   for (irr=0;irr<(Rsize);irr++){
-                       UART2_Write(Rspt[irr]);                  //Reenvia la trama de respuesta a travez del UART2
+                       UART2_Write(Rspt[irr]);                      //Reenvia la trama de respuesta a travez del UART2
                   }
                   
-                  while(UART2_Tx_Idle()==0);                     //Espera hasta que se haya terminado de enviar todo el dato por UART2 antes de continuar
-                  RB5_bit = 0;                                   //Establece el Max485-2 en modo de lectura;
+                  while(UART2_Tx_Idle()==0);                        //Espera hasta que se haya terminado de enviar todo el dato por UART2 antes de continuar
+                  RB5_bit = 0;                                      //Establece el Max485-2 en modo de lectura;
                   
                   for (irr=0;irr<(Rsize);irr++){
-                       Rspt[irr]=0;;                            //Limpia la trama de respuesta
+                       Rspt[irr]=0;;                                //Limpia la trama de respuesta
                   }
                   
-                  BanLR = 0;                                    //Limpia la bandera de lectura de la trama de respuesta
+                  BanLR = 0;                                        //Limpia la bandera de lectura de la trama de respuesta
 
 
                } else {
