@@ -41,6 +41,24 @@ main
 			_Div_FP
 			_AddSub_FP
 			_Mul_FP
+		modf
+			_Compare_Ge_Fp
+				_Compare_Fp
+			_Compare_Le_Fp
+			_Float2Longint
+			_Long2Float
+			_Sub_FP
+		ceil
+			_Float2Longint
+			_Long2Float
+			_Compare_Le_Fp
+			_AddSub_FP
+		floor
+			_Float2Longint
+			_Long2Float
+			_Compare_Ge_Fp
+			_Sub_FP
+			_Compare_Le_Fp
 		pow
 			log
 				frexp
@@ -54,12 +72,6 @@ main
 				_AddSub_FP
 			exp
 				floor
-					_Float2Longint
-					_Long2Float
-					_Compare_Ge_Fp
-						_Compare_Fp
-					_Sub_FP
-					_Compare_Le_Fp
 				ldexp
 				eval_poly
 				_Compare_Le_Fp
@@ -77,6 +89,7 @@ main
 		_AddSub_FP
 		_Sub_FP
 		_Mul_FP
+		_Compare_Ge_Fp
 		_Long2Float
 		_Float2Longint
 		_Compare_Le_Fp
@@ -94,6 +107,8 @@ main
 		_Sub_FP
 		_Float2Longint
 		_Compare_Le_Fp
+	UART1_Write
+	UART1_Tx_Idle
 UART1Interrupt
 	UART1_Read
 Timer2Interrupt

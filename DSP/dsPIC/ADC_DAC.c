@@ -33,6 +33,8 @@ unsigned char *chTemp, *chCaudal, *chKadj;              //Variables tipo puntero
 float FDReal;                                           //Variable para almacenar la distancia real para la calibracion
 unsigned int IT2prom;
 unsigned char *chT2prom;
+float doub;
+float *iptr;
 
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
@@ -228,6 +230,13 @@ void Calcular(){
 
      TOF = (T1+T2prom-T2adj)/1.0e6;           //Calcula el TOF en seg
      Dst = (VSnd*TOF/2.0) * 1000.0;           //Calcula la distancia en mm
+     doub = modf(Dst, &iptr);
+     if (doub>=0.5){
+        Dst=ceil(Dst);
+     }else{
+        Dst=floor(Dst);
+     }
+     
      FNivel = (Alt-Dst)/1000.0;               //Calcula el Nivel de liquido en metros
      FCaudal = 4960440*pow(FNivel,2.5);       //Calcula el Caudal en litros/hora
      
@@ -512,6 +521,21 @@ void main() {
                        *(chDP+1) = Ptcn[3];                   //Almacena el byte 3 de la trama de peticion en el MSB de la variable DatoPtcn
                        Calibracion(DatoPtcn);                 //Realiza un proceso de calibracion para calcular el valor de la variable T2adj
                     }
+                    if (Fcn==0x05){                           //Test
+                       Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
+                       Rspt[3]=Ptcn[3];
+                       Rspt[4]=Ptcn[4];
+                       RB5_bit = 1;                           //Establece el Max485 en modo de escritura
+                       for (ir=0;ir<Rsize;ir++){
+                           UART1_Write(Rspt[ir]);             //Envia la trama de respuesta
+                       }
+                       while(UART1_Tx_Idle()==0);             //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+                       RB5_bit = 0;                           //Establece el Max485 en modo de lectura;
+                       for (ipp=3;ipp<5;ipp++){
+                           Rspt[ipp]=0;;                      //Limpia la trama de respuesta
+                       }
+                    }
+
 
                     DatoPtcn = 0;                             //Limpia la variable
                     for (ipp=0;ipp<Psize;ipp++){
@@ -526,10 +550,10 @@ void main() {
                        BanP = 0;                              //Limpia la bandera de lectura de datos
                  }
               }
-              
-              
+
+
               Delay_ms(10);
-              
+
      }
 
 }

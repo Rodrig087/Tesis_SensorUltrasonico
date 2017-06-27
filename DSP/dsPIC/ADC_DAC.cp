@@ -27,6 +27,8 @@ unsigned char *chTemp, *chCaudal, *chKadj;
 float FDReal;
 unsigned int IT2prom;
 unsigned char *chT2prom;
+float doub;
+float *iptr;
 
 
 unsigned int contp;
@@ -222,6 +224,13 @@ void Calcular(){
 
  TOF = (T1+T2prom-T2adj)/1.0e6;
  Dst = (VSnd*TOF/2.0) * 1000.0;
+ doub = modf(Dst, &iptr);
+ if (doub>=0.5){
+ Dst=ceil(Dst);
+ }else{
+ Dst=floor(Dst);
+ }
+
  FNivel = (Alt-Dst)/1000.0;
  FCaudal = 4960440*pow(FNivel,2.5);
 
@@ -506,6 +515,21 @@ void main() {
  *(chDP+1) = Ptcn[3];
  Calibracion(DatoPtcn);
  }
+ if (Fcn==0x05){
+ Rspt[2]=Ptcn[2];
+ Rspt[3]=Ptcn[3];
+ Rspt[4]=Ptcn[4];
+ RB5_bit = 1;
+ for (ir=0;ir<Rsize;ir++){
+ UART1_Write(Rspt[ir]);
+ }
+ while(UART1_Tx_Idle()==0);
+ RB5_bit = 0;
+ for (ipp=3;ipp<5;ipp++){
+ Rspt[ipp]=0;;
+ }
+ }
+
 
  DatoPtcn = 0;
  for (ipp=0;ipp<Psize;ipp++){
