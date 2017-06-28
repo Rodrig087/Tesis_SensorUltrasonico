@@ -488,13 +488,13 @@ void main() {
 
      while(1){
 
-              Banp=1;
+              /*Banp=1;
               Ptcn[0]=Hdr;
               Ptcn[1]=Id;
-              Ptcn[2]=0x01;
-              Ptcn[3]=0x00;
-              Ptcn[4]=0x00;
-              Ptcn[5]=End;
+              Ptcn[2]=0x05;
+              Ptcn[3]=0x01;
+              Ptcn[4]=0x0E;
+              Ptcn[5]=End;*/
 
               if (BanP==1){                                   //Verifica si se realizo una peticion
                  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){    //Verifica el identificador de esclavo y el byte de final de trama
@@ -525,6 +525,7 @@ void main() {
                        Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
                        Rspt[3]=Ptcn[3];
                        Rspt[4]=Ptcn[4];
+                       Delay_ms(500);
                        RB5_bit = 1;                           //Establece el Max485 en modo de escritura
                        for (ir=0;ir<Rsize;ir++){
                            UART1_Write(Rspt[ir]);             //Envia la trama de respuesta

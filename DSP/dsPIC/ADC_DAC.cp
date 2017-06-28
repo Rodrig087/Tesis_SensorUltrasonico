@@ -481,15 +481,7 @@ void main() {
  Rspt[Rsize-1] = End;
 
  while(1){
-
- Banp=1;
- Ptcn[0]=Hdr;
- Ptcn[1]=Id;
- Ptcn[2]=0x01;
- Ptcn[3]=0x00;
- Ptcn[4]=0x00;
- Ptcn[5]=End;
-
+#line 499 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  if (BanP==1){
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
 
@@ -519,6 +511,7 @@ void main() {
  Rspt[2]=Ptcn[2];
  Rspt[3]=Ptcn[3];
  Rspt[4]=Ptcn[4];
+ Delay_ms(500);
  RB5_bit = 1;
  for (ir=0;ir<Rsize;ir++){
  UART1_Write(Rspt[ir]);

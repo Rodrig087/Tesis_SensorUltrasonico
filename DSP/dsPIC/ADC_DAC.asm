@@ -64,13 +64,13 @@ L_Velocidad2:
 	MOV	W0, W2
 ;ADC_DAC.c,111 :: 		if (Temp & 0x8000) {
 	BTSS	W0, #15
-	GOTO	L__Velocidad98
+	GOTO	L__Velocidad100
 ;ADC_DAC.c,112 :: 		Temp = 0;                                  //Si la temperatura es negativa la establece como cero.
 	CLR	W2
 ; Temp end address is: 4 (W2)
 ;ADC_DAC.c,113 :: 		}
 	GOTO	L_Velocidad4
-L__Velocidad98:
+L__Velocidad100:
 ;ADC_DAC.c,111 :: 		if (Temp & 0x8000) {
 ;ADC_DAC.c,113 :: 		}
 L_Velocidad4:
@@ -153,18 +153,18 @@ L_Pulse5:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA NZ	L__Pulse113
+	BRA NZ	L__Pulse115
 	GOTO	L_Pulse6
-L__Pulse113:
+L__Pulse115:
 	GOTO	L_Pulse5
 L_Pulse6:
 ;ADC_DAC.c,142 :: 		if (bm==1){
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA Z	L__Pulse114
+	BRA Z	L__Pulse116
 	GOTO	L_Pulse7
-L__Pulse114:
+L__Pulse116:
 ;ADC_DAC.c,145 :: 		Mmax = Vector_Max(M, nm, &MIndexMax);
 	MOV	#lo_addr(_MIndexMax), W0
 	PUSH	W0
@@ -199,9 +199,9 @@ L_Pulse8:
 	MOV	_k, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__Pulse115
+	BRA LTU	L__Pulse117
 	GOTO	L_Pulse9
-L__Pulse115:
+L__Pulse117:
 ;ADC_DAC.c,152 :: 		value = M[k]-Mmed;
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -215,9 +215,9 @@ L__Pulse115:
 	MOV	[W3], W1
 	MOV	#lo_addr(_Mmed), W0
 	CP	W1, [W0]
-	BRA LTU	L__Pulse116
+	BRA LTU	L__Pulse118
 	GOTO	L_Pulse11
-L__Pulse116:
+L__Pulse118:
 ;ADC_DAC.c,154 :: 		value = (M[k]+((Mmed-M[k])*2))-(Mmed);
 	MOV	_k, W0
 	SL	W0, #1, W1
@@ -333,9 +333,9 @@ L_Pulse7:
 	MOV	#lo_addr(_bm), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #2
-	BRA Z	L__Pulse117
+	BRA Z	L__Pulse119
 	GOTO	L_Pulse12
-L__Pulse117:
+L__Pulse119:
 ;ADC_DAC.c,178 :: 		yy1 = Vector_Max(M, nm, &maxIndex);                         //Encuentra el valor maximo del vector R
 	MOV	#lo_addr(_maxIndex), W0
 	PUSH	W0
@@ -361,9 +361,9 @@ L_Pulse13:
 	MOV	[W0], W1
 	MOV	#lo_addr(_yy1), W0
 	CP	W1, [W0]
-	BRA LTU	L__Pulse118
+	BRA LTU	L__Pulse120
 	GOTO	L_Pulse14
-L__Pulse118:
+L__Pulse120:
 ;ADC_DAC.c,183 :: 		i1a++;
 	MOV	#1, W1
 	MOV	#lo_addr(_i1a), W0
@@ -539,9 +539,9 @@ L_Calcular15:
 	MOV	#lo_addr(_conts), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA LT	L__Calcular120
+	BRA LT	L__Calcular122
 	GOTO	L_Calcular16
-L__Calcular120:
+L__Calcular122:
 ;ADC_DAC.c,217 :: 		Pulse();                           //Inicia una secuencia de medicion
 	CALL	_Pulse
 ;ADC_DAC.c,218 :: 		T2b = T2;
@@ -560,13 +560,13 @@ L__Calcular120:
 	CALL	__Compare_Le_Fp
 	CP0	W0
 	CLR.B	W0
-	BRA GT	L__Calcular121
+	BRA GT	L__Calcular123
 	INC.B	W0
-L__Calcular121:
+L__Calcular123:
 	CP0.B	W0
-	BRA NZ	L__Calcular122
+	BRA NZ	L__Calcular124
 	GOTO	L_Calcular17
-L__Calcular122:
+L__Calcular124:
 ;ADC_DAC.c,220 :: 		T2sum = T2sum + T2b;            //Acumula la sumatoria de valores de T2 calculados por la funcion Pulse()
 	MOV	_T2sum, W2
 	MOV	_T2sum+2, W3
@@ -637,13 +637,13 @@ L_Calcular16:
 	CALL	__Compare_Ge_Fp
 	CP0	W0
 	CLR.B	W0
-	BRA LT	L__Calcular123
+	BRA LT	L__Calcular125
 	INC.B	W0
-L__Calcular123:
+L__Calcular125:
 	CP0.B	W0
-	BRA NZ	L__Calcular124
+	BRA NZ	L__Calcular126
 	GOTO	L_Calcular18
-L__Calcular124:
+L__Calcular126:
 ;ADC_DAC.c,235 :: 		Dst=ceil(Dst);
 	MOV	_Dst, W10
 	MOV	_Dst+2, W11
@@ -732,9 +732,9 @@ _Responder:
 ;ADC_DAC.c,256 :: 		void Responder(unsigned int Reg){
 ;ADC_DAC.c,258 :: 		if (Reg==0x01){
 	CP	W10, #1
-	BRA Z	L__Responder126
+	BRA Z	L__Responder128
 	GOTO	L_Responder20
-L__Responder126:
+L__Responder128:
 ;ADC_DAC.c,259 :: 		for (ir=4;ir>=3;ir--){
 	MOV	#lo_addr(_ir), W1
 	MOV.B	#4, W0
@@ -743,9 +743,9 @@ L_Responder21:
 	MOV	#lo_addr(_ir), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA GEU	L__Responder127
+	BRA GEU	L__Responder129
 	GOTO	L_Responder22
-L__Responder127:
+L__Responder129:
 ;ADC_DAC.c,260 :: 		Rspt[ir]=(*chIDst++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la Distancia calculada
 	MOV	#lo_addr(_ir), W0
 	ZE	[W0], W1
@@ -767,9 +767,9 @@ L_Responder22:
 L_Responder20:
 ;ADC_DAC.c,263 :: 		if (Reg==0x02){
 	CP	W10, #2
-	BRA Z	L__Responder128
+	BRA Z	L__Responder130
 	GOTO	L_Responder24
-L__Responder128:
+L__Responder130:
 ;ADC_DAC.c,264 :: 		for (ir=4;ir>=3;ir--){
 	MOV	#lo_addr(_ir), W1
 	MOV.B	#4, W0
@@ -778,9 +778,9 @@ L_Responder25:
 	MOV	#lo_addr(_ir), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA GEU	L__Responder129
+	BRA GEU	L__Responder131
 	GOTO	L_Responder26
-L__Responder129:
+L__Responder131:
 ;ADC_DAC.c,265 :: 		Rspt[ir]=(*chCaudal++);           //Rellena los bytes 3 y 4 de la trama de respuesta con el dato del Caudal calculado
 	MOV	#lo_addr(_ir), W0
 	ZE	[W0], W1
@@ -802,9 +802,9 @@ L_Responder26:
 L_Responder24:
 ;ADC_DAC.c,268 :: 		if (Reg==0x03){
 	CP	W10, #3
-	BRA Z	L__Responder130
+	BRA Z	L__Responder132
 	GOTO	L_Responder28
-L__Responder130:
+L__Responder132:
 ;ADC_DAC.c,269 :: 		for (ir=4;ir>=3;ir--){
 	MOV	#lo_addr(_ir), W1
 	MOV.B	#4, W0
@@ -813,9 +813,9 @@ L_Responder29:
 	MOV	#lo_addr(_ir), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA GEU	L__Responder131
+	BRA GEU	L__Responder133
 	GOTO	L_Responder30
-L__Responder131:
+L__Responder133:
 ;ADC_DAC.c,270 :: 		Rspt[ir]=(*chTemp++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la Temperatura calculada
 	MOV	#lo_addr(_ir), W0
 	ZE	[W0], W1
@@ -837,9 +837,9 @@ L_Responder30:
 L_Responder28:
 ;ADC_DAC.c,273 :: 		if (Reg==0x04){
 	CP	W10, #4
-	BRA Z	L__Responder132
+	BRA Z	L__Responder134
 	GOTO	L_Responder32
-L__Responder132:
+L__Responder134:
 ;ADC_DAC.c,274 :: 		for (ir=4;ir>=3;ir--){
 	MOV	#lo_addr(_ir), W1
 	MOV.B	#4, W0
@@ -848,9 +848,9 @@ L_Responder33:
 	MOV	#lo_addr(_ir), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA GEU	L__Responder133
+	BRA GEU	L__Responder135
 	GOTO	L_Responder34
-L__Responder133:
+L__Responder135:
 ;ADC_DAC.c,275 :: 		Rspt[ir]=(*chKadj++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato del factor de calibracion calculado
 	MOV	#lo_addr(_ir), W0
 	ZE	[W0], W1
@@ -872,9 +872,9 @@ L_Responder34:
 L_Responder32:
 ;ADC_DAC.c,278 :: 		if (Reg==0x05){
 	CP	W10, #5
-	BRA Z	L__Responder134
+	BRA Z	L__Responder136
 	GOTO	L_Responder36
-L__Responder134:
+L__Responder136:
 ;ADC_DAC.c,279 :: 		for (ir=4;ir>=3;ir--){
 	MOV	#lo_addr(_ir), W1
 	MOV.B	#4, W0
@@ -883,9 +883,9 @@ L_Responder37:
 	MOV	#lo_addr(_ir), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA GEU	L__Responder135
+	BRA GEU	L__Responder137
 	GOTO	L_Responder38
-L__Responder135:
+L__Responder137:
 ;ADC_DAC.c,280 :: 		Rspt[ir]=(*chT2prom++);           //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de T2 calculado
 	MOV	#lo_addr(_ir), W0
 	ZE	[W0], W1
@@ -919,9 +919,9 @@ L_Responder40:
 	MOV	#lo_addr(_ir), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #6
-	BRA LTU	L__Responder136
+	BRA LTU	L__Responder138
 	GOTO	L_Responder41
-L__Responder136:
+L__Responder138:
 ;ADC_DAC.c,288 :: 		UART1_Write(Rspt[ir]);               //Envia la trama de respuesta
 	MOV	#lo_addr(_ir), W0
 	ZE	[W0], W1
@@ -942,9 +942,9 @@ L_Responder41:
 L_Responder43:
 	CALL	_UART1_Tx_Idle
 	CP	W0, #0
-	BRA Z	L__Responder137
+	BRA Z	L__Responder139
 	GOTO	L_Responder44
-L__Responder137:
+L__Responder139:
 	GOTO	L_Responder43
 L_Responder44:
 ;ADC_DAC.c,291 :: 		RB5_bit = 0;                             //Establece el Max485 en modo de lectura;
@@ -957,9 +957,9 @@ L_Responder45:
 	MOV	#lo_addr(_ipp), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #5
-	BRA LTU	L__Responder138
+	BRA LTU	L__Responder140
 	GOTO	L_Responder46
-L__Responder138:
+L__Responder140:
 ;ADC_DAC.c,294 :: 		Rspt[ipp]=0;;                        //Limpia la trama de respuesta
 	MOV	#lo_addr(_ipp), W0
 	ZE	[W0], W1
@@ -1012,9 +1012,9 @@ L_Calibracion48:
 	MOV	#lo_addr(_conts), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA LT	L__Calibracion140
+	BRA LT	L__Calibracion142
 	GOTO	L_Calibracion49
-L__Calibracion140:
+L__Calibracion142:
 ;ADC_DAC.c,309 :: 		Pulse();                           //Inicia una secuencia de medicion
 	PUSH	W10
 	CALL	_Pulse
@@ -1034,14 +1034,14 @@ L__Calibracion140:
 	CALL	__Compare_Le_Fp
 	CP0	W0
 	CLR.B	W0
-	BRA GT	L__Calibracion141
+	BRA GT	L__Calibracion143
 	INC.B	W0
-L__Calibracion141:
+L__Calibracion143:
 	POP	W10
 	CP0.B	W0
-	BRA NZ	L__Calibracion142
+	BRA NZ	L__Calibracion144
 	GOTO	L_Calibracion50
-L__Calibracion142:
+L__Calibracion144:
 ;ADC_DAC.c,312 :: 		T2sum = T2sum + T2b;            //Acumula la sumatoria de valores de T2 calculados por la funcion Pulse()
 	MOV	_T2sum, W2
 	MOV	_T2sum+2, W3
@@ -1173,16 +1173,16 @@ _UART1Interrupt:
 ;ADC_DAC.c,338 :: 		if ((Dato==Hdr)&&(ip==0)){                    //Verifica que el primer dato en llegar sea el identificador de inicio de trama
 	MOV.B	#58, W1
 	CP.B	W0, W1
-	BRA Z	L__UART1Interrupt144
-	GOTO	L__UART1Interrupt103
-L__UART1Interrupt144:
+	BRA Z	L__UART1Interrupt146
+	GOTO	L__UART1Interrupt105
+L__UART1Interrupt146:
 	MOV	#lo_addr(_ip), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
-	BRA Z	L__UART1Interrupt145
-	GOTO	L__UART1Interrupt102
-L__UART1Interrupt145:
-L__UART1Interrupt101:
+	BRA Z	L__UART1Interrupt147
+	GOTO	L__UART1Interrupt104
+L__UART1Interrupt147:
+L__UART1Interrupt103:
 ;ADC_DAC.c,339 :: 		BanT = 1;                                 //Activa la bandera de trama
 	MOV	#lo_addr(_BanT), W1
 	MOV.B	#1, W0
@@ -1195,44 +1195,44 @@ L__UART1Interrupt101:
 	MOV	#lo_addr(_Dato), W0
 	MOV.B	[W0], [W1]
 ;ADC_DAC.c,338 :: 		if ((Dato==Hdr)&&(ip==0)){                    //Verifica que el primer dato en llegar sea el identificador de inicio de trama
-L__UART1Interrupt103:
-L__UART1Interrupt102:
+L__UART1Interrupt105:
+L__UART1Interrupt104:
 ;ADC_DAC.c,342 :: 		if ((Dato!=Hdr)&&(ip==0)){                    //Verifica si el primer dato en llegar es diferente al identificador del inicio de trama
 	MOV	#lo_addr(_Dato), W0
 	MOV.B	[W0], W1
 	MOV.B	#58, W0
 	CP.B	W1, W0
-	BRA NZ	L__UART1Interrupt146
-	GOTO	L__UART1Interrupt105
-L__UART1Interrupt146:
-	MOV	#lo_addr(_ip), W0
-	MOV.B	[W0], W0
-	CP.B	W0, #0
-	BRA Z	L__UART1Interrupt147
-	GOTO	L__UART1Interrupt104
-L__UART1Interrupt147:
-L__UART1Interrupt100:
-;ADC_DAC.c,343 :: 		ip=-1;                                    //Si es asi: reduce el subindice en una unidad
-	MOV	#lo_addr(_ip), W1
-	MOV.B	#255, W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,342 :: 		if ((Dato!=Hdr)&&(ip==0)){                    //Verifica si el primer dato en llegar es diferente al identificador del inicio de trama
-L__UART1Interrupt105:
-L__UART1Interrupt104:
-;ADC_DAC.c,345 :: 		if ((BanT==1)&&(ip!=0)){
-	MOV	#lo_addr(_BanT), W0
-	MOV.B	[W0], W0
-	CP.B	W0, #1
-	BRA Z	L__UART1Interrupt148
+	BRA NZ	L__UART1Interrupt148
 	GOTO	L__UART1Interrupt107
 L__UART1Interrupt148:
 	MOV	#lo_addr(_ip), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #0
-	BRA NZ	L__UART1Interrupt149
+	BRA Z	L__UART1Interrupt149
 	GOTO	L__UART1Interrupt106
 L__UART1Interrupt149:
-L__UART1Interrupt99:
+L__UART1Interrupt102:
+;ADC_DAC.c,343 :: 		ip=-1;                                    //Si es asi: reduce el subindice en una unidad
+	MOV	#lo_addr(_ip), W1
+	MOV.B	#255, W0
+	MOV.B	W0, [W1]
+;ADC_DAC.c,342 :: 		if ((Dato!=Hdr)&&(ip==0)){                    //Verifica si el primer dato en llegar es diferente al identificador del inicio de trama
+L__UART1Interrupt107:
+L__UART1Interrupt106:
+;ADC_DAC.c,345 :: 		if ((BanT==1)&&(ip!=0)){
+	MOV	#lo_addr(_BanT), W0
+	MOV.B	[W0], W0
+	CP.B	W0, #1
+	BRA Z	L__UART1Interrupt150
+	GOTO	L__UART1Interrupt109
+L__UART1Interrupt150:
+	MOV	#lo_addr(_ip), W0
+	MOV.B	[W0], W0
+	CP.B	W0, #0
+	BRA NZ	L__UART1Interrupt151
+	GOTO	L__UART1Interrupt108
+L__UART1Interrupt151:
+L__UART1Interrupt101:
 ;ADC_DAC.c,346 :: 		Ptcn[ip] = Dato;                          //Almacena el resto de datos en la trama de peticion si la bandera de trama esta activada
 	MOV	#lo_addr(_ip), W0
 	ZE	[W0], W1
@@ -1241,8 +1241,8 @@ L__UART1Interrupt99:
 	MOV	#lo_addr(_Dato), W0
 	MOV.B	[W0], [W1]
 ;ADC_DAC.c,345 :: 		if ((BanT==1)&&(ip!=0)){
-L__UART1Interrupt107:
-L__UART1Interrupt106:
+L__UART1Interrupt109:
+L__UART1Interrupt108:
 ;ADC_DAC.c,349 :: 		ip++;                                         //Aumenta el subindice una unidad
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ip), W0
@@ -1251,9 +1251,9 @@ L__UART1Interrupt106:
 	MOV	#lo_addr(_ip), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #6
-	BRA Z	L__UART1Interrupt150
+	BRA Z	L__UART1Interrupt152
 	GOTO	L_UART1Interrupt60
-L__UART1Interrupt150:
+L__UART1Interrupt152:
 ;ADC_DAC.c,351 :: 		BanP = 1;                                 //Habilita la bandera de lectura de datos
 	MOV	#lo_addr(_BanP), W1
 	MOV.B	#1, W0
@@ -1302,9 +1302,9 @@ L_Timer1Interrupt62:
 	MOV	_i, W1
 	MOV	#350, W0
 	CP	W1, W0
-	BRA LTU	L__Timer1Interrupt152
+	BRA LTU	L__Timer1Interrupt154
 	GOTO	L_Timer1Interrupt63
-L__Timer1Interrupt152:
+L__Timer1Interrupt154:
 ;ADC_DAC.c,366 :: 		M[i] = ADC1BUF0;                           //Almacena el valor actual de la conversion del ADC en el vector M
 	MOV	_i, W0
 	SL	W0, #1, W1
@@ -1354,9 +1354,9 @@ _Timer2Interrupt:
 ;ADC_DAC.c,378 :: 		if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
 	MOV	_contp, W0
 	CP	W0, #10
-	BRA LTU	L__Timer2Interrupt154
+	BRA LTU	L__Timer2Interrupt156
 	GOTO	L_Timer2Interrupt65
-L__Timer2Interrupt154:
+L__Timer2Interrupt156:
 ;ADC_DAC.c,379 :: 		RB2_bit = ~RB2_bit;                      //Conmuta el valor del pin RB14
 	BTG	RB2_bit, BitPos(RB2_bit+0)
 ;ADC_DAC.c,380 :: 		}else {
@@ -1368,9 +1368,9 @@ L_Timer2Interrupt65:
 	MOV	#110, W1
 	MOV	#lo_addr(_contp), W0
 	CP	W1, [W0]
-	BRA Z	L__Timer2Interrupt155
+	BRA Z	L__Timer2Interrupt157
 	GOTO	L_Timer2Interrupt67
-L__Timer2Interrupt155:
+L__Timer2Interrupt157:
 ;ADC_DAC.c,384 :: 		IEC0.T2IE = 0;                       //Desabilita la interrupcion por desborde del TMR2 para no interferir con las interrupciones por desborde de TMR1
 	BCLR	IEC0, #7
 ;ADC_DAC.c,385 :: 		T2CON.TON = 0;                       //Apaga el TMR2
@@ -1657,49 +1657,28 @@ L_main68:
 	MOV.B	W0, [W1]
 ;ADC_DAC.c,489 :: 		while(1){
 L_main70:
-;ADC_DAC.c,491 :: 		Banp=1;
-	MOV	#lo_addr(_BanP), W1
-	MOV.B	#1, W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,492 :: 		Ptcn[0]=Hdr;
-	MOV	#lo_addr(_Ptcn), W1
-	MOV.B	#58, W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,493 :: 		Ptcn[1]=Id;
-	MOV	#lo_addr(_Ptcn+1), W1
-	MOV	_Id, W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,494 :: 		Ptcn[2]=0x01;
-	MOV	#lo_addr(_Ptcn+2), W1
-	MOV.B	#1, W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,495 :: 		Ptcn[3]=0x00;
-	MOV	#lo_addr(_Ptcn+3), W1
-	CLR	W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,496 :: 		Ptcn[4]=0x00;
-	MOV	#lo_addr(_Ptcn+4), W1
-	CLR	W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,497 :: 		Ptcn[5]=End;
-	MOV	#lo_addr(_Ptcn+5), W1
-	MOV.B	#13, W0
-	MOV.B	W0, [W1]
+;ADC_DAC.c,499 :: 		if (BanP==1){                                   //Verifica si se realizo una peticion
+	MOV	#lo_addr(_BanP), W0
+	MOV.B	[W0], W0
+	CP.B	W0, #1
+	BRA Z	L__main160
+	GOTO	L_main72
+L__main160:
 ;ADC_DAC.c,500 :: 		if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){    //Verifica el identificador de esclavo y el byte de final de trama
 	MOV	#lo_addr(_Ptcn+1), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_Id), W0
 	CP	W1, [W0]
-	BRA Z	L__main158
-	GOTO	L__main110
-L__main158:
+	BRA Z	L__main161
+	GOTO	L__main112
+L__main161:
 	MOV	#lo_addr(_Ptcn+5), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #13
-	BRA Z	L__main159
-	GOTO	L__main109
-L__main159:
-L__main108:
+	BRA Z	L__main162
+	GOTO	L__main111
+L__main162:
+L__main110:
 ;ADC_DAC.c,502 :: 		Fcn = Ptcn[2];                            //Almacena el tipo de funcion requerida
 	MOV	#lo_addr(_Fcn), W1
 	MOV	#lo_addr(_Ptcn+2), W0
@@ -1708,9 +1687,9 @@ L__main108:
 	MOV	#lo_addr(_Ptcn+2), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #1
-	BRA Z	L__main160
+	BRA Z	L__main163
 	GOTO	L_main76
-L__main160:
+L__main163:
 ;ADC_DAC.c,505 :: 		Calcular();                            //Realiza una secuencia de calculo
 	CALL	_Calcular
 ;ADC_DAC.c,506 :: 		Responder(0x01);                       //Envia la trama de repuesta con el valor del registro 0x01
@@ -1722,9 +1701,9 @@ L_main76:
 	MOV	#lo_addr(_Fcn), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #2
-	BRA Z	L__main161
+	BRA Z	L__main164
 	GOTO	L_main77
-L__main161:
+L__main164:
 ;ADC_DAC.c,509 :: 		Calcular();                            //Realiza una secuencia de calculo
 	CALL	_Calcular
 ;ADC_DAC.c,510 :: 		*chDP = Ptcn[4];                       //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
@@ -1745,9 +1724,9 @@ L_main77:
 	MOV	#lo_addr(_Fcn), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #3
-	BRA Z	L__main162
+	BRA Z	L__main165
 	GOTO	L_main78
-L__main162:
+L__main165:
 ;ADC_DAC.c,515 :: 		*chDP = Ptcn[4];                       //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
 	MOV	#lo_addr(_Ptcn+4), W1
 	MOV	_chDP, W0
@@ -1766,9 +1745,9 @@ L_main78:
 	MOV	#lo_addr(_Fcn), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #4
-	BRA Z	L__main163
+	BRA Z	L__main166
 	GOTO	L_main79
-L__main163:
+L__main166:
 ;ADC_DAC.c,520 :: 		*chDP = Ptcn[4];                       //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
 	MOV	#lo_addr(_Ptcn+4), W1
 	MOV	_chDP, W0
@@ -1787,9 +1766,9 @@ L_main79:
 	MOV	#lo_addr(_Fcn), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #5
-	BRA Z	L__main164
+	BRA Z	L__main167
 	GOTO	L_main80
-L__main164:
+L__main167:
 ;ADC_DAC.c,525 :: 		Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
 	MOV	#lo_addr(_Rspt+2), W1
 	MOV	#lo_addr(_Ptcn+2), W0
@@ -1802,150 +1781,161 @@ L__main164:
 	MOV	#lo_addr(_Rspt+4), W1
 	MOV	#lo_addr(_Ptcn+4), W0
 	MOV.B	[W0], [W1]
-;ADC_DAC.c,528 :: 		RB5_bit = 1;                           //Establece el Max485 en modo de escritura
+;ADC_DAC.c,528 :: 		Delay_ms(500);
+	MOV	#102, W8
+	MOV	#47563, W7
+L_main81:
+	DEC	W7
+	BRA NZ	L_main81
+	DEC	W8
+	BRA NZ	L_main81
+	NOP
+;ADC_DAC.c,529 :: 		RB5_bit = 1;                           //Establece el Max485 en modo de escritura
 	BSET	RB5_bit, BitPos(RB5_bit+0)
-;ADC_DAC.c,529 :: 		for (ir=0;ir<Rsize;ir++){
+;ADC_DAC.c,530 :: 		for (ir=0;ir<Rsize;ir++){
 	MOV	#lo_addr(_ir), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-L_main81:
+L_main83:
 	MOV	#lo_addr(_ir), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #6
-	BRA LTU	L__main165
-	GOTO	L_main82
-L__main165:
-;ADC_DAC.c,530 :: 		UART1_Write(Rspt[ir]);             //Envia la trama de respuesta
+	BRA LTU	L__main168
+	GOTO	L_main84
+L__main168:
+;ADC_DAC.c,531 :: 		UART1_Write(Rspt[ir]);             //Envia la trama de respuesta
 	MOV	#lo_addr(_ir), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_Rspt), W0
 	ADD	W0, W1, W0
 	ZE	[W0], W10
 	CALL	_UART1_Write
-;ADC_DAC.c,529 :: 		for (ir=0;ir<Rsize;ir++){
+;ADC_DAC.c,530 :: 		for (ir=0;ir<Rsize;ir++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ir), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,531 :: 		}
-	GOTO	L_main81
-L_main82:
-;ADC_DAC.c,532 :: 		while(UART1_Tx_Idle()==0);             //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+;ADC_DAC.c,532 :: 		}
+	GOTO	L_main83
 L_main84:
+;ADC_DAC.c,533 :: 		while(UART1_Tx_Idle()==0);             //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+L_main86:
 	CALL	_UART1_Tx_Idle
 	CP	W0, #0
-	BRA Z	L__main166
-	GOTO	L_main85
-L__main166:
-	GOTO	L_main84
-L_main85:
-;ADC_DAC.c,533 :: 		RB5_bit = 0;                           //Establece el Max485 en modo de lectura;
+	BRA Z	L__main169
+	GOTO	L_main87
+L__main169:
+	GOTO	L_main86
+L_main87:
+;ADC_DAC.c,534 :: 		RB5_bit = 0;                           //Establece el Max485 en modo de lectura;
 	BCLR	RB5_bit, BitPos(RB5_bit+0)
-;ADC_DAC.c,534 :: 		for (ipp=3;ipp<5;ipp++){
+;ADC_DAC.c,535 :: 		for (ipp=3;ipp<5;ipp++){
 	MOV	#lo_addr(_ipp), W1
 	MOV.B	#3, W0
 	MOV.B	W0, [W1]
-L_main86:
+L_main88:
 	MOV	#lo_addr(_ipp), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #5
-	BRA LTU	L__main167
-	GOTO	L_main87
-L__main167:
-;ADC_DAC.c,535 :: 		Rspt[ipp]=0;;                      //Limpia la trama de respuesta
+	BRA LTU	L__main170
+	GOTO	L_main89
+L__main170:
+;ADC_DAC.c,536 :: 		Rspt[ipp]=0;;                      //Limpia la trama de respuesta
 	MOV	#lo_addr(_ipp), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_Rspt), W0
 	ADD	W0, W1, W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,534 :: 		for (ipp=3;ipp<5;ipp++){
+;ADC_DAC.c,535 :: 		for (ipp=3;ipp<5;ipp++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ipp), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,536 :: 		}
-	GOTO	L_main86
-L_main87:
 ;ADC_DAC.c,537 :: 		}
+	GOTO	L_main88
+L_main89:
+;ADC_DAC.c,538 :: 		}
 L_main80:
-;ADC_DAC.c,540 :: 		DatoPtcn = 0;                             //Limpia la variable
+;ADC_DAC.c,541 :: 		DatoPtcn = 0;                             //Limpia la variable
 	CLR	W0
 	MOV	W0, _DatoPtcn
-;ADC_DAC.c,541 :: 		for (ipp=0;ipp<Psize;ipp++){
+;ADC_DAC.c,542 :: 		for (ipp=0;ipp<Psize;ipp++){
 	MOV	#lo_addr(_ipp), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-L_main89:
+L_main91:
 	MOV	#lo_addr(_ipp), W0
 	MOV.B	[W0], W0
 	CP.B	W0, #6
-	BRA LTU	L__main168
-	GOTO	L_main90
-L__main168:
-;ADC_DAC.c,542 :: 		Ptcn[ipp]=0;                          //Limpia la trama de peticion
-	MOV	#lo_addr(_ipp), W0
-	ZE	[W0], W1
-	MOV	#lo_addr(_Ptcn), W0
-	ADD	W0, W1, W1
-	CLR	W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,541 :: 		for (ipp=0;ipp<Psize;ipp++){
-	MOV.B	#1, W1
-	MOV	#lo_addr(_ipp), W0
-	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,543 :: 		}
-	GOTO	L_main89
-L_main90:
-;ADC_DAC.c,544 :: 		BanP = 0;                                 //Limpia la bandera de lectura de datos
-	MOV	#lo_addr(_BanP), W1
-	CLR	W0
-	MOV.B	W0, [W1]
-;ADC_DAC.c,546 :: 		}else{
+	BRA LTU	L__main171
 	GOTO	L_main92
-;ADC_DAC.c,500 :: 		if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){    //Verifica el identificador de esclavo y el byte de final de trama
-L__main110:
-L__main109:
-;ADC_DAC.c,547 :: 		for (ipp=0;ipp<Psize;ipp++){
-	MOV	#lo_addr(_ipp), W1
-	CLR	W0
-	MOV.B	W0, [W1]
-L_main93:
-	MOV	#lo_addr(_ipp), W0
-	MOV.B	[W0], W0
-	CP.B	W0, #6
-	BRA LTU	L__main169
-	GOTO	L_main94
-L__main169:
-;ADC_DAC.c,548 :: 		Ptcn[ipp]=0;                       //Limpia la trama de peticion
+L__main171:
+;ADC_DAC.c,543 :: 		Ptcn[ipp]=0;                          //Limpia la trama de peticion
 	MOV	#lo_addr(_ipp), W0
 	ZE	[W0], W1
 	MOV	#lo_addr(_Ptcn), W0
 	ADD	W0, W1, W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,547 :: 		for (ipp=0;ipp<Psize;ipp++){
+;ADC_DAC.c,542 :: 		for (ipp=0;ipp<Psize;ipp++){
 	MOV.B	#1, W1
 	MOV	#lo_addr(_ipp), W0
 	ADD.B	W1, [W0], [W0]
-;ADC_DAC.c,549 :: 		}
-	GOTO	L_main93
-L_main94:
-;ADC_DAC.c,550 :: 		BanP = 0;                              //Limpia la bandera de lectura de datos
+;ADC_DAC.c,544 :: 		}
+	GOTO	L_main91
+L_main92:
+;ADC_DAC.c,545 :: 		BanP = 0;                                 //Limpia la bandera de lectura de datos
 	MOV	#lo_addr(_BanP), W1
 	CLR	W0
 	MOV.B	W0, [W1]
-;ADC_DAC.c,551 :: 		}
-L_main92:
-;ADC_DAC.c,555 :: 		Delay_ms(10);
+;ADC_DAC.c,547 :: 		}else{
+	GOTO	L_main94
+;ADC_DAC.c,500 :: 		if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){    //Verifica el identificador de esclavo y el byte de final de trama
+L__main112:
+L__main111:
+;ADC_DAC.c,548 :: 		for (ipp=0;ipp<Psize;ipp++){
+	MOV	#lo_addr(_ipp), W1
+	CLR	W0
+	MOV.B	W0, [W1]
+L_main95:
+	MOV	#lo_addr(_ipp), W0
+	MOV.B	[W0], W0
+	CP.B	W0, #6
+	BRA LTU	L__main172
+	GOTO	L_main96
+L__main172:
+;ADC_DAC.c,549 :: 		Ptcn[ipp]=0;                       //Limpia la trama de peticion
+	MOV	#lo_addr(_ipp), W0
+	ZE	[W0], W1
+	MOV	#lo_addr(_Ptcn), W0
+	ADD	W0, W1, W1
+	CLR	W0
+	MOV.B	W0, [W1]
+;ADC_DAC.c,548 :: 		for (ipp=0;ipp<Psize;ipp++){
+	MOV.B	#1, W1
+	MOV	#lo_addr(_ipp), W0
+	ADD.B	W1, [W0], [W0]
+;ADC_DAC.c,550 :: 		}
+	GOTO	L_main95
+L_main96:
+;ADC_DAC.c,551 :: 		BanP = 0;                              //Limpia la bandera de lectura de datos
+	MOV	#lo_addr(_BanP), W1
+	CLR	W0
+	MOV.B	W0, [W1]
+;ADC_DAC.c,552 :: 		}
+L_main94:
+;ADC_DAC.c,553 :: 		}
+L_main72:
+;ADC_DAC.c,556 :: 		Delay_ms(10);
 	MOV	#3, W8
 	MOV	#2261, W7
-L_main96:
+L_main98:
 	DEC	W7
-	BRA NZ	L_main96
+	BRA NZ	L_main98
 	DEC	W8
-	BRA NZ	L_main96
-;ADC_DAC.c,557 :: 		}
+	BRA NZ	L_main98
+;ADC_DAC.c,558 :: 		}
 	GOTO	L_main70
-;ADC_DAC.c,559 :: 		}
+;ADC_DAC.c,560 :: 		}
 L_end_main:
 	POP	W11
 	POP	W10

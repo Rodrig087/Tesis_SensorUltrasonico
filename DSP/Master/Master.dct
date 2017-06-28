@@ -728,6 +728,7 @@ end
 equals_double
 f
 fast
+fcn
 ferr
 ferr_bit
 ferr_rc1sta_bit
@@ -2143,7 +2144,6 @@ to__bit
 tosh
 tosl
 tosu
-tp
 trigsel
 trigsel_bit
 trisa

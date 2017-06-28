@@ -17,12 +17,12 @@ sbit LCD_D7_Direction at TRISB0_bit;
 
 
 
-const short TP = 0x01;
-const short Id = 0x07;
-const short Psize = 4;
+const short Id = 0x01;
+const short Fcn = 0x05;
+const short Psize = 6;
 const short Rsize = 6;
-const short Hdr = 0xEE;
-const short End = 0xFF;
+const short Hdr = 0x3A;
+const short End = 0x0D;
 unsigned char Ptcn[Psize];
 unsigned char Rspt[Rsize];
 short ir, irr, ip, j;
@@ -96,9 +96,11 @@ void main() {
  ptrDst = &Dst;
 
  Ptcn[0]=Hdr;
- Ptcn[1]=Tp;
- Ptcn[2]=Id;
- Ptcn[3]=End;
+ Ptcn[1]=Id;
+ Ptcn[2]=Fcn;
+ Ptcn[3]=0x01;
+ Ptcn[4]=0x0E;
+ Ptcn[5]=End;
 
  Bb=0;
  Dst=0;
@@ -119,18 +121,17 @@ void main() {
  }
 
  if (BanP==1){
- if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
- if ((Rspt[1]==TP)&&(Rspt[2]==Id)){
+ if ((Rspt[1]==Id)&&(Rspt[Rsize-1]==End)){
 
- for (irr=3;irr<5;irr++){
- *(ptrDst+(irr-3)) = Rspt[irr];
- }
+ *ptrDst = Rspt[4];
+ *(ptrDst+1) = Rspt[3];
+
  for (irr=0;irr<(Rsize-1);irr++){
  Rspt[irr]=0;;
  }
  BanP = 0;
 
- }
+
  } else {
 
  for (irr=0;irr<(Rsize-1);irr++){

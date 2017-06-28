@@ -26,12 +26,12 @@ sbit LCD_D7_Direction at TRISB0_bit;
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la peticion y respuesta de datos
-const short TP = 0x01;                                  //Identificador de tipo de sensor
-const short Id = 0x07;                                  //Identificador de numero de esclavo
-const short Psize = 4;                                  //Constante de longitud de trama de Peticion
+const short Id = 0x01;                                  //Identificador de tipo de sensor
+const short Fcn = 0x05;                                  //Identificador de numero de esclavo
+const short Psize = 6;                                  //Constante de longitud de trama de Peticion
 const short Rsize = 6;                                  //Constante de longitud de trama de Respuesta
-const short Hdr = 0xEE;                                 //Constante de delimitador de inicio de trama
-const short End = 0xFF;                                 //Constante de delimitador de final de trama
+const short Hdr = 0x3A;                                 //Constante de delimitador de inicio de trama
+const short End = 0x0D;                                 //Constante de delimitador de final de trama
 unsigned char Ptcn[Psize];
 unsigned char Rspt[Rsize];
 short ir, irr, ip, j;                                          //Subindices para las tramas de peticion y respuesta
@@ -105,9 +105,11 @@ void main() {
      ptrDst = &Dst;
 
      Ptcn[0]=Hdr;
-     Ptcn[1]=Tp;
-     Ptcn[2]=Id;
-     Ptcn[3]=End;
+     Ptcn[1]=Id;
+     Ptcn[2]=Fcn;
+     Ptcn[3]=0x01;
+     Ptcn[4]=0x0E;
+     Ptcn[5]=End;
 
      Bb=0;
      Dst=0;
@@ -128,18 +130,17 @@ void main() {
             }
 
             if (BanP==1){
-               if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
-                  if ((Rspt[1]==TP)&&(Rspt[2]==Id)){                //Verifica el identificador de tipo de sensor y el identificador de esclavo
+               if ((Rspt[1]==Id)&&(Rspt[Rsize-1]==End)){
 
-                      for (irr=3;irr<5;irr++){
-                        *(ptrDst+(irr-3)) = Rspt[irr];               //Asigna a TT2 los datos tomados de la trama de peticion
-                      }
-                      for (irr=0;irr<(Rsize-1);irr++){
-                           Rspt[irr]=0;;                            //Limpia los bits de datos de la trama de respuesta
-                      }
-                      BanP = 0;
+                    *ptrDst = Rspt[4];
+                    *(ptrDst+1) = Rspt[3];
 
-                  }
+                    for (irr=0;irr<(Rsize-1);irr++){
+                         Rspt[irr]=0;;                            //Limpia los bits de datos de la trama de respuesta
+                    }
+                    BanP = 0;
+
+
                } else {
 
                       for (irr=0;irr<(Rsize-1);irr++){
