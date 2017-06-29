@@ -1347,8 +1347,8 @@ _Configuracion:
 	MOV	WREG, AD1PCFGL
 ;ADC_DAC.c,412 :: 		TRISA1_bit = 1;                             //Establece el pin RA1 como entrada
 	BSET	TRISA1_bit, BitPos(TRISA1_bit+0)
-;ADC_DAC.c,413 :: 		TRISB = 0xFF80;                             //TRISB = 11111111 10000000
-	MOV	#65408, W0
+;ADC_DAC.c,413 :: 		TRISB = 0xFF40;                             //TRISB = 11111111 01000000
+	MOV	#65344, W0
 	MOV	WREG, TRISB
 ;ADC_DAC.c,416 :: 		AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits
 	BCLR	AD1CON1, #10

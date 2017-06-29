@@ -386,7 +386,7 @@ void Configuracion(){
 
  AD1PCFGL = 0xFFFD;
  TRISA1_bit = 1;
- TRISB = 0xFF80;
+ TRISB = 0xFF40;
 
 
  AD1CON1.AD12B = 0;

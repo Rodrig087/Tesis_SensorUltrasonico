@@ -410,7 +410,7 @@ void Configuracion(){
      //Configuracion de puertos
      AD1PCFGL = 0xFFFD;                          //Configura el puerto AN1 como entrada analogica y todas las demas como digitales
      TRISA1_bit = 1;                             //Establece el pin RA1 como entrada
-     TRISB = 0xFF80;                             //TRISB = 11111111 10000000
+     TRISB = 0xFF40;                             //TRISB = 11111111 01000000
 
      //Configuracion del ADC
      AD1CON1.AD12B = 0;                          //Configura el ADC en modo de 10 bits

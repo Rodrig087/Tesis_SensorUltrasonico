@@ -12,11 +12,11 @@ diagnostics: 570	123	Compiled Successfully	ADC_DAC.c
 warning: 493	1519	Logical expression is always: 'False'	ADC_DAC.c
 warning: 511	1519	Logical expression is always: 'True'	ADC_DAC.c
 hint: 96	1164	Variable 'Rfrac' has been eliminated by optimizer	ADC_DAC.c
-diagnostics: 0	127	All files Compiled in 219 ms	 
+diagnostics: 0	127	All files Compiled in 171 ms	 
 hint: 0	1144	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)
 hint: 0	1144	Static RAM (bytes): 894   Dynamic RAM (bytes): 1154	Static RAM (bytes): 894   Dynamic RAM (bytes): 1154
 hint: 0	1144	Used ROM (bytes): 6852 (30%)  Free ROM (bytes): 15676 (70%)	Used ROM (bytes): 6852 (30%)  Free ROM (bytes): 15676 (70%)
 diagnostics: 0	125	Project Linked Successfully	ADC_DAC.mcpds
-diagnostics: 0	128	Linked in 266 ms	 
-diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 672 ms	 
-diagnostics: 0	103	Finished successfully: 29 jun. 2017, 16:45:08	ADC_DAC.mcpds
+diagnostics: 0	128	Linked in 219 ms	 
+diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 547 ms	 
+diagnostics: 0	103	Finished successfully: 29 jun. 2017, 17:06:51	ADC_DAC.mcpds
