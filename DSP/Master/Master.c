@@ -28,7 +28,7 @@ sbit LCD_D7_Direction at TRISB0_bit;
 //Variables para la peticion y respuesta de datos
 const short Id = 0x01;                                  //Identificador de tipo de sensor
 const short Fcn = 0x05;                                  //Identificador de numero de esclavo
-const short Psize = 6;                                  //Constante de longitud de trama de Peticion
+const short Psize = 1;                                  //Constante de longitud de trama de Peticion
 const short Rsize = 6;                                  //Constante de longitud de trama de Respuesta
 const short Hdr = 0x3A;                                 //Constante de delimitador de inicio de trama
 const short End = 0x0D;                                 //Constante de delimitador de final de trama
@@ -105,11 +105,11 @@ void main() {
      ptrDst = &Dst;
 
      Ptcn[0]=Hdr;
-     Ptcn[1]=Id;
-     Ptcn[2]=Fcn;
-     Ptcn[3]=0x01;
-     Ptcn[4]=0x0E;
-     Ptcn[5]=End;
+     //Ptcn[1]=Id;
+     //Ptcn[2]=Fcn;
+     //Ptcn[3]=0x01;
+     //Ptcn[4]=0x0E;
+     //Ptcn[5]=End;
 
      Bb=0;
      Dst=0;

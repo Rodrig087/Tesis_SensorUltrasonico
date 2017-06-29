@@ -180,21 +180,6 @@ _main:
 ;Master.c,107 :: 		Ptcn[0]=Hdr;
 	MOVLW       58
 	MOVWF       _Ptcn+0 
-;Master.c,108 :: 		Ptcn[1]=Id;
-	MOVLW       1
-	MOVWF       _Ptcn+1 
-;Master.c,109 :: 		Ptcn[2]=Fcn;
-	MOVLW       5
-	MOVWF       _Ptcn+2 
-;Master.c,110 :: 		Ptcn[3]=0x01;
-	MOVLW       1
-	MOVWF       _Ptcn+3 
-;Master.c,111 :: 		Ptcn[4]=0x0E;
-	MOVLW       14
-	MOVWF       _Ptcn+4 
-;Master.c,112 :: 		Ptcn[5]=End;
-	MOVLW       13
-	MOVWF       _Ptcn+5 
 ;Master.c,114 :: 		Bb=0;
 	CLRF        _Bb+0 
 ;Master.c,115 :: 		Dst=0;
@@ -222,7 +207,7 @@ L_main17:
 	XORWF       _ip+0, 0 
 	MOVWF       R0 
 	MOVLW       128
-	XORLW       6
+	XORLW       1
 	SUBWF       R0, 0 
 	BTFSC       STATUS+0, 0 
 	GOTO        L_main18
