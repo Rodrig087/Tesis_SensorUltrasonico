@@ -14,7 +14,7 @@ const float cb3 = 0.819804140111658;
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la peticion y respuesta de datos
 unsigned int Id;                                        //Identificador de esclavo
-const short Psize = 1;                                  //Constante de longitud de trama de Peticion
+const short Psize = 6;                                  //Constante de longitud de trama de Peticion
 const short Rsize = 6;                                  //Constante de longitud de trama de Respuesta
 const short Hdr = 0x3A;                                 //Constante de delimitador de inicio de trama (0x3A)
 const short End = 0x0D;                                 //Constante de delimitador de final de trama (0x0D)
@@ -35,6 +35,7 @@ unsigned int IT2prom;
 unsigned char *chT2prom;
 float doub;
 float *iptr;
+short num;                                              //Variable para realizar pruebas
 
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
 unsigned int contp;
@@ -333,12 +334,10 @@ void Calibracion(unsigned int DReal){
 //Interrupcion por recepcion de datos a travez de UART
 void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
 
-     Dato = UART1_Read();
-     if (Dato==Hdr){
-        BanP=1;
+     if (UART1_Data_Ready()==1){
+        Dato = UART1_Read();
      }
-     
-    /*if ((Dato==Hdr)&&(ip==0)){                    //Verifica que el primer dato en llegar sea el identificador de inicio de trama
+     if ((Dato==Hdr)&&(ip==0)){                    //Verifica que el primer dato en llegar sea el identificador de inicio de trama
          BanT = 1;                                 //Activa la bandera de trama
          Ptcn[ip] = Dato;                          //Almacena el Dato en la trama de peticion
      }
@@ -354,7 +353,7 @@ void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
          BanP = 1;                                 //Habilita la bandera de lectura de datos
          BanT = 0;
          ip=0;                                     //Limpia el subindice de la trama de peticion para permitir una nueva secuencia de recepcion de datos
-     }*/
+     }
      
      U1RXIF_bit = 0;                               //Limpia la bandera de interrupcion de UARTRX
      
@@ -458,8 +457,7 @@ void Configuracion(){
      RPOR3bits.RP7R = 0x03;                      //Asigna Tx a RP7
      IEC0.U1RXIE = 1;                            //Habilita la interrupcion por recepcion de dato por UART
      U1RXIF_bit = 0;                             //Limpia la bandera de interrupcion de UARTRX
-     U1STAbits.URXISEL = 0x11;
-     
+
      //Nivel de prioridad de las interrupciones (+alta -> +prioridad)
      IPC0bits.T1IP = 0x06;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR1
      IPC1bits.T2IP = 0x05;                       //Nivel de prioridad de la interrupcion por desbordamiento del TMR2
@@ -479,16 +477,19 @@ void main() {
      Delay_ms(100);                                           //Espera hata que el modulo UART se estabilice
      RB5_bit = 0;                                             //Establece el Max485 en modo de lectura
 
-     //Id = (PORTB&0xFF00)>>8;                                  //Lee el Id de esclavo establecido por el dipswitch
-     Id=0x01;
+     Id = (PORTB&0xFF00)>>8;                                  //Lee el Id de esclavo establecido por el dipswitch
+     //Id=0x01;
      Alt = 300;                                               //Establece la altura de instalacion del sensor en 300 mm
      T2adj = 477.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
 
      chDP = &DatoPtcn;                                        //Asocia el valor de DatoPtcn al puntero chDP
+     ip=0;
      
      Rspt[0] = Hdr;                                           //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
-     Rspt[1] = Id;                                            //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
+     //Rspt[1] = Id;                                            //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
      Rspt[Rsize-1] = End;                                     //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
+
+     num=0x30;
 
      while(1){
 
@@ -499,14 +500,12 @@ void main() {
               Ptcn[3]=0x01;
               Ptcn[4]=0x0E;
               Ptcn[5]=End;*/
-              
-              //BanP=1;
 
               if (BanP==1){                                   //Verifica si se realizo una peticion
-                 //if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){    //Verifica el identificador de esclavo y el byte de final de trama
+                 if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){    //Verifica el identificador de esclavo y el byte de final de trama
                     
-                    //Fcn = Ptcn[2];                            //Almacena el tipo de funcion requerida
-                    Fcn = 0x05;
+                    Fcn = Ptcn[2];                            //Almacena el tipo de funcion requerida
+                    //Fcn = 0x05;
                        
                     if (Fcn==0x01){                           //01: Lee el registro principal (Distancia)
                        Calcular();                            //Realiza una secuencia de calculo
@@ -532,9 +531,10 @@ void main() {
                        //Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
                        //Rspt[3]=Ptcn[3];
                        //Rspt[4]=Ptcn[4];
-                       Rspt[2]=0x05;
-                       Rspt[3]=0x01;
-                       Rspt[4]=0x0E;
+                       Rspt[1]=0x68;
+                       Rspt[2]=0x6F;
+                       Rspt[3]=0x6C;
+                       Rspt[4]=num;
                        Delay_ms(50);
                        RB5_bit = 1;                           //Establece el Max485 en modo de escritura
                        for (ir=0;ir<Rsize;ir++){
@@ -545,6 +545,7 @@ void main() {
                        for (ipp=3;ipp<5;ipp++){
                            Rspt[ipp]=0;;                      //Limpia la trama de respuesta
                        }
+                       num++;
                     }
 
 
@@ -559,9 +560,8 @@ void main() {
                            Ptcn[ipp]=0;                       //Limpia la trama de peticion
                        }
                        BanP = 0;                              //Limpia la bandera de lectura de datos
-                 //}
+                 }
               }
-
 
               Delay_ms(10);
 

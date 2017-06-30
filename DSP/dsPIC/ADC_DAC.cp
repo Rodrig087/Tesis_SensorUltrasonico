@@ -8,7 +8,7 @@ const float cb3 = 0.819804140111658;
 
 
 unsigned int Id;
-const short Psize = 1;
+const short Psize = 6;
 const short Rsize = 6;
 const short Hdr = 0x3A;
 const short End = 0x0D;
@@ -29,6 +29,7 @@ unsigned int IT2prom;
 unsigned char *chT2prom;
 float doub;
 float *iptr;
+short num;
 
 
 unsigned int contp;
@@ -327,11 +328,27 @@ void Calibracion(unsigned int DReal){
 
 void UART1Interrupt() iv IVT_ADDR_U1RXINTERRUPT {
 
+ if (UART1_Data_Ready()==1){
  Dato = UART1_Read();
- if (Dato==Hdr){
- BanP=1;
  }
-#line 359 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+ if ((Dato==Hdr)&&(ip==0)){
+ BanT = 1;
+ Ptcn[ip] = Dato;
+ }
+ if ((Dato!=Hdr)&&(ip==0)){
+ ip=-1;
+ }
+ if ((BanT==1)&&(ip!=0)){
+ Ptcn[ip] = Dato;
+ }
+
+ ip++;
+ if (ip==Psize){
+ BanP = 1;
+ BanT = 0;
+ ip=0;
+ }
+
  U1RXIF_bit = 0;
 
 }
@@ -434,7 +451,6 @@ void Configuracion(){
  RPOR3bits.RP7R = 0x03;
  IEC0.U1RXIE = 1;
  U1RXIF_bit = 0;
- U1STAbits.URXISEL = 0x11;
 
 
  IPC0bits.T1IP = 0x06;
@@ -455,24 +471,27 @@ void main() {
  Delay_ms(100);
  RB5_bit = 0;
 
+ Id = (PORTB&0xFF00)>>8;
 
- Id=0x01;
  Alt = 300;
  T2adj = 477.0;
 
  chDP = &DatoPtcn;
+ ip=0;
 
  Rspt[0] = Hdr;
- Rspt[1] = Id;
+
  Rspt[Rsize-1] = End;
 
+ num=0x30;
+
  while(1){
-#line 505 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 504 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  if (BanP==1){
+ if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
 
+ Fcn = Ptcn[2];
 
-
- Fcn = 0x05;
 
  if (Fcn==0x01){
  Calcular();
@@ -498,9 +517,10 @@ void main() {
 
 
 
- Rspt[2]=0x05;
- Rspt[3]=0x01;
- Rspt[4]=0x0E;
+ Rspt[1]=0x68;
+ Rspt[2]=0x6F;
+ Rspt[3]=0x6C;
+ Rspt[4]=num;
  Delay_ms(50);
  RB5_bit = 1;
  for (ir=0;ir<Rsize;ir++){
@@ -511,6 +531,7 @@ void main() {
  for (ipp=3;ipp<5;ipp++){
  Rspt[ipp]=0;;
  }
+ num++;
  }
 
 
@@ -525,9 +546,8 @@ void main() {
  Ptcn[ipp]=0;
  }
  BanP = 0;
-
  }
-
+ }
 
  Delay_ms(10);
 

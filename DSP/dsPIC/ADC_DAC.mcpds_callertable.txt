@@ -110,6 +110,7 @@ main
 	UART1_Write
 	UART1_Tx_Idle
 UART1Interrupt
+	UART1_Data_Ready
 	UART1_Read
 Timer2Interrupt
 Timer1Interrupt
