@@ -478,7 +478,6 @@ void main() {
      RB5_bit = 0;                                             //Establece el Max485 en modo de lectura
 
      Id = (PORTB&0xFF00)>>8;                                  //Lee el Id de esclavo establecido por el dipswitch
-     //Id=0x01;
      Alt = 300;                                               //Establece la altura de instalacion del sensor en 300 mm
      T2adj = 477.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
 
@@ -486,27 +485,19 @@ void main() {
      ip=0;
      
      Rspt[0] = Hdr;                                           //Se rellena el primer byte de la trama de respuesta con el delimitador de inicio de trama
-     //Rspt[1] = Id;                                            //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
+     Rspt[1] = Id;                                            //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
      Rspt[Rsize-1] = End;                                     //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 
      num=0x30;
 
      while(1){
 
-              /*Banp=1;
-              Ptcn[0]=Hdr;
-              Ptcn[1]=Id;
-              Ptcn[2]=0x05;
-              Ptcn[3]=0x01;
-              Ptcn[4]=0x0E;
-              Ptcn[5]=End;*/
 
               if (BanP==1){                                   //Verifica si se realizo una peticion
                  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){    //Verifica el identificador de esclavo y el byte de final de trama
                     
                     Fcn = Ptcn[2];                            //Almacena el tipo de funcion requerida
-                    //Fcn = 0x05;
-                       
+
                     if (Fcn==0x01){                           //01: Lee el registro principal (Distancia)
                        Calcular();                            //Realiza una secuencia de calculo
                        Responder(0x01);                       //Envia la trama de repuesta con el valor del registro 0x01
@@ -528,14 +519,9 @@ void main() {
                        Calibracion(DatoPtcn);                 //Realiza un proceso de calibracion para calcular el valor de la variable T2adj
                     }
                     if (Fcn==0x05){                           //Test
-                       //Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
-                       //Rspt[3]=Ptcn[3];
-                       //Rspt[4]=Ptcn[4];
-                       Rspt[1]=0x68;
-                       Rspt[2]=0x6F;
-                       Rspt[3]=0x6C;
-                       Rspt[4]=num;
-                       Delay_ms(50);
+                       Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
+                       Rspt[3]=Ptcn[3];
+                       Rspt[4]=Ptcn[4];
                        RB5_bit = 1;                           //Establece el Max485 en modo de escritura
                        for (ir=0;ir<Rsize;ir++){
                            UART1_Write(Rspt[ir]);             //Envia la trama de respuesta
@@ -563,7 +549,7 @@ void main() {
                  }
               }
 
-              Delay_ms(10);
+              Delay_ms(50);                                   //Retraso necesario para que la Rpi tenga tiempo de recibir la trama de respuesta
 
      }
 

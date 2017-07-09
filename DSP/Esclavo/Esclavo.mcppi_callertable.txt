@@ -1,0 +1,14 @@
+main
+	Configuracion
+		UART1_Init
+	Calcular
+		StartSignal
+		CheckResponse
+		ReadData
+		Div_16X16_U
+	Responder
+		UART1_Write
+		UART1_Tx_Idle
+interrupt
+	UART1_Data_Ready
+	UART1_Read

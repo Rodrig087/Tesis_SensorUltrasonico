@@ -181,16 +181,15 @@ _main:
 	MOVLW       58
 	MOVWF       _Ptcn+0 
 ;Master.c,108 :: 		Ptcn[1]=Id;
-	MOVLW       1
+	MOVLW       2
 	MOVWF       _Ptcn+1 
 ;Master.c,109 :: 		Ptcn[2]=Fcn;
-	MOVLW       5
+	MOVLW       2
 	MOVWF       _Ptcn+2 
-;Master.c,110 :: 		Ptcn[3]=0x01;
-	MOVLW       1
-	MOVWF       _Ptcn+3 
-;Master.c,111 :: 		Ptcn[4]=0x0E;
-	MOVLW       14
+;Master.c,110 :: 		Ptcn[3]=0x00;
+	CLRF        _Ptcn+3 
+;Master.c,111 :: 		Ptcn[4]=0x02;
+	MOVLW       2
 	MOVWF       _Ptcn+4 
 ;Master.c,112 :: 		Ptcn[5]=End;
 	MOVLW       13
@@ -276,7 +275,7 @@ L_main22:
 	GOTO        L_main24
 ;Master.c,133 :: 		if ((Rspt[1]==Id)&&(Rspt[Rsize-1]==End)){
 	MOVF        _Rspt+1, 0 
-	XORLW       1
+	XORLW       2
 	BTFSS       STATUS+0, 2 
 	GOTO        L_main27
 	MOVF        _Rspt+5, 0 

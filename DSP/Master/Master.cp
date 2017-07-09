@@ -17,8 +17,8 @@ sbit LCD_D7_Direction at TRISB0_bit;
 
 
 
-const short Id = 0x01;
-const short Fcn = 0x05;
+const short Id = 0x02;
+const short Fcn = 0x02;
 const short Psize = 6;
 const short Rsize = 6;
 const short Hdr = 0x3A;
@@ -98,8 +98,8 @@ void main() {
  Ptcn[0]=Hdr;
  Ptcn[1]=Id;
  Ptcn[2]=Fcn;
- Ptcn[3]=0x01;
- Ptcn[4]=0x0E;
+ Ptcn[3]=0x00;
+ Ptcn[4]=0x02;
  Ptcn[5]=End;
 
  Bb=0;

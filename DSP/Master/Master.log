@@ -1,12 +1,14 @@
 0	1	mikroCPIC1618.exe -MSF -DBG -pP18F25K22 -DL -O11111114 -fo20 -N"E:\Milton\Github\Tesis\SensorUltrasonico\DSP\Master\Master.mcppi" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\" -SP"E:\Milton\Github\Tesis\SensorUltrasonico\DSP\Master\" "Master.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CString.mcl" "__Lib_Conversions.mcl" "__Lib_UART_c67b67.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl"	 
 hint: 0	1139	Available RAM: 1515 [bytes], Available ROM: 32768 [bytes]	 
+diagnostics: 0	122	Compilation Started	__Lib_Delays.c
+diagnostics: 172	123	Compiled Successfully	__Lib_Delays.c
 diagnostics: 0	122	Compilation Started	Master.c
 warning: 105	1505	Suspicious pointer conversion	Master.c
 diagnostics: 163	123	Compiled Successfully	Master.c
-diagnostics: 0	127	All files Compiled in 94 ms	 
+diagnostics: 0	127	All files Compiled in 78 ms	 
 hint: 0	1144	Used RAM (bytes): 85 (6%)  Free RAM (bytes): 1430 (94%)	Used RAM (bytes): 85 (6%)  Free RAM (bytes): 1430 (94%)
-hint: 0	1144	Used ROM (bytes): 1724 (5%)  Free ROM (bytes): 31044 (95%)	Used ROM (bytes): 1724 (5%)  Free ROM (bytes): 31044 (95%)
+hint: 0	1144	Used ROM (bytes): 1722 (5%)  Free ROM (bytes): 31046 (95%)	Used ROM (bytes): 1722 (5%)  Free ROM (bytes): 31046 (95%)
 diagnostics: 0	125	Project Linked Successfully	Master.mcppi
-diagnostics: 0	128	Linked in 78 ms	 
-diagnostics: 0	129	Project 'Master.mcppi' completed: 219 ms	 
-diagnostics: 0	103	Finished successfully: 29 jun. 2017, 18:24:19	Master.mcppi
+diagnostics: 0	128	Linked in 62 ms	 
+diagnostics: 0	129	Project 'Master.mcppi' completed: 312 ms	 
+diagnostics: 0	103	Finished successfully: 08 jul. 2017, 01:49:50	Master.mcppi

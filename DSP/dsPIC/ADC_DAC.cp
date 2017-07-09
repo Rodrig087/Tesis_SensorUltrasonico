@@ -472,7 +472,6 @@ void main() {
  RB5_bit = 0;
 
  Id = (PORTB&0xFF00)>>8;
-
  Alt = 300;
  T2adj = 477.0;
 
@@ -480,18 +479,17 @@ void main() {
  ip=0;
 
  Rspt[0] = Hdr;
-
+ Rspt[1] = Id;
  Rspt[Rsize-1] = End;
 
  num=0x30;
 
  while(1){
-#line 504 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 503 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  if (BanP==1){
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
 
  Fcn = Ptcn[2];
-
 
  if (Fcn==0x01){
  Calcular();
@@ -514,14 +512,9 @@ void main() {
  Calibracion(DatoPtcn);
  }
  if (Fcn==0x05){
-
-
-
- Rspt[1]=0x68;
- Rspt[2]=0x6F;
- Rspt[3]=0x6C;
- Rspt[4]=num;
- Delay_ms(50);
+ Rspt[2]=Ptcn[2];
+ Rspt[3]=Ptcn[3];
+ Rspt[4]=Ptcn[4];
  RB5_bit = 1;
  for (ir=0;ir<Rsize;ir++){
  UART1_Write(Rspt[ir]);
@@ -549,7 +542,7 @@ void main() {
  }
  }
 
- Delay_ms(10);
+ Delay_ms(50);
 
  }
 
