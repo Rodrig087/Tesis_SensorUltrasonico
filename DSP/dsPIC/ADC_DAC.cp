@@ -70,8 +70,8 @@ float nx, dx, tmax;
 
 short conts;
 float T2a, T2b;
-const short Nsm=3;
-const float T2umb = 10.0;
+const short Nsm=6;
+const float T2umb = 3.0;
 const float T1 = 1375.0;
 float T2adj;
 float T2sum,T2prom;
@@ -225,13 +225,7 @@ void Calcular(){
 
  TOF = (T1+T2prom-T2adj)/1.0e6;
  Dst = (VSnd*TOF/2.0) * 1000.0;
- doub = modf(Dst, &iptr);
- if (doub>=0.5){
- Dst=ceil(Dst);
- }else{
- Dst=floor(Dst);
- }
-
+#line 242 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  FNivel = (Alt-Dst)/1000.0;
  FCaudal = 4960440*pow(FNivel,2.5);
 
@@ -260,16 +254,7 @@ void Responder(unsigned int Reg){
  Rspt[ir]=(*chCaudal++);
  }
  }
- if (Reg==0x03){
- for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chTemp++);
- }
- }
- if (Reg==0x04){
- for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chKadj++);
- }
- }
+
  if (Reg==0x05){
  for (ir=4;ir>=3;ir--){
  Rspt[ir]=(*chT2prom++);
@@ -288,39 +273,6 @@ void Responder(unsigned int Reg){
  for (ipp=3;ipp<5;ipp++){
  Rspt[ipp]=0;;
  }
-
-}
-
-
-void Calibracion(unsigned int DReal){
-
- conts = 0;
- T2sum = 0.0;
- T2prom = 0.0;
- T2a = 0.0;
- T2b = 0.0;
-
- while (conts<Nsm){
- Pulse();
- T2b = T2;
- if ((T2b-T2a)<=T2umb){
- T2sum = T2sum + T2b;
- conts++;
- }
- T2a = T2b;
- }
-
- T2prom = T2sum/Nsm;
- Velocidad();
-
- FDReal = (float)(DReal);
- TOF = (2.0*FDReal)/(VSnd*1000.0);
- T2adj = T1+T2prom-(TOF*1.0e6);
-
- Kadj = (unsigned int)(T2adj);
- chKadj = (unsigned char *) & Kadj;
-
- Responder(0x04);
 
 }
 
@@ -472,7 +424,6 @@ void main() {
  RB5_bit = 0;
 
  Id = (PORTB&0xFF00)>>8;
- Alt = 300;
  T2adj = 477.0;
 
  chDP = &DatoPtcn;
@@ -482,10 +433,9 @@ void main() {
  Rspt[1] = Id;
  Rspt[Rsize-1] = End;
 
- num=0x30;
-
  while(1){
-#line 503 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+
+
  if (BanP==1){
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
 
@@ -501,16 +451,7 @@ void main() {
  *(chDP+1) = Ptcn[3];
  Responder(DatoPtcn);
  }
- if (Fcn==0x03){
- *chDP = Ptcn[4];
- *(chDP+1) = Ptcn[3];
- Alt = DatoPtcn;
- }
- if (Fcn==0x04){
- *chDP = Ptcn[4];
- *(chDP+1) = Ptcn[3];
- Calibracion(DatoPtcn);
- }
+
  if (Fcn==0x05){
  Rspt[2]=Ptcn[2];
  Rspt[3]=Ptcn[3];
