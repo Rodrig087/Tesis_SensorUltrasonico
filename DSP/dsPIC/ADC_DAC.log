@@ -7,15 +7,15 @@ diagnostics: 0	122	Compilation Started	ADC_DAC.c
 hint: 0	1004	interrupt handler (UART1Interrupt at 0x002A)	ADC_DAC.c
 hint: 0	1004	interrupt handler (Timer1Interrupt at 0x001A)	ADC_DAC.c
 hint: 0	1004	interrupt handler (Timer2Interrupt at 0x0022)	ADC_DAC.c
-warning: 442	1505	Suspicious pointer conversion	ADC_DAC.c
-diagnostics: 503	123	Compiled Successfully	ADC_DAC.c
-warning: 449	1519	Logical expression is always: 'False'	ADC_DAC.c
+warning: 484	1505	Suspicious pointer conversion	ADC_DAC.c
+diagnostics: 556	123	Compiled Successfully	ADC_DAC.c
+warning: 493	1519	Logical expression is always: 'False'	ADC_DAC.c
 hint: 97	1164	Variable 'Rfrac' has been eliminated by optimizer	ADC_DAC.c
-diagnostics: 0	127	All files Compiled in 141 ms	 
+diagnostics: 0	127	All files Compiled in 156 ms	 
 hint: 0	1144	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)
-hint: 0	1144	Static RAM (bytes): 888   Dynamic RAM (bytes): 1160	Static RAM (bytes): 888   Dynamic RAM (bytes): 1160
-hint: 0	1144	Used ROM (bytes): 6220 (28%)  Free ROM (bytes): 16308 (72%)	Used ROM (bytes): 6220 (28%)  Free ROM (bytes): 16308 (72%)
+hint: 0	1144	Static RAM (bytes): 902   Dynamic RAM (bytes): 1146	Static RAM (bytes): 902   Dynamic RAM (bytes): 1146
+hint: 0	1144	Used ROM (bytes): 6998 (31%)  Free ROM (bytes): 15530 (69%)	Used ROM (bytes): 6998 (31%)  Free ROM (bytes): 15530 (69%)
 diagnostics: 0	125	Project Linked Successfully	ADC_DAC.mcpds
-diagnostics: 0	128	Linked in 218 ms	 
-diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 531 ms	 
-diagnostics: 0	103	Finished successfully: 11 jul. 2017, 10:40:18	ADC_DAC.mcpds
+diagnostics: 0	128	Linked in 219 ms	 
+diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 547 ms	 
+diagnostics: 0	103	Finished successfully: 11 jul. 2017, 12:49:18	ADC_DAC.mcpds
