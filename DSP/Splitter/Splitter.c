@@ -26,28 +26,8 @@ unsigned short ByRspt, ByPtcn;                          //Bytes de peticion y re
 void interrupt(void){
 //Interrupcion UART1
      if(PIR1.F5==1){
-        ByRspt = UART1_Read();                     //Lee el byte de respuesta
-        if ((ByRspt==Hdr)&&(ir==0)){               //Verifica que el primer dato en llegar sea el identificador de inicio de trama
-           BanAR = 1;                              //Activa la bandera de almacenamiento de trama de respuesta
-           Rspt[ir] = ByRspt;                      //Almacena el Dato en la trama de respuesta
-        }
-        if ((ByRspt!=Hdr)&&(ir==0)){               //Verifica si el primer dato en llegar es diferente del identificador del inicio de trama
-           ir=-1;                                  //Si es asi, reduce el subindice en una unidad
-        }
-        if ((BanAR==1)&&(ir!=0)){
-           Rspt[ir] = ByRspt;                      //Almacena el resto de datos en la trama de respuesta si la bandera de almacenamiento de trama esta activada
-        }
-        ir++;                                      //Aumenta el subindice una unidad
-        if (ir==Rsize){                            //Verifica que se haya terminado de llenar la trama de respuesta
-           BanLR = 1;                              //Habilita la bandera de lectura de respuesta
-           BanAR = 0;                              //Limpia la bandera de almacenamiento de trama de respuesta
-           ir=0;                                   //Limpia el subindice de la trama de respuesta para permitir una nueva secuencia de recepcion de datos
-        }
-        PIR1.F5 = 0;                               //Limpia la bandera de interrupcion de UART1
-     }
-//Interrupcion UART2
-     if (PIR3.F5==1){
-        ByPtcn = UART2_Read();                     //Lee el byte de peticion
+        RC4_bit = 1;
+        ByPtcn = UART1_Read();                     //Lee el byte de peticion
         if ((ByPtcn==Hdr)&&(ip==0)){               //Verifica que el primer dato en llegar sea el identificador de inicio de trama
            BanAP = 1;                              //Activa la bandera de almacenamiento de trama de peticion
            Ptcn[ip] = ByPtcn;                      //Almacena el Dato en la trama de peticion
@@ -64,9 +44,34 @@ void interrupt(void){
            BanAP = 0;                              //Limpia la bandera de almacenamiento de trama de peticion
            ip=0;                                   //Limpia el subindice de la trama de peticion para permitir una nueva secuencia de recepcion de datos
         }
+        RC4_bit = 0;
+        PIR1.F5 = 0;                               //Limpia la bandera de interrupcion de UART1
+     }
+//Interrupcion UART2
+     if (PIR3.F5==1){
+        RB4_bit = 1;
+        ByRspt = UART2_Read();                     //Lee el byte de respuesta
+        if ((ByRspt==Hdr)&&(ir==0)){               //Verifica que el primer dato en llegar sea el identificador de inicio de trama
+           BanAR = 1;                              //Activa la bandera de almacenamiento de trama de respuesta
+           Rspt[ir] = ByRspt;                      //Almacena el Dato en la trama de respuesta
+        }
+        if ((ByRspt!=Hdr)&&(ir==0)){               //Verifica si el primer dato en llegar es diferente del identificador del inicio de trama
+           ir=-1;                                  //Si es asi, reduce el subindice en una unidad
+        }
+        if ((BanAR==1)&&(ir!=0)){
+           Rspt[ir] = ByRspt;                      //Almacena el resto de datos en la trama de respuesta si la bandera de almacenamiento de trama esta activada
+        }
+        ir++;                                      //Aumenta el subindice una unidad
+        if (ir==Rsize){                            //Verifica que se haya terminado de llenar la trama de respuesta
+           BanLR = 1;                              //Habilita la bandera de lectura de respuesta
+           BanAR = 0;                              //Limpia la bandera de almacenamiento de trama de respuesta
+           ir=0;                                   //Limpia el subindice de la trama de respuesta para permitir una nueva secuencia de recepcion de datos
+        }
+        RB4_bit = 0;
         PIR3.F5 = 0;                               //Limpia la bandera de interrupcion de UART2
      }
-     
+
+
 }
 
 // Configuracion //
@@ -106,57 +111,57 @@ void main() {
 
      while (1){
 
-            if (BanLP==1){                                          //Verifica la bandera de lectura de la trama de peticion
-               RB4_bit = 1;
-               if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){            //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
+           if (BanLP==1){                                          //Verifica la bandera de lectura de la trama de peticion
+               //RC4_bit = 1;
+               if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){           //Verifica que el primer y el ultimo elemento de la trama correspondan a los delimitadores de inicio y fin de trama
 
-                  RC5_bit = 1;                                      //Establece el Max485-2 en modo de escritura
-                   
-                  for (ipp=0;ipp<(Psize);ipp++){
-                       UART1_Write(Ptcn[ipp]);                      //Reenvia la trama de peticion a travez del UART1
-                  }
-                   
-                  while(UART1_Tx_Idle()==0);                        //Espera hasta que se haya terminado de enviar todo el dato por UART1 antes de continuar
-                  RC5_bit = 0;                                      //Establece el Max485-2 en modo de lectura;
-                   
-                  for (ipp=0;ipp<(Psize);ipp++){
-                       Ptcn[ipp]=0;;                                //Limpia la trama de peticion
-                  }
-                   
-                  BanLP = 0;                                        //Limpia la bandera de lectura de la trama de peticion
-                     
+                     RB5_bit = 1;                                   //Establece el Max485-2 en modo de escritura
+
+                     for (ipp=0;ipp<(Psize);ipp++){
+                          UART2_Write(Ptcn[ipp]);                   //Reenvia la trama de peticion a travez del UART2
+                     }
+
+                     while(UART2_Tx_Idle()==0);                     //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+                     RB5_bit = 0;                                   //Establece el Max485-2 en modo de lectura;
+
+                     for (ipp=0;ipp<(Psize);ipp++){
+                          Ptcn[ipp]=0;;                             //Limpia la trama de peticion
+                     }
+
+                     BanLP = 0;                                     //Limpia la bandera de lectura de la trama de peticion
+
 
                } else {
 
                       for (ipp=0;ipp<(Psize-1);ipp++){
                            Ptcn[ipp]=0;;                            //Limpia la trama de peticion
                       }
-                      
+
                       BanLP = 0;                                    //Limpia la bandera de lectura de la trama de peticion
 
                }
-               RB4_bit = 0;
+               //RC4_bit = 0;
             }
-            
-            
-            if (BanLR==1){                                          //Verifica la bandera de lectura de la trama de respuesta
-               RC4_bit = 1;
-               if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){           //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
 
-                  RB5_bit = 1;                                      //Establece el Max485-1 en modo de escritura
-                    
-                  for (irr=0;irr<(Rsize);irr++){
-                       UART2_Write(Rspt[irr]);                      //Reenvia la trama de respuesta a travez del UART2
-                  }
-                  
-                  while(UART2_Tx_Idle()==0);                        //Espera hasta que se haya terminado de enviar todo el dato por UART2 antes de continuar
-                  RB5_bit = 0;                                      //Establece el Max485-2 en modo de lectura;
-                  
-                  for (irr=0;irr<(Rsize);irr++){
-                       Rspt[irr]=0;;                                //Limpia la trama de respuesta
-                  }
-                  
-                  BanLR = 0;                                        //Limpia la bandera de lectura de la trama de respuesta
+
+            if (BanLR==1){                                          //Verifica la bandera de lectura de la trama de respuesta
+               //RB4_bit = 1;
+               if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){           //Verifica que el primer y el ultimo elemento de la trama correspondan a los delimitadores de inicio y fin de trama
+
+                      RC5_bit = 1;                                  //Establece el Max485-1 en modo de escritura
+
+                      for (irr=0;irr<(Rsize);irr++){
+                           UART1_Write(Rspt[irr]);                  //Reenvia la trama de respuesta a travez del UART1
+                      }
+
+                      while(UART1_Tx_Idle()==0);                     //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
+                      RC5_bit = 0;                                   //Establece el Max485-2 en modo de lectura;
+
+                      for (irr=0;irr<(Rsize);irr++){
+                           Rspt[irr]=0;;                            //Limpia la trama de respuesta
+                      }
+
+                      BanLR = 0;                                    //Limpia la bandera de lectura de la trama de respuesta
 
 
                } else {
@@ -167,8 +172,9 @@ void main() {
                       BanLR = 0;                                    //Limpia la bandera de lectura de la trama de respuesta
 
                }
-               RC4_bit = 0;
+               //RB4_bit = 0;
             }
+
 
      }
 }
