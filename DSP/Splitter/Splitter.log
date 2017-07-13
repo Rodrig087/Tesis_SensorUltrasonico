@@ -1,11 +1,15 @@
-0	1	mikroCPIC1618.exe -MSF -DBG -pP18F25K22 -DL -O11111114 -fo20 -N"E:\Milton\Github\Tesis\SensorUltrasonico\DSP\Splitter\Splitter.mcppi" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\" -SP"E:\Milton\Github\Tesis\SensorUltrasonico\DSP\Splitter\" "Splitter.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CString.mcl" "__Lib_Conversions.mcl" "__Lib_UART_c67b67.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl"	 
+0	1	mikroCPIC1618.exe -MSF -DBG -pP18F25K22 -DL -O11111114 -fo8 -N"E:\Milton\Github\Tesis\SensorUltrasonico\DSP\Splitter\Splitter.mcppi" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for PIC\uses\P18\" -SP"E:\Milton\Github\Tesis\SensorUltrasonico\DSP\Splitter\" "Splitter.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CString.mcl" "__Lib_Conversions.mcl" "__Lib_UART_c67b67.mcl" "__Lib_LcdConsts.mcl" "__Lib_Lcd.mcl"	 
 hint: 0	1139	Available RAM: 1515 [bytes], Available ROM: 32768 [bytes]	 
+diagnostics: 0	122	Compilation Started	__Lib_Delays.c
+diagnostics: 172	123	Compiled Successfully	__Lib_Delays.c
 diagnostics: 0	122	Compilation Started	Splitter.c
-diagnostics: 170	123	Compiled Successfully	Splitter.c
-diagnostics: 0	127	All files Compiled in 140 ms	 
+warning: 95	1509	Generated baud rate is 9615 bps (error = 0.16 percent)	Splitter.c
+warning: 96	1509	Generated baud rate is 9615 bps (error = 0.16 percent)	Splitter.c
+diagnostics: 176	123	Compiled Successfully	Splitter.c
+diagnostics: 0	127	All files Compiled in 94 ms	 
 hint: 0	1144	Used RAM (bytes): 39 (3%)  Free RAM (bytes): 1476 (97%)	Used RAM (bytes): 39 (3%)  Free RAM (bytes): 1476 (97%)
-hint: 0	1144	Used ROM (bytes): 984 (3%)  Free ROM (bytes): 31784 (97%)	Used ROM (bytes): 984 (3%)  Free ROM (bytes): 31784 (97%)
+hint: 0	1144	Used ROM (bytes): 990 (3%)  Free ROM (bytes): 31778 (97%)	Used ROM (bytes): 990 (3%)  Free ROM (bytes): 31778 (97%)
 diagnostics: 0	125	Project Linked Successfully	Splitter.mcppi
 diagnostics: 0	128	Linked in 78 ms	 
-diagnostics: 0	129	Project 'Splitter.mcppi' completed: 265 ms	 
-diagnostics: 0	103	Finished successfully: 19 jun. 2017, 19:12:48	Splitter.mcppi
+diagnostics: 0	129	Project 'Splitter.mcppi' completed: 328 ms	 
+diagnostics: 0	103	Finished successfully: 13 jul. 2017, 04:28:41	Splitter.mcppi

@@ -69,6 +69,8 @@ void Configuracion(){
 
  TRISB5_bit = 0;
  TRISC5_bit = 0;
+ TRISB4_bit = 0;
+ TRISC4_bit = 0;
 
  INTCON.GIE = 1;
  INTCON.PEIE = 1;
@@ -97,6 +99,7 @@ void main() {
  while (1){
 
  if (BanLP==1){
+ RB4_bit = 1;
  if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){
 
  RC5_bit = 1;
@@ -124,10 +127,12 @@ void main() {
  BanLP = 0;
 
  }
+ RB4_bit = 0;
  }
 
 
  if (BanLR==1){
+ RC4_bit = 1;
  if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){
 
  RB5_bit = 1;
@@ -154,6 +159,7 @@ void main() {
  BanLR = 0;
 
  }
+ RC4_bit = 0;
  }
 
  }

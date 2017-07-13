@@ -24,6 +24,7 @@ unsigned char Check, T_byte1, T_byte2, RH_byte1, RH_byte2;
 void interrupt(void){
 
  if(PIR1.F5==1){
+
  if (UART1_Data_Ready()==1){
  Dato = UART1_Read();
  }
@@ -43,6 +44,7 @@ void interrupt(void){
  BanT = 0;
  ip=0;
  }
+
  PIR1.F5 = 0;
  }
 }
@@ -161,9 +163,11 @@ void Configuracion(){
  ANSELC = 0;
 
  TRISA = 1;
+ TRISC4_bit = 0;
  TRISC5_bit = 0;
  TRISC0_bit = 1;
  TRISC1_bit = 1;
+
 
  INTCON.GIE = 1;
  INTCON.PEIE = 1;
@@ -182,7 +186,8 @@ void main() {
  Configuracion();
  RC5_bit = 0;
 
- Id = (PORTA&0x3F)+((PORTC&0x03)<<6);
+
+ Id=0x02;
 
  chDP = &DatoPtcn;
  ip=0;
@@ -195,7 +200,10 @@ void main() {
 
 
 
+
+
  if (BanP==1){
+ RC4_bit = 1;
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
 
  Fcn = Ptcn[2];
@@ -219,6 +227,7 @@ void main() {
  }
  BanP = 0;
  }
+ RC4_bit = 0;
  }
  Delay_ms(50);
 

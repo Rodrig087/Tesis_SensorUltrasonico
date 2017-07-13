@@ -33,6 +33,7 @@ unsigned char  Check, T_byte1, T_byte2, RH_byte1, RH_byte2;
 void interrupt(void){
 //Interrupcion UART1
      if(PIR1.F5==1){
+
         if (UART1_Data_Ready()==1){
            Dato = UART1_Read();
         }
@@ -52,6 +53,7 @@ void interrupt(void){
            BanT = 0;
            ip=0;                                         //Limpia el subindice de la trama de peticion para permitir una nueva secuencia de recepcion de datos
         }
+
         PIR1.F5 = 0;                                     //Limpia la bandera de interrupcion de UART1
      }
 }
@@ -170,9 +172,11 @@ void Configuracion(){
      ANSELC = 0;                                       //Configura PORTC como digital
 
      TRISA = 1;                                        //Configura el puerto A como entrada
+     TRISC4_bit = 0;                                   //Configura el pin C4 como salida
      TRISC5_bit = 0;                                   //Configura el pin C5 como salida
      TRISC0_bit = 1;                                   //Configura el pin C0 como entrada
      TRISC1_bit = 1;                                   //Configura el pin C1 como entrada
+
 
      INTCON.GIE = 1;                                   //Habilita las interrupciones globales
      INTCON.PEIE = 1;                                  //Habilita las interrupciones perifericas
@@ -191,7 +195,8 @@ void main() {
      Configuracion();
      RC5_bit = 0;                                             //Inicia el Max 485 en modo lectura
 
-     Id = (PORTA&0x3F)+((PORTC&0x03)<<6);
+     //Id = (PORTA&0x3F)+((PORTC&0x03)<<6);
+     Id=0x02;
      
      chDP = &DatoPtcn;                                        //Asocia el valor de DatoPtcn al puntero chDP
      ip=0;
@@ -204,7 +209,10 @@ void main() {
      
            //Calcular();
            //Responder(DatoPtcn);
+           
+           
            if (BanP==1){                                      //Verifica si se realizo una peticion
+                 RC4_bit = 1;
                  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){    //Verifica el identificador de esclavo y el byte de final de trama
 
                     Fcn = Ptcn[2];
@@ -228,6 +236,7 @@ void main() {
                        }
                        BanP = 0;                              //Limpia la bandera de lectura de datos
                  }
+                 RC4_bit = 0;
            }
            Delay_ms(50);                                      //Retraso necesario para que la Rpi tenga tiempo de recibir la trama de respuesta
            

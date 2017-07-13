@@ -26,7 +26,6 @@ unsigned short ByRspt, ByPtcn;                          //Bytes de peticion y re
 void interrupt(void){
 //Interrupcion UART1
      if(PIR1.F5==1){
-        RC5_bit = 0;                               //Establece el Max485-1 en modo de lectura;
         ByRspt = UART1_Read();                     //Lee el byte de respuesta
         if ((ByRspt==Hdr)&&(ir==0)){               //Verifica que el primer dato en llegar sea el identificador de inicio de trama
            BanAR = 1;                              //Activa la bandera de almacenamiento de trama de respuesta
@@ -48,7 +47,6 @@ void interrupt(void){
      }
 //Interrupcion UART2
      if (PIR3.F5==1){
-        RB5_bit = 0;                               //Establece el Max485-2 en modo de lectura;
         ByPtcn = UART2_Read();                     //Lee el byte de peticion
         if ((ByPtcn==Hdr)&&(ip==0)){               //Verifica que el primer dato en llegar sea el identificador de inicio de trama
            BanAP = 1;                              //Activa la bandera de almacenamiento de trama de peticion
@@ -79,6 +77,8 @@ void Configuracion(){
 
      TRISB5_bit = 0;                                   //Configura el pin B5 como salida
      TRISC5_bit = 0;                                   //Configura el pin C5 como salida
+     TRISB4_bit = 0;                                   //Configura el pin B5 como salida
+     TRISC4_bit = 0;                                   //Configura el pin C5 como salida
 
      INTCON.GIE = 1;                                   //Habilita las interrupciones globales
      INTCON.PEIE = 1;                                  //Habilita las interrupciones perifericas
@@ -107,6 +107,7 @@ void main() {
      while (1){
 
             if (BanLP==1){                                          //Verifica la bandera de lectura de la trama de peticion
+               RB4_bit = 1;
                if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){            //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
 
                   RC5_bit = 1;                                      //Establece el Max485-2 en modo de escritura
@@ -134,10 +135,12 @@ void main() {
                       BanLP = 0;                                    //Limpia la bandera de lectura de la trama de peticion
 
                }
+               RB4_bit = 0;
             }
             
             
             if (BanLR==1){                                          //Verifica la bandera de lectura de la trama de respuesta
+               RC4_bit = 1;
                if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){           //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
 
                   RB5_bit = 1;                                      //Establece el Max485-1 en modo de escritura
@@ -164,6 +167,7 @@ void main() {
                       BanLR = 0;                                    //Limpia la bandera de lectura de la trama de respuesta
 
                }
+               RC4_bit = 0;
             }
 
      }

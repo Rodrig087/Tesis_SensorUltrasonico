@@ -213,40 +213,42 @@ _Configuracion:
 	BCF         TRISB5_bit+0, BitPos(TRISB5_bit+0) 
 ;Splitter.c,81 :: 		TRISC5_bit = 0;                                   //Configura el pin C5 como salida
 	BCF         TRISC5_bit+0, BitPos(TRISC5_bit+0) 
-;Splitter.c,83 :: 		INTCON.GIE = 1;                                   //Habilita las interrupciones globales
+;Splitter.c,82 :: 		TRISB4_bit = 0;                                   //Configura el pin B5 como salida
+	BCF         TRISB4_bit+0, BitPos(TRISB4_bit+0) 
+;Splitter.c,83 :: 		TRISC4_bit = 0;                                   //Configura el pin C5 como salida
+	BCF         TRISC4_bit+0, BitPos(TRISC4_bit+0) 
+;Splitter.c,85 :: 		INTCON.GIE = 1;                                   //Habilita las interrupciones globales
 	BSF         INTCON+0, 7 
-;Splitter.c,84 :: 		INTCON.PEIE = 1;                                  //Habilita las interrupciones perifericas
+;Splitter.c,86 :: 		INTCON.PEIE = 1;                                  //Habilita las interrupciones perifericas
 	BSF         INTCON+0, 6 
-;Splitter.c,87 :: 		PIE1.RC1IE = 1;                                   //Habilita la interrupcion en UART1 receive
+;Splitter.c,89 :: 		PIE1.RC1IE = 1;                                   //Habilita la interrupcion en UART1 receive
 	BSF         PIE1+0, 5 
-;Splitter.c,88 :: 		PIR1.F5 = 0;                                      //Limpia la bandera de interrupcion
+;Splitter.c,90 :: 		PIR1.F5 = 0;                                      //Limpia la bandera de interrupcion
 	BCF         PIR1+0, 5 
-;Splitter.c,89 :: 		PIE3.RC2IE = 1;                                   //Habilita la interrupcion en UART2 receive
+;Splitter.c,91 :: 		PIE3.RC2IE = 1;                                   //Habilita la interrupcion en UART2 receive
 	BSF         PIE3+0, 5 
-;Splitter.c,90 :: 		PIR3.F5 = 0;                                      //Limpia la bandera de interrupcion
+;Splitter.c,92 :: 		PIR3.F5 = 0;                                      //Limpia la bandera de interrupcion
 	BCF         PIR3+0, 5 
-;Splitter.c,93 :: 		UART1_Init(9600);                                 //Inicializa el UART1 a 9600 bps
+;Splitter.c,95 :: 		UART1_Init(9600);                                 //Inicializa el UART1 a 9600 bps
 	BSF         BAUDCON+0, 3, 0
-	MOVLW       2
-	MOVWF       SPBRGH+0 
-	MOVLW       8
+	CLRF        SPBRGH+0 
+	MOVLW       207
 	MOVWF       SPBRG+0 
 	BSF         TXSTA+0, 2, 0
 	CALL        _UART1_Init+0, 0
-;Splitter.c,94 :: 		UART2_Init(9600);                                 //Inicializa el UART2 a 9600 bps
+;Splitter.c,96 :: 		UART2_Init(9600);                                 //Inicializa el UART2 a 9600 bps
 	BSF         BAUDCON2+0, 3, 0
-	MOVLW       2
-	MOVWF       SPBRGH2+0 
-	MOVLW       8
+	CLRF        SPBRGH2+0 
+	MOVLW       207
 	MOVWF       SPBRG2+0 
 	BSF         TXSTA2+0, 2, 0
 	CALL        _UART2_Init+0, 0
-;Splitter.c,95 :: 		Delay_ms(100);                                    //Espera para que el modulo UART se estabilice
-	MOVLW       3
+;Splitter.c,97 :: 		Delay_ms(100);                                    //Espera para que el modulo UART se estabilice
+	MOVLW       2
 	MOVWF       R11, 0
-	MOVLW       138
+	MOVLW       4
 	MOVWF       R12, 0
-	MOVLW       85
+	MOVLW       186
 	MOVWF       R13, 0
 L_Configuracion22:
 	DECFSZ      R13, 1, 1
@@ -256,33 +258,34 @@ L_Configuracion22:
 	DECFSZ      R11, 1, 1
 	BRA         L_Configuracion22
 	NOP
-	NOP
-;Splitter.c,97 :: 		}
+;Splitter.c,99 :: 		}
 L_end_Configuracion:
 	RETURN      0
 ; end of _Configuracion
 
 _main:
 
-;Splitter.c,99 :: 		void main() {
-;Splitter.c,101 :: 		Configuracion();
+;Splitter.c,101 :: 		void main() {
+;Splitter.c,103 :: 		Configuracion();
 	CALL        _Configuracion+0, 0
-;Splitter.c,102 :: 		RC5_bit = 0;                                                   //Establece el Max485-1 en modo de lectura;
+;Splitter.c,104 :: 		RC5_bit = 0;                                                   //Establece el Max485-1 en modo de lectura;
 	BCF         RC5_bit+0, BitPos(RC5_bit+0) 
-;Splitter.c,103 :: 		RB5_bit = 0;                                                   //Establece el Max485-2 en modo de lectura;
+;Splitter.c,105 :: 		RB5_bit = 0;                                                   //Establece el Max485-2 en modo de lectura;
 	BCF         RB5_bit+0, BitPos(RB5_bit+0) 
-;Splitter.c,104 :: 		ip=0;
+;Splitter.c,106 :: 		ip=0;
 	CLRF        _ip+0 
-;Splitter.c,105 :: 		ir=0;
+;Splitter.c,107 :: 		ir=0;
 	CLRF        _ir+0 
-;Splitter.c,107 :: 		while (1){
+;Splitter.c,109 :: 		while (1){
 L_main23:
-;Splitter.c,109 :: 		if (BanLP==1){                                          //Verifica la bandera de lectura de la trama de peticion
+;Splitter.c,111 :: 		if (BanLP==1){                                          //Verifica la bandera de lectura de la trama de peticion
 	MOVF        _BanLP+0, 0 
 	XORLW       1
 	BTFSS       STATUS+0, 2 
 	GOTO        L_main25
-;Splitter.c,110 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){            //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
+;Splitter.c,112 :: 		RB4_bit = 1;
+	BSF         RB4_bit+0, BitPos(RB4_bit+0) 
+;Splitter.c,113 :: 		if ((Ptcn[0]==Hdr)&&(Ptcn[Psize-1]==End)){            //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
 	MOVF        _Ptcn+0, 0 
 	XORLW       58
 	BTFSS       STATUS+0, 2 
@@ -292,9 +295,9 @@ L_main23:
 	BTFSS       STATUS+0, 2 
 	GOTO        L_main28
 L__main64:
-;Splitter.c,112 :: 		RC5_bit = 1;                                      //Establece el Max485-2 en modo de escritura
+;Splitter.c,115 :: 		RC5_bit = 1;                                      //Establece el Max485-2 en modo de escritura
 	BSF         RC5_bit+0, BitPos(RC5_bit+0) 
-;Splitter.c,114 :: 		for (ipp=0;ipp<(Psize);ipp++){
+;Splitter.c,117 :: 		for (ipp=0;ipp<(Psize);ipp++){
 	CLRF        _ipp+0 
 L_main29:
 	MOVLW       128
@@ -305,7 +308,7 @@ L_main29:
 	SUBWF       R0, 0 
 	BTFSC       STATUS+0, 0 
 	GOTO        L_main30
-;Splitter.c,115 :: 		UART1_Write(Ptcn[ipp]);                      //Reenvia la trama de peticion a travez del UART1
+;Splitter.c,118 :: 		UART1_Write(Ptcn[ipp]);                      //Reenvia la trama de peticion a travez del UART1
 	MOVLW       _Ptcn+0
 	MOVWF       FSR0 
 	MOVLW       hi_addr(_Ptcn+0)
@@ -319,12 +322,12 @@ L_main29:
 	MOVF        POSTINC0+0, 0 
 	MOVWF       FARG_UART1_Write_data_+0 
 	CALL        _UART1_Write+0, 0
-;Splitter.c,114 :: 		for (ipp=0;ipp<(Psize);ipp++){
+;Splitter.c,117 :: 		for (ipp=0;ipp<(Psize);ipp++){
 	INCF        _ipp+0, 1 
-;Splitter.c,116 :: 		}
+;Splitter.c,119 :: 		}
 	GOTO        L_main29
 L_main30:
-;Splitter.c,118 :: 		while(UART1_Tx_Idle()==0);                        //Espera hasta que se haya terminado de enviar todo el dato por UART1 antes de continuar
+;Splitter.c,121 :: 		while(UART1_Tx_Idle()==0);                        //Espera hasta que se haya terminado de enviar todo el dato por UART1 antes de continuar
 L_main32:
 	CALL        _UART1_Tx_Idle+0, 0
 	MOVF        R0, 0 
@@ -333,9 +336,9 @@ L_main32:
 	GOTO        L_main33
 	GOTO        L_main32
 L_main33:
-;Splitter.c,119 :: 		RC5_bit = 0;                                      //Establece el Max485-2 en modo de lectura;
+;Splitter.c,122 :: 		RC5_bit = 0;                                      //Establece el Max485-2 en modo de lectura;
 	BCF         RC5_bit+0, BitPos(RC5_bit+0) 
-;Splitter.c,121 :: 		for (ipp=0;ipp<(Psize);ipp++){
+;Splitter.c,124 :: 		for (ipp=0;ipp<(Psize);ipp++){
 	CLRF        _ipp+0 
 L_main34:
 	MOVLW       128
@@ -346,7 +349,7 @@ L_main34:
 	SUBWF       R0, 0 
 	BTFSC       STATUS+0, 0 
 	GOTO        L_main35
-;Splitter.c,122 :: 		Ptcn[ipp]=0;;                                //Limpia la trama de peticion
+;Splitter.c,125 :: 		Ptcn[ipp]=0;;                                //Limpia la trama de peticion
 	MOVLW       _Ptcn+0
 	MOVWF       FSR1 
 	MOVLW       hi_addr(_Ptcn+0)
@@ -358,17 +361,17 @@ L_main34:
 	MOVLW       255
 	ADDWFC      FSR1H, 1 
 	CLRF        POSTINC1+0 
-;Splitter.c,121 :: 		for (ipp=0;ipp<(Psize);ipp++){
+;Splitter.c,124 :: 		for (ipp=0;ipp<(Psize);ipp++){
 	INCF        _ipp+0, 1 
-;Splitter.c,123 :: 		}
+;Splitter.c,126 :: 		}
 	GOTO        L_main34
 L_main35:
-;Splitter.c,125 :: 		BanLP = 0;                                        //Limpia la bandera de lectura de la trama de peticion
+;Splitter.c,128 :: 		BanLP = 0;                                        //Limpia la bandera de lectura de la trama de peticion
 	CLRF        _BanLP+0 
-;Splitter.c,128 :: 		} else {
+;Splitter.c,131 :: 		} else {
 	GOTO        L_main37
 L_main28:
-;Splitter.c,130 :: 		for (ipp=0;ipp<(Psize-1);ipp++){
+;Splitter.c,133 :: 		for (ipp=0;ipp<(Psize-1);ipp++){
 	CLRF        _ipp+0 
 L_main38:
 	MOVLW       128
@@ -379,7 +382,7 @@ L_main38:
 	SUBWF       R0, 0 
 	BTFSC       STATUS+0, 0 
 	GOTO        L_main39
-;Splitter.c,131 :: 		Ptcn[ipp]=0;;                            //Limpia la trama de peticion
+;Splitter.c,134 :: 		Ptcn[ipp]=0;;                            //Limpia la trama de peticion
 	MOVLW       _Ptcn+0
 	MOVWF       FSR1 
 	MOVLW       hi_addr(_Ptcn+0)
@@ -391,23 +394,27 @@ L_main38:
 	MOVLW       255
 	ADDWFC      FSR1H, 1 
 	CLRF        POSTINC1+0 
-;Splitter.c,130 :: 		for (ipp=0;ipp<(Psize-1);ipp++){
+;Splitter.c,133 :: 		for (ipp=0;ipp<(Psize-1);ipp++){
 	INCF        _ipp+0, 1 
-;Splitter.c,132 :: 		}
+;Splitter.c,135 :: 		}
 	GOTO        L_main38
 L_main39:
-;Splitter.c,134 :: 		BanLP = 0;                                    //Limpia la bandera de lectura de la trama de peticion
+;Splitter.c,137 :: 		BanLP = 0;                                    //Limpia la bandera de lectura de la trama de peticion
 	CLRF        _BanLP+0 
-;Splitter.c,136 :: 		}
+;Splitter.c,139 :: 		}
 L_main37:
-;Splitter.c,137 :: 		}
+;Splitter.c,140 :: 		RB4_bit = 0;
+	BCF         RB4_bit+0, BitPos(RB4_bit+0) 
+;Splitter.c,141 :: 		}
 L_main25:
-;Splitter.c,140 :: 		if (BanLR==1){                                          //Verifica la bandera de lectura de la trama de respuesta
+;Splitter.c,144 :: 		if (BanLR==1){                                          //Verifica la bandera de lectura de la trama de respuesta
 	MOVF        _BanLR+0, 0 
 	XORLW       1
 	BTFSS       STATUS+0, 2 
 	GOTO        L_main41
-;Splitter.c,141 :: 		if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){           //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
+;Splitter.c,145 :: 		RC4_bit = 1;
+	BSF         RC4_bit+0, BitPos(RC4_bit+0) 
+;Splitter.c,146 :: 		if ((Rspt[0]==Hdr)&&(Rspt[Rsize-1]==End)){           //Verifica que el primer byte sea el Id de esclavo y el ultimo byte sea el fin de trama
 	MOVF        _Rspt+0, 0 
 	XORLW       58
 	BTFSS       STATUS+0, 2 
@@ -417,9 +424,9 @@ L_main25:
 	BTFSS       STATUS+0, 2 
 	GOTO        L_main44
 L__main63:
-;Splitter.c,143 :: 		RB5_bit = 1;                                      //Establece el Max485-1 en modo de escritura
+;Splitter.c,148 :: 		RB5_bit = 1;                                      //Establece el Max485-1 en modo de escritura
 	BSF         RB5_bit+0, BitPos(RB5_bit+0) 
-;Splitter.c,145 :: 		for (irr=0;irr<(Rsize);irr++){
+;Splitter.c,150 :: 		for (irr=0;irr<(Rsize);irr++){
 	CLRF        _irr+0 
 L_main45:
 	MOVLW       128
@@ -430,7 +437,7 @@ L_main45:
 	SUBWF       R0, 0 
 	BTFSC       STATUS+0, 0 
 	GOTO        L_main46
-;Splitter.c,146 :: 		UART2_Write(Rspt[irr]);                      //Reenvia la trama de respuesta a travez del UART2
+;Splitter.c,151 :: 		UART2_Write(Rspt[irr]);                      //Reenvia la trama de respuesta a travez del UART2
 	MOVLW       _Rspt+0
 	MOVWF       FSR0 
 	MOVLW       hi_addr(_Rspt+0)
@@ -444,12 +451,12 @@ L_main45:
 	MOVF        POSTINC0+0, 0 
 	MOVWF       FARG_UART2_Write_data_+0 
 	CALL        _UART2_Write+0, 0
-;Splitter.c,145 :: 		for (irr=0;irr<(Rsize);irr++){
+;Splitter.c,150 :: 		for (irr=0;irr<(Rsize);irr++){
 	INCF        _irr+0, 1 
-;Splitter.c,147 :: 		}
+;Splitter.c,152 :: 		}
 	GOTO        L_main45
 L_main46:
-;Splitter.c,149 :: 		while(UART2_Tx_Idle()==0);                        //Espera hasta que se haya terminado de enviar todo el dato por UART2 antes de continuar
+;Splitter.c,154 :: 		while(UART2_Tx_Idle()==0);                        //Espera hasta que se haya terminado de enviar todo el dato por UART2 antes de continuar
 L_main48:
 	CALL        _UART2_Tx_Idle+0, 0
 	MOVF        R0, 0 
@@ -458,9 +465,9 @@ L_main48:
 	GOTO        L_main49
 	GOTO        L_main48
 L_main49:
-;Splitter.c,150 :: 		RB5_bit = 0;                                      //Establece el Max485-2 en modo de lectura;
+;Splitter.c,155 :: 		RB5_bit = 0;                                      //Establece el Max485-2 en modo de lectura;
 	BCF         RB5_bit+0, BitPos(RB5_bit+0) 
-;Splitter.c,152 :: 		for (irr=0;irr<(Rsize);irr++){
+;Splitter.c,157 :: 		for (irr=0;irr<(Rsize);irr++){
 	CLRF        _irr+0 
 L_main50:
 	MOVLW       128
@@ -471,7 +478,7 @@ L_main50:
 	SUBWF       R0, 0 
 	BTFSC       STATUS+0, 0 
 	GOTO        L_main51
-;Splitter.c,153 :: 		Rspt[irr]=0;;                                //Limpia la trama de respuesta
+;Splitter.c,158 :: 		Rspt[irr]=0;;                                //Limpia la trama de respuesta
 	MOVLW       _Rspt+0
 	MOVWF       FSR1 
 	MOVLW       hi_addr(_Rspt+0)
@@ -483,17 +490,17 @@ L_main50:
 	MOVLW       255
 	ADDWFC      FSR1H, 1 
 	CLRF        POSTINC1+0 
-;Splitter.c,152 :: 		for (irr=0;irr<(Rsize);irr++){
+;Splitter.c,157 :: 		for (irr=0;irr<(Rsize);irr++){
 	INCF        _irr+0, 1 
-;Splitter.c,154 :: 		}
+;Splitter.c,159 :: 		}
 	GOTO        L_main50
 L_main51:
-;Splitter.c,156 :: 		BanLR = 0;                                        //Limpia la bandera de lectura de la trama de respuesta
+;Splitter.c,161 :: 		BanLR = 0;                                        //Limpia la bandera de lectura de la trama de respuesta
 	CLRF        _BanLR+0 
-;Splitter.c,159 :: 		} else {
+;Splitter.c,164 :: 		} else {
 	GOTO        L_main53
 L_main44:
-;Splitter.c,161 :: 		for (irr=0;irr<(Rsize-1);irr++){
+;Splitter.c,166 :: 		for (irr=0;irr<(Rsize-1);irr++){
 	CLRF        _irr+0 
 L_main54:
 	MOVLW       128
@@ -504,7 +511,7 @@ L_main54:
 	SUBWF       R0, 0 
 	BTFSC       STATUS+0, 0 
 	GOTO        L_main55
-;Splitter.c,162 :: 		Rspt[irr]=0;;                            //Limpia la trama de respuesta
+;Splitter.c,167 :: 		Rspt[irr]=0;;                            //Limpia la trama de respuesta
 	MOVLW       _Rspt+0
 	MOVWF       FSR1 
 	MOVLW       hi_addr(_Rspt+0)
@@ -516,20 +523,22 @@ L_main54:
 	MOVLW       255
 	ADDWFC      FSR1H, 1 
 	CLRF        POSTINC1+0 
-;Splitter.c,161 :: 		for (irr=0;irr<(Rsize-1);irr++){
+;Splitter.c,166 :: 		for (irr=0;irr<(Rsize-1);irr++){
 	INCF        _irr+0, 1 
-;Splitter.c,163 :: 		}
+;Splitter.c,168 :: 		}
 	GOTO        L_main54
 L_main55:
-;Splitter.c,164 :: 		BanLR = 0;                                    //Limpia la bandera de lectura de la trama de respuesta
+;Splitter.c,169 :: 		BanLR = 0;                                    //Limpia la bandera de lectura de la trama de respuesta
 	CLRF        _BanLR+0 
-;Splitter.c,166 :: 		}
+;Splitter.c,171 :: 		}
 L_main53:
-;Splitter.c,167 :: 		}
+;Splitter.c,172 :: 		RC4_bit = 0;
+	BCF         RC4_bit+0, BitPos(RC4_bit+0) 
+;Splitter.c,173 :: 		}
 L_main41:
-;Splitter.c,169 :: 		}
+;Splitter.c,175 :: 		}
 	GOTO        L_main23
-;Splitter.c,170 :: 		}
+;Splitter.c,176 :: 		}
 L_end_main:
 	GOTO        $+0
 ; end of _main
