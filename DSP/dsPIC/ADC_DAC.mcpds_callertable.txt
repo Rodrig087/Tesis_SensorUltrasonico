@@ -8,57 +8,66 @@ main
 		_Modulus_32x32
 		_Divide_32x32
 	Calcular
-		Pulse
-			Vector_Max
-			Vector_Min
-			_Long2Float
-			_Sub_FP
+		Distancia
+			Pulse
+				Vector_Max
+				Vector_Min
+				_Long2Float
+				_Sub_FP
+					_AddSub_FP
+				_Mul_FP
 				_AddSub_FP
-			_Mul_FP
-			_AddSub_FP
-			_Div_FP
-			_Float2Longint
-		Velocidad
-			Ow_Reset
-				Delay_500us
-				Delay_80us
-			Ow_Write
-				Delay_80us
-				Delay_1us
-				Delay_50us
-			Ow_Read
-				Delay_1us
-				Delay_50us
-			sqrt
-				frexp
-				ldexp
+				_Div_FP
+				_Float2Longint
+			Velocidad
+				Ow_Reset
+					Delay_500us
+					Delay_80us
+				Ow_Write
+					Delay_80us
+					Delay_1us
+					Delay_50us
+				Ow_Read
+					Delay_1us
+					Delay_50us
+				sqrt
+					frexp
+					ldexp
+						_Compare_Le_Fp
+							_Compare_Fp
 					_Compare_Le_Fp
-						_Compare_Fp
-				_Compare_Le_Fp
+					_Div_FP
+					_AddSub_FP
+				_Long2Float
 				_Div_FP
 				_AddSub_FP
-			_Long2Float
+				_Mul_FP
+			modf
+				_Compare_Ge_Fp
+					_Compare_Fp
+				_Compare_Le_Fp
+				_Float2Longint
+				_Long2Float
+				_Sub_FP
+			ceil
+				_Float2Longint
+				_Long2Float
+				_Compare_Le_Fp
+				_AddSub_FP
+			floor
+				_Float2Longint
+				_Long2Float
+				_Compare_Ge_Fp
+				_Sub_FP
+				_Compare_Le_Fp
 			_Div_FP
 			_AddSub_FP
+			_Sub_FP
 			_Mul_FP
-		modf
 			_Compare_Ge_Fp
-				_Compare_Fp
-			_Compare_Le_Fp
 			_Float2Longint
-			_Long2Float
-			_Sub_FP
-		ceil
-			_Float2Longint
-			_Long2Float
 			_Compare_Le_Fp
-			_AddSub_FP
-		floor
-			_Float2Longint
-			_Long2Float
-			_Compare_Ge_Fp
-			_Sub_FP
-			_Compare_Le_Fp
+		Moda
 		pow
 			log
 				frexp
@@ -85,30 +94,13 @@ main
 			_Float2Longint
 			_Long2Float
 			_Mul_FP
-		_Div_FP
-		_AddSub_FP
-		_Sub_FP
-		_Mul_FP
-		_Compare_Ge_Fp
 		_Long2Float
+		_Div_FP
+		_Mul_FP
 		_Float2Longint
-		_Compare_Le_Fp
 	Responder
 		UART1_Write
 		UART1_Tx_Idle
-	Calibracion
-		Pulse
-		Velocidad
-		Responder
-		_Div_FP
-		_Long2Float
-		_Mul_FP
-		_AddSub_FP
-		_Sub_FP
-		_Float2Longint
-		_Compare_Le_Fp
-	UART1_Write
-	UART1_Tx_Idle
 UART1Interrupt
 	UART1_Data_Ready
 	UART1_Read

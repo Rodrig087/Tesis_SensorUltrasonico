@@ -50,15 +50,13 @@ Count=0
 [PLDS]
 Count=0
 [Useses]
-Count=8
+Count=6
 File0=C_Math
 File1=One_Wire
 File2=Vectors
-File3=Lcd
-File4=Lcd_Constants
-File5=Conversions
-File6=C_String
-File7=UART
+File3=Conversions
+File4=C_String
+File5=UART
 [EXPANDED NODES]
 Node1=Sources
 Node2=Output Files

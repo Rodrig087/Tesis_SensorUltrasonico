@@ -1,9 +1,10 @@
 #line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
 #line 9 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
-const float ca1 = 0.004482805534581;
-const float ca2 = 0.008965611069163;
-const float cb2 = -1.801872917973333;
-const float cb3 = 0.819804140111658;
+const float ca1 = 0.006745773600345;
+const float ca2 = 0.013491547200690;
+const float cb2 = -1.754594315763869;
+const float cb3 = 0.781577410165250;
+
 
 
 
@@ -70,7 +71,7 @@ float nx, dx, tmax;
 
 short conts;
 float T2a, T2b;
-const short Nsm=10;
+const short Nsm=3;
 const float T2umb = 3.0;
 const float T1 = 1375.0;
 float T2adj;
@@ -80,8 +81,15 @@ unsigned int IDst;
 unsigned char *chIDst;
 long TT2;
 unsigned char *chTT2;
+unsigned int Cdistancia;
+unsigned int Vdistancia[10];
 
 
+unsigned int ME1=0, ME2=0, ME3=0;
+unsigned short Mb2=0, Mb3=0;
+unsigned short Mc1=0, Mc2=0, Mc3=0;
+unsigned short mi=0, vi=0;
+const short nd = 20;
 
 
 
@@ -119,7 +127,7 @@ void Pulse(){
 
 
  contp = 0;
- RB0_bit = 0;
+ RB2_bit = 0;
 
  T1CON.TON = 0;
  IEC0.T1IE = 0;
@@ -199,8 +207,56 @@ void Pulse(){
 
 }
 
+int Moda(int VRpt[nd]){
+ ME1=VRpt[0];
+ for (mi=0;mi<nd;mi++){
+ if (VRpt[mi]==ME1){
+ Mc1++;
+ }else{
+ if (Mb2==0){
+ ME2=VRpt[mi];
+ Mb2=1;
+ }
+ if (VRpt[mi]==ME2){
+ Mc2++;
+ }else{
+ if (Mb3==0){
+ ME3=VRpt[mi];
+ Mb3=1;
+ }
+ if (VRpt[mi]==ME3){
+ Mc3++;
+ }
+ }
+ }
 
-void Calcular(){
+ }
+
+ if ((Mc1>Mc2)&&(Mc1>Mc3)){
+ return ME1;
+ }
+ if ((Mc2>Mc1)&&(Mc2>Mc3)){
+ return ME2;
+ }
+ if ((Mc3>Mc1)&&(Mc3>Mc2)){
+ return ME3;
+ }
+
+ if (Mc1==Mc2){
+ return ME1;
+ }
+ if (Mc1==Mc3){
+ return ME1;
+ }
+ if (Mc2==Mc3){
+ return ME2;
+ }
+
+
+}
+
+
+int Distancia(){
 
  conts = 0;
  T2sum = 0.0;
@@ -232,18 +288,28 @@ void Calcular(){
  Dst=floor(Dst);
  }
 
- FNivel = (Alt-Dst)/1000.0;
+ return Dst;
+
+}
+
+void Calcular(){
+
+ for (vi=0;vi<nd;vi++){
+ Vdistancia[vi] = Distancia();
+ }
+
+ Cdistancia = Moda(Vdistancia);
+
+ FNivel = (Alt-Cdistancia)/1000.0;
  FCaudal = 4960440*pow(FNivel,2.5);
 
  Temperatura = (unsigned int)(DSTemp);
- IDst = (unsigned int)(Dst);
+ IDst = (unsigned int)(Cdistancia);
  Caudal = (unsigned int)(FCaudal);
- IT2prom = (unsigned int)(T2prom);
 
  chIDst = (unsigned char *) & IDst;
  chTemp = (unsigned char *) & Temperatura;
  chCaudal = (unsigned char *) & Caudal;
- chT2prom = (unsigned char *) & IT2prom;
 
 }
 
@@ -265,16 +331,6 @@ void Responder(unsigned int Reg){
  Rspt[ir]=(*chTemp++);
  }
  }
- if (Reg==0x04){
- for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chKadj++);
- }
- }
- if (Reg==0x05){
- for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chT2prom++);
- }
- }
 
  Rspt[2]=Ptcn[2];
 
@@ -288,39 +344,6 @@ void Responder(unsigned int Reg){
  for (ipp=3;ipp<5;ipp++){
  Rspt[ipp]=0;;
  }
-
-}
-
-
-void Calibracion(unsigned int DReal){
-
- conts = 0;
- T2sum = 0.0;
- T2prom = 0.0;
- T2a = 0.0;
- T2b = 0.0;
-
- while (conts<Nsm){
- Pulse();
- T2b = T2;
- if ((T2b-T2a)<=T2umb){
- T2sum = T2sum + T2b;
- conts++;
- }
- T2a = T2b;
- }
-
- T2prom = T2sum/Nsm;
- Velocidad();
-
- FDReal = (float)(DReal);
- TOF = (2.0*FDReal)/(VSnd*1000.0);
- T2adj = T1+T2prom-(TOF*1.0e6);
-
- Kadj = (unsigned int)(T2adj);
- chKadj = (unsigned char *) & Kadj;
-
- Responder(0x04);
 
 }
 
@@ -472,8 +495,8 @@ void main() {
  RB5_bit = 0;
 
  Id = (PORTB&0xFF00)>>8;
- Alt = 300;
- T2adj = 477.0;
+ T2adj = 460.0;
+
 
  chDP = &DatoPtcn;
  ip=0;
@@ -482,12 +505,19 @@ void main() {
  Rspt[1] = Id;
  Rspt[Rsize-1] = End;
 
- num=0x30;
-
  while(1){
+
+ BanP=1;
+ Ptcn[0]=Hdr;
+ Ptcn[1]=Id;
+ Ptcn[2]=0x02;
+ Ptcn[3]=0x00;
+ Ptcn[4]=0x01;
+ Ptcn[5]=End;
 
 
  if (BanP==1){
+
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
 
  Fcn = Ptcn[2];
@@ -496,43 +526,20 @@ void main() {
  Calcular();
  Responder(0x01);
  }
+
  if (Fcn==0x02){
  Calcular();
  *chDP = Ptcn[4];
  *(chDP+1) = Ptcn[3];
  Responder(DatoPtcn);
  }
- if (Fcn==0x03){
- *chDP = Ptcn[4];
- *(chDP+1) = Ptcn[3];
- Alt = DatoPtcn;
- }
- if (Fcn==0x04){
- *chDP = Ptcn[4];
- *(chDP+1) = Ptcn[3];
- Calibracion(DatoPtcn);
- }
- if (Fcn==0x05){
- Rspt[2]=Ptcn[2];
- Rspt[3]=Ptcn[3];
- Rspt[4]=Ptcn[4];
- RB5_bit = 1;
- for (ir=0;ir<Rsize;ir++){
- UART1_Write(Rspt[ir]);
- }
- while(UART1_Tx_Idle()==0);
- RB5_bit = 0;
- for (ipp=3;ipp<5;ipp++){
- Rspt[ipp]=0;;
- }
- num++;
- }
-
 
  DatoPtcn = 0;
+
  for (ipp=0;ipp<Psize;ipp++){
  Ptcn[ipp]=0;
  }
+
  BanP = 0;
 
  }else{
@@ -542,8 +549,6 @@ void main() {
  BanP = 0;
  }
  }
-
- Delay_ms(50);
 
  }
 

@@ -5,11 +5,12 @@ Configuracion: dsPIC P33FJ32MC202, XT=8MHz, PLL=80MHz
 Descripcion:
 1.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR (Fs=200KHz, T/2=1000us)
-const float ca1 = 0.004482805534581;
-const float ca2 = 0.008965611069163;
-const float cb2 = -1.801872917973333;
-const float cb3 = 0.819804140111658;
+//Coeficientes filtro IIR (Fs=200KHz, T/2=650us)
+const float ca1 = 0.006745773600345;
+const float ca2 = 0.013491547200690;
+const float cb2 = -1.754594315763869;
+const float cb3 = 0.781577410165250;
+
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la peticion y respuesta de datos
@@ -76,8 +77,8 @@ float nx, dx, tmax;
 //Variables para calcular la Distancia
 short conts;
 float T2a, T2b;
-const short Nsm=10;                                      //Numero maximo de secuencias de medicion (3)
-const float T2umb = 3.0;                                //Umbral para precision   (3us)
+const short Nsm=3;                                      //Numero maximo de secuencias de medicion (3)
+const float T2umb = 3.0;                                //Umbral para precision (3us)
 const float T1 = 1375.0;                                //T0+T1
 float T2adj;                                            //Variable para la calibracion de T2
 float T2sum,T2prom;
@@ -86,8 +87,15 @@ unsigned int IDst;
 unsigned char *chIDst;
 long TT2;
 unsigned char *chTT2;
+unsigned int Cdistancia;
+unsigned int Vdistancia[10];
 
-
+//Variables para calcular la moda estadistica
+unsigned int ME1=0, ME2=0, ME3=0;                       //Variables para almacenar los 3 posibles valores de una medicion de distancia
+unsigned short Mb2=0, Mb3=0;                            //Banderas
+unsigned short Mc1=0, Mc2=0, Mc3=0;                     //Contadores de mediciones de distancia
+unsigned short mi=0, vi=0;                              //Subindices para el calculo de la Moda y la Distancia
+const short nd = 20;                                    //Numero de secuencias de medicion de Distancia
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
 //Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura registrada por el sensor DS18B20
@@ -125,7 +133,7 @@ void Pulse(){
 
             // Generacion de pulsos y captura de la señal de retorno //
             contp = 0;                                               //Limpia la variable del contador de pulsos
-            RB0_bit = 0;                                            //Limpia el pin que produce los pulsos de exitacion del transductor
+            RB2_bit = 0;                                             //Limpia el pin que produce los pulsos de exitacion del transductor
 
             T1CON.TON = 0;                                           //Apaga el TMR1
             IEC0.T1IE = 0;                                           //Desabilita la interrupcion por desborde del TMR1
@@ -205,8 +213,56 @@ void Pulse(){
 
 }
 
-//Funcion para el calculo de la Distancia y el Caudal
-void Calcular(){
+int Moda(int VRpt[nd]){
+    ME1=VRpt[0];
+    for (mi=0;mi<nd;mi++){
+        if (VRpt[mi]==ME1){
+           Mc1++;
+        }else{
+            if (Mb2==0){
+               ME2=VRpt[mi];
+               Mb2=1;
+            }
+            if (VRpt[mi]==ME2){
+               Mc2++;
+            }else{
+                  if (Mb3==0){
+                     ME3=VRpt[mi];
+                     Mb3=1;
+                  }
+                  if (VRpt[mi]==ME3){
+                     Mc3++;
+                  }
+            }
+        }
+    
+    }
+    
+    if ((Mc1>Mc2)&&(Mc1>Mc3)){
+       return ME1;
+    }
+    if ((Mc2>Mc1)&&(Mc2>Mc3)){
+       return ME2;
+    }
+    if ((Mc3>Mc1)&&(Mc3>Mc2)){
+       return ME3;
+    }
+    
+    if (Mc1==Mc2){
+       return ME1;
+    }
+    if (Mc1==Mc3){
+       return ME1;
+    }
+    if (Mc2==Mc3){
+       return ME2;
+    }
+    
+
+}
+
+//Funcion para el calculo de la Distancia
+int Distancia(){
 
      conts = 0;                               //Limpia el contador de secuencias
      T2sum = 0.0;
@@ -237,19 +293,29 @@ void Calcular(){
      }else{
         Dst=floor(Dst);
      }
+     
+     return Dst;
 
-     FNivel = (Alt-Dst)/1000.0;               //Calcula el Nivel de liquido en metros
+}
+
+void Calcular(){
+
+     for (vi=0;vi<nd;vi++){
+         Vdistancia[vi] = Distancia();        //Toma 10 lecturas de la distancia calculada y las almacena en un vector
+     }
+     
+     Cdistancia = Moda(Vdistancia);           //Calcula la Moda del vector de distancias
+     
+     FNivel = (Alt-Cdistancia)/1000.0;        //Calcula el Nivel de liquido en metros
      FCaudal = 4960440*pow(FNivel,2.5);       //Calcula el Caudal en litros/hora
 
      Temperatura = (unsigned int)(DSTemp);    //Tranforma el dato de Temperatura de float a entero sin signo
-     IDst = (unsigned int)(Dst);              //Tranforma el dato de distancia de float a entero sin signo
+     IDst = (unsigned int)(Cdistancia);       //Tranforma el dato de distancia de float a entero sin signo
      Caudal = (unsigned int)(FCaudal);        //Tranforma el dato de Caudal de float a entero sin signo
-     IT2prom = (unsigned int)(T2prom);
 
      chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
      chTemp = (unsigned char *) & Temperatura;//Asocia el valor calculado de Temperatura al puntero chTemp
      chCaudal = (unsigned char *) & Caudal;   //Asocia el valor calculado de Temperatura al puntero chTemp
-     chT2prom = (unsigned char *) & IT2prom;
 
 }
 
@@ -271,16 +337,6 @@ void Responder(unsigned int Reg){
             Rspt[ir]=(*chTemp++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la Temperatura calculada
         }
      }
-     if (Reg==0x04){
-        for (ir=4;ir>=3;ir--){
-            Rspt[ir]=(*chKadj++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato del factor de calibracion calculado
-        }
-     }
-     if (Reg==0x05){
-        for (ir=4;ir>=3;ir--){
-            Rspt[ir]=(*chT2prom++);           //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de T2 calculado
-        }
-     }
 
      Rspt[2]=Ptcn[2];                         //Rellena el byte 2 con el tipo de funcion de la trama de peticion
 
@@ -294,39 +350,6 @@ void Responder(unsigned int Reg){
      for (ipp=3;ipp<5;ipp++){
          Rspt[ipp]=0;;                        //Limpia la trama de respuesta
      }
-
-}
-
-//Funcion para la calibracion del sensor
-void Calibracion(unsigned int DReal){
-
-     conts = 0;                               //Limpia el contador de secuencias
-     T2sum = 0.0;
-     T2prom = 0.0;
-     T2a = 0.0;
-     T2b = 0.0;
-
-     while (conts<Nsm){
-           Pulse();                           //Inicia una secuencia de medicion
-           T2b = T2;
-           if ((T2b-T2a)<=T2umb){             //Verifica si el T2 actual esta dentro de un umbral pre-establecido
-              T2sum = T2sum + T2b;            //Acumula la sumatoria de valores de T2 calculados por la funcion Pulse()
-              conts++;                        //Aumenta el contador de secuencias
-           }
-           T2a = T2b;
-     }
-
-     T2prom = T2sum/Nsm;
-     Velocidad();                             //Calcula la velocidad del sonido
-
-     FDReal = (float)(DReal);
-     TOF = (2.0*FDReal)/(VSnd*1000.0);        //Calculo del TOF en funcion del valor real de la distancia
-     T2adj = T1+T2prom-(TOF*1.0e6);           //Calculo del factor de calibracion en us
-
-     Kadj = (unsigned int)(T2adj);            //Tranforma el dato del factor de calibracion de float a entero sin signo
-     chKadj = (unsigned char *) & Kadj;       //Asocia el valor calculado del factor de calibracion al puntero chKadj
-
-     Responder(0x04);                         //Responde el valor calculado
 
 }
 
@@ -478,8 +501,8 @@ void main() {
      RB5_bit = 0;                                             //Establece el Max485 en modo de lectura
 
      Id = (PORTB&0xFF00)>>8;                                  //Lee el Id de esclavo establecido por el dipswitch
-     Alt = 300;                                               //Establece la altura de instalacion del sensor en 300 mm
-     T2adj = 477.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
+     T2adj = 460.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
+     //T2adj = 280.0;
 
      chDP = &DatoPtcn;                                        //Asocia el valor de DatoPtcn al puntero chDP
      ip=0;
@@ -488,12 +511,19 @@ void main() {
      Rspt[1] = Id;                                            //Se rellena el segundo byte de la trama de repuesta con el Id del tipo de sensor
      Rspt[Rsize-1] = End;                                     //Se rellena el ultimo byte de la trama de repuesta con el delimitador de final de trama
 
-     num=0x30;
-
      while(1){
+
+              BanP=1;
+              Ptcn[0]=Hdr;
+              Ptcn[1]=Id;
+              Ptcn[2]=0x02;
+              Ptcn[3]=0x00;
+              Ptcn[4]=0x01;
+              Ptcn[5]=End;
 
 
               if (BanP==1){                                   //Verifica si se realizo una peticion
+
                  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){    //Verifica el identificador de esclavo y el byte de final de trama
 
                     Fcn = Ptcn[2];                            //Almacena el tipo de funcion requerida
@@ -502,43 +532,20 @@ void main() {
                        Calcular();                            //Realiza una secuencia de calculo
                        Responder(0x01);                       //Envia la trama de repuesta con el valor del registro 0x01
                     }
+                    
                     if (Fcn==0x02){                           //02: Lee el registro especicfico (01:Distancia, 02:Caudal, 03:Temperatura)
                        Calcular();                            //Realiza una secuencia de calculo
                        *chDP = Ptcn[4];                       //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
                        *(chDP+1) = Ptcn[3];                   //Almacena el byte 3 de la trama de peticion en el MSB de la variable DatoPtcn
                        Responder(DatoPtcn);                   //Envia la trama de repuesta con el valor del registro requerido
                     }
-                    if (Fcn==0x03){                           //03: Establece la altura de instalacion del sensor
-                       *chDP = Ptcn[4];                       //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
-                       *(chDP+1) = Ptcn[3];                   //Almacena el byte 3 de la trama de peticion en el MSB de la variable DatoPtcn
-                       Alt = DatoPtcn;
-                    }
-                    if (Fcn==0x04){                           //04: Calibra el sensor en funcion del dato de la distancia real del sensor a la superficie del liquido
-                       *chDP = Ptcn[4];                       //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
-                       *(chDP+1) = Ptcn[3];                   //Almacena el byte 3 de la trama de peticion en el MSB de la variable DatoPtcn
-                       Calibracion(DatoPtcn);                 //Realiza un proceso de calibracion para calcular el valor de la variable T2adj
-                    }
-                    if (Fcn==0x05){                           //Test
-                       Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
-                       Rspt[3]=Ptcn[3];
-                       Rspt[4]=Ptcn[4];
-                       RB5_bit = 1;                           //Establece el Max485 en modo de escritura
-                       for (ir=0;ir<Rsize;ir++){
-                           UART1_Write(Rspt[ir]);             //Envia la trama de respuesta
-                       }
-                       while(UART1_Tx_Idle()==0);             //Espera hasta que se haya terminado de enviar todo el dato por UART antes de continuar
-                       RB5_bit = 0;                           //Establece el Max485 en modo de lectura;
-                       for (ipp=3;ipp<5;ipp++){
-                           Rspt[ipp]=0;;                      //Limpia la trama de respuesta
-                       }
-                       num++;
-                    }
-
 
                     DatoPtcn = 0;                             //Limpia la variable
+                    
                     for (ipp=0;ipp<Psize;ipp++){
                         Ptcn[ipp]=0;                          //Limpia la trama de peticion
                     }
+                    
                     BanP = 0;                                 //Limpia la bandera de lectura de datos
 
                  }else{
@@ -548,8 +555,6 @@ void main() {
                        BanP = 0;                              //Limpia la bandera de lectura de datos
                  }
               }
-
-              Delay_ms(50);                                   //Retraso necesario para que la Rpi tenga tiempo de recibir la trama de respuesta
 
      }
 
