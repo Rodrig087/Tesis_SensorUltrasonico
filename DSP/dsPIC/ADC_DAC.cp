@@ -294,6 +294,14 @@ int Distancia(){
 
 void Calcular(){
 
+ if (Ptcn[4]==0x03){
+
+ Velocidad();
+ Temperatura = (unsigned int)(DSTemp);
+ chTemp = (unsigned char *) & Temperatura;
+
+ } else {
+
  for (vi=0;vi<nd;vi++){
  Vdistancia[vi] = Distancia();
  }
@@ -303,14 +311,13 @@ void Calcular(){
  FNivel = (Alt-Cdistancia)/1000.0;
  FCaudal = 4960440*pow(FNivel,2.5);
 
- Temperatura = (unsigned int)(DSTemp);
  IDst = (unsigned int)(Cdistancia);
  Caudal = (unsigned int)(FCaudal);
 
  chIDst = (unsigned char *) & IDst;
- chTemp = (unsigned char *) & Temperatura;
  chCaudal = (unsigned char *) & Caudal;
 
+ }
 }
 
 
@@ -506,16 +513,7 @@ void main() {
  Rspt[Rsize-1] = End;
 
  while(1){
-
- BanP=1;
- Ptcn[0]=Hdr;
- Ptcn[1]=Id;
- Ptcn[2]=0x02;
- Ptcn[3]=0x00;
- Ptcn[4]=0x01;
- Ptcn[5]=End;
-
-
+#line 532 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  if (BanP==1){
 
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){

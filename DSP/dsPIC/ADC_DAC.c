@@ -300,23 +300,30 @@ int Distancia(){
 
 void Calcular(){
 
-     for (vi=0;vi<nd;vi++){
-         Vdistancia[vi] = Distancia();        //Toma 10 lecturas de la distancia calculada y las almacena en un vector
+     if (Ptcn[4]==0x03){
+     
+        Velocidad();
+        Temperatura = (unsigned int)(DSTemp);    //Tranforma el dato de Temperatura de float a entero sin signo
+        chTemp = (unsigned char *) & Temperatura;//Asocia el valor calculado de Temperatura al puntero chTemp
+        
+     } else {
+     
+       for (vi=0;vi<nd;vi++){
+           Vdistancia[vi] = Distancia();        //Toma 10 lecturas de la distancia calculada y las almacena en un vector
+       }
+
+       Cdistancia = Moda(Vdistancia);           //Calcula la Moda del vector de distancias
+
+       FNivel = (Alt-Cdistancia)/1000.0;        //Calcula el Nivel de liquido en metros
+       FCaudal = 4960440*pow(FNivel,2.5);       //Calcula el Caudal en litros/hora
+
+       IDst = (unsigned int)(Cdistancia);       //Tranforma el dato de distancia de float a entero sin signo
+       Caudal = (unsigned int)(FCaudal);        //Tranforma el dato de Caudal de float a entero sin signo
+
+       chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
+       chCaudal = (unsigned char *) & Caudal;   //Asocia el valor calculado de Temperatura al puntero chTemp
+     
      }
-     
-     Cdistancia = Moda(Vdistancia);           //Calcula la Moda del vector de distancias
-     
-     FNivel = (Alt-Cdistancia)/1000.0;        //Calcula el Nivel de liquido en metros
-     FCaudal = 4960440*pow(FNivel,2.5);       //Calcula el Caudal en litros/hora
-
-     Temperatura = (unsigned int)(DSTemp);    //Tranforma el dato de Temperatura de float a entero sin signo
-     IDst = (unsigned int)(Cdistancia);       //Tranforma el dato de distancia de float a entero sin signo
-     Caudal = (unsigned int)(FCaudal);        //Tranforma el dato de Caudal de float a entero sin signo
-
-     chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
-     chTemp = (unsigned char *) & Temperatura;//Asocia el valor calculado de Temperatura al puntero chTemp
-     chCaudal = (unsigned char *) & Caudal;   //Asocia el valor calculado de Temperatura al puntero chTemp
-
 }
 
 //Funcion para Responder una peticion
@@ -513,13 +520,13 @@ void main() {
 
      while(1){
 
-              BanP=1;
+              /*BanP=1;
               Ptcn[0]=Hdr;
               Ptcn[1]=Id;
               Ptcn[2]=0x02;
               Ptcn[3]=0x00;
-              Ptcn[4]=0x01;
-              Ptcn[5]=End;
+              Ptcn[4]=0x03;
+              Ptcn[5]=End;*/
 
 
               if (BanP==1){                                   //Verifica si se realizo una peticion
