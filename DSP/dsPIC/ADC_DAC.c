@@ -214,7 +214,18 @@ void Pulse(){
 }
 
 int Moda(int VRpt[nd]){
+    
+    ME1=0;
+    ME2=0;
+    ME3=0;
+    Mb2=0;
+    Mb3=0;
+    Mc1=0;
+    Mc2=0;
+    Mc3=0;
+    
     ME1=VRpt[0];
+    
     for (mi=0;mi<nd;mi++){
         if (VRpt[mi]==ME1){
            Mc1++;

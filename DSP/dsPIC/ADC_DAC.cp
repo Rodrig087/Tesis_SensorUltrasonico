@@ -208,7 +208,18 @@ void Pulse(){
 }
 
 int Moda(int VRpt[nd]){
+
+ ME1=0;
+ ME2=0;
+ ME3=0;
+ Mb2=0;
+ Mb3=0;
+ Mc1=0;
+ Mc2=0;
+ Mc3=0;
+
  ME1=VRpt[0];
+
  for (mi=0;mi<nd;mi++){
  if (VRpt[mi]==ME1){
  Mc1++;
@@ -513,7 +524,7 @@ void main() {
  Rspt[Rsize-1] = End;
 
  while(1){
-#line 532 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 543 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  if (BanP==1){
 
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
