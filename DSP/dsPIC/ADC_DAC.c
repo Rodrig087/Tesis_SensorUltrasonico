@@ -5,11 +5,31 @@ Configuracion: dsPIC P33FJ32MC202, XT=8MHz, PLL=80MHz
 Descripcion:
 1.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR (Fs=200KHz, T/2=1000us)
-const float ca1 = 0.004482805534581;
-const float ca2 = 0.008965611069163;
-const float cb2 = -1.801872917973333;
-const float cb3 = 0.819804140111658;
+//Funcion de transferencia h(n) filtro FIR (Fs=200KHz, Fc=5547Hz) Ventana Hamming
+const float h[]=
+{
+0, 			//h(0)
+8.655082858474001e-04, 	//h(1)
+0.003740336116716,	//h(2)
+0.008801023059201,	//h(3)
+0.015858487391720,	//h(4)
+0.024356432913204,	//h(5)
+0.033436118860918,	//h(6)
+0.042058476113843,	//h(7)
+0.049163467317092,	//h(8)
+0.053839086446614,	//h(9)
+0.055470000000000,	//h(10)
+0.053839086446614,	//h(11)
+0.049163467317092,	//h(12)
+0.042058476113843,	//h(13)
+0.033436118860918,	//h(14)
+0.024356432913204,	//h(15)
+0.015858487391720,	//h(16)
+0.008801023059201,	//h(17)
+0.003740336116716,	//h(18)
+8.655082858474001e-04,	//h(19)
+0			//h(20)
+};
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
 //Variables para la generacion de pulsos de exitacion del transductor ultrasonico
@@ -28,6 +48,9 @@ unsigned int value = 0;
 unsigned int aux_value = 0;
 //Variables para el filtrado de la señal
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
+const unsigned short O = 21;
+float XFIR[O];
+unsigned int f;
 unsigned int YY = 0;
 //Variables para determinar el tiempo de maximo de la funcion
 unsigned int Mmax=0;
@@ -45,7 +68,6 @@ const float tx=5.0;
 int yy0, yy1, yy2;
 float yf0, yf1, yf2;
 float nx, dx, tmax;
-unsigned short bT2=0;
 //Variables para calcular el TOF
 float T1, T2;
 float TOF, Dst;
@@ -132,17 +154,18 @@ void Pulse(){
                     }
 
                     //Filtrado
-                    x0 = (float)(value);                                 //Adquisición de una muestra de 10 bits en, x[0].
-                    y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
-
-                    y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
-                    y1 = y0;
-                    x2 = x1;
-                    x1 = x0;
-
-                    YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
-                    //M[k] = YY;
-
+                    //Corrimiento continuo de la señal x[n]
+                    for( f=O-1; f!=0; f-- ) XFIR[f]=XFIR[f-1];
+                    //Adquisición de una muestra de 10 bits en, x[0]
+                    XFIR[0] = (float)(value);
+                    //Convolución continúa.
+                    y0 = 0.0; for( f=0; f<O; f++ ) y0 += h[f]*XFIR[f];
+                    
+                    
+                    //Reconstrucción de la señal: y en 10 bits.
+                    YY = (unsigned int)(y0);
+                    M[k] = YY;
+                    
                 }
 
                 bm = 2;                                                  //Cambia el estado de la bandera bm para dar paso al cálculo del pmax y TOF
@@ -220,12 +243,8 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 }
 //Interrupcion por desbordamiento del TMR2
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
-     if (contp<22){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
-          if (contp==11){
-              BT2 = ~BT2;
-          }
-          BT2 = ~BT2;
-          RB2_bit = BT2;                    //Conmuta el valor del pin RB14
+     if (contp<10){                                //Controla el numero total de pulsos de exitacion del transductor ultrasonico. (
+          RB2_bit = ~RB2_bit;                    //Conmuta el valor del pin RB14
      }else {
           RB2_bit = 0;                            //Pone a cero despues de enviar todos los pulsos de exitacion.
 

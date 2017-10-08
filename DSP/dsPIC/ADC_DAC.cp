@@ -1,9 +1,29 @@
 #line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
 #line 9 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
-const float ca1 = 0.004482805534581;
-const float ca2 = 0.008965611069163;
-const float cb2 = -1.801872917973333;
-const float cb3 = 0.819804140111658;
+const float h[]=
+{
+0,
+8.655082858474001e-04,
+0.003740336116716,
+0.008801023059201,
+0.015858487391720,
+0.024356432913204,
+0.033436118860918,
+0.042058476113843,
+0.049163467317092,
+0.053839086446614,
+0.055470000000000,
+0.053839086446614,
+0.049163467317092,
+0.042058476113843,
+0.033436118860918,
+0.024356432913204,
+0.015858487391720,
+0.008801023059201,
+0.003740336116716,
+8.655082858474001e-04,
+0
+};
 
 
 
@@ -22,6 +42,9 @@ unsigned int value = 0;
 unsigned int aux_value = 0;
 
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
+const unsigned short O = 21;
+float XFIR[O];
+unsigned int f;
 unsigned int YY = 0;
 
 unsigned int Mmax=0;
@@ -39,7 +62,6 @@ const float tx=5.0;
 int yy0, yy1, yy2;
 float yf0, yf1, yf2;
 float nx, dx, tmax;
-unsigned short bT2=0;
 
 float T1, T2;
 float TOF, Dst;
@@ -126,16 +148,17 @@ void Pulse(){
  }
 
 
- x0 = (float)(value);
- y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);
 
- y2 = y1;
- y1 = y0;
- x2 = x1;
- x1 = x0;
+ for( f=O-1; f!=0; f-- ) XFIR[f]=XFIR[f-1];
+
+ XFIR[0] = (float)(value);
+
+ y0 = 0.0; for( f=0; f<O; f++ ) y0 += h[f]*XFIR[f];
+
+
 
  YY = (unsigned int)(y0);
-
+ M[k] = YY;
 
  }
 
@@ -214,12 +237,8 @@ void Timer1Interrupt() iv IVT_ADDR_T1INTERRUPT{
 }
 
 void Timer2Interrupt() iv IVT_ADDR_T2INTERRUPT{
- if (contp<22){
- if (contp==11){
- BT2 = ~BT2;
- }
- BT2 = ~BT2;
- RB2_bit = BT2;
+ if (contp<10){
+ RB2_bit = ~RB2_bit;
  }else {
  RB2_bit = 0;
 

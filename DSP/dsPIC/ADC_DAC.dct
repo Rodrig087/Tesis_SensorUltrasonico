@@ -1098,7 +1098,6 @@ brg_9_bit
 brgh
 brgh
 brgh_bit
-bt2
 bufm
 bufm
 bufm_bit
@@ -1123,10 +1122,6 @@ bytetostr
 c
 c
 c_bit
-ca1
-ca2
-cb2
-cb3
 ceid
 ceid
 ceid
@@ -1813,6 +1808,7 @@ exp
 extr
 extr
 extr_bit
+f
 fabs
 faen1
 faen1
@@ -1975,6 +1971,7 @@ gcstat
 gcstat_bit
 get_fosc_khz
 get_fosc_per_cyc
+h
 i
 i0
 i1
@@ -3049,6 +3046,7 @@ nvmop1
 nvmop2
 nvmop3
 nx
+o
 oa
 oa
 oa_bit
@@ -6631,6 +6629,7 @@ xe_8
 xe_8_bit
 xe_9
 xe_9_bit
+xfir
 xmoden
 xmoden
 xmoden_bit
