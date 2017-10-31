@@ -44,7 +44,8 @@ unsigned short Dato;
 unsigned int Altura;
 unsigned int Nivel;
 float FNivel, FCaudal;
-unsigned int Temperatura, Caudal, Kadj, ITOF;
+unsigned int Temperatura, Caudal, ITOF;
+int Kadj;
 unsigned char *chTemp, *chCaudal, *chNivel,
 *chKadj, *chTOF, *chAltura;
 float FDReal;
@@ -363,6 +364,7 @@ void Calcular(){
  chNivel = (unsigned char *) & Nivel;
  chCaudal = (unsigned char *) & Caudal;
  chTOF = (unsigned char *) & ITOF;
+ chAltura = (unsigned char *) & Altura;
 
  }
 }
@@ -406,7 +408,6 @@ void Responder(unsigned int Reg){
  break;
 
  case 6:
- chAltura = (unsigned char *) & Altura;
  for (ir=4;ir>=3;ir--){
  Rspt[ir]=(*chAltura++);
  }
@@ -416,34 +417,8 @@ void Responder(unsigned int Reg){
  default: Rspt[3]=0x00;
  Rspt[4]=0xE2;
  Rspt[2]=0xEE;
+ break;
  }
-
- if (Reg==0x01){
- for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chIDst++);
- }
- }
- if (Reg==0x02){
- for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chCaudal++);
- }
- }
- if (Reg==0x03){
- for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chTemp++);
- }
- }
- if (Reg==0x03){
- for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chTemp++);
- }
- }
- if (Reg==0x03){
- for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chTemp++);
- }
- }
-
 
  RB5_bit = 1;
  for (ir=0;ir<Rsize;ir++){
@@ -619,46 +594,53 @@ void main() {
  Rspt[Rsize-1] = End;
 
  while(1){
-#line 638 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 613 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  if (BanP==1){
 
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
 
  Fcn = Ptcn[2];
+ DatoPtcn = 0;
 
  switch(Fcn){
  case 1:
  Calcular();
- Responder(0x06);
+ Responder(0x05);
+ break;
 
  case 2:
  Calcular();
  *chDP = Ptcn[4];
  *(chDP+1) = Ptcn[3];
  Responder(DatoPtcn);
+ break;
 
  case 3:
  *chDP = Ptcn[4];
  *(chDP+1) = Ptcn[3];
  Altura = DatoPtcn;
+ Calcular();
  Responder(0x06);
+ break;
 
  case 4:
  *chDP = Ptcn[4];
- *(chDP+1) = 0x00;
+
  Kadj = DatoPtcn;
  if (Ptcn[3]==0x11){
  Kadj = -Kadj;
  }
  Calcular();
  Responder(0x02);
+ break;
 
  default: Rspt[3]=0x00;
  Rspt[4]=0xE1;
  Rspt[2]=0xEE;
+ break;
  }
 
- DatoPtcn = 0;
+
 
  for (ipp=0;ipp<Psize;ipp++){
  Ptcn[ipp]=0;
