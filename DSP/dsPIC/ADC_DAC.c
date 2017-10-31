@@ -5,11 +5,31 @@ Configuracion: dsPIC P33FJ32MC202, XT=8MHz, PLL=80MHz
 Descripcion:
 1.
 ---------------------------------------------------------------------------------------------------------------------------*/
-//Coeficientes filtro IIR (Fs=200KHz, T/2=650us)
-const float ca1 = 0.006745773600345;
-const float ca2 = 0.013491547200690;
-const float cb2 = -1.754594315763869;
-const float cb3 = 0.781577410165250;
+//Funcion de transferencia h(n) filtro FIR (Fs=200KHz, Fc=5547Hz) Ventana Hamming
+const float h[]=
+{
+0,                        //h(0)
+8.655082858474001e-04,    //h(1)
+0.003740336116716,        //h(2)
+0.008801023059201,        //h(3)
+0.015858487391720,        //h(4)
+0.024356432913204,        //h(5)
+0.033436118860918,        //h(6)
+0.042058476113843,        //h(7)
+0.049163467317092,        //h(8)
+0.053839086446614,        //h(9)
+0.055470000000000,        //h(10)
+0.053839086446614,        //h(11)
+0.049163467317092,        //h(12)
+0.042058476113843,        //h(13)
+0.033436118860918,        //h(14)
+0.024356432913204,        //h(15)
+0.015858487391720,        //h(16)
+0.008801023059201,        //h(17)
+0.003740336116716,        //h(18)
+8.655082858474001e-04,    //h(19)
+0                         //h(20)
+};
 
 
 //////////////////////////////////////////////////// Declaracion de variables //////////////////////////////////////////////////////////////
@@ -27,10 +47,12 @@ unsigned short Fcn;                                     //Variable para el tipo 
 unsigned int DatoPtcn;                                  //Variable para el Dato de la peticion
 unsigned short *chDP;                                   //Variable tipo puntero para el dato de peticion
 unsigned short Dato;                                    //Variable para almacenar los datos que recibe por Uart
-unsigned int Alt;                                       //Variable para almacenar la Altura de instalacion del sensor
+unsigned int Altura;                                    //Variable para almacenar la Altura de instalacion del sensor
+unsigned int Nivel;
 float FNivel, FCaudal;                                  //Variables para almacenar el Nivel y el Caudal en punto flotante
-unsigned int Temperatura, Caudal, Kadj;                 //Variables para almacenar la Temperatura, Caudal y factor de calibracion en entero sin signo
-unsigned char *chTemp, *chCaudal, *chKadj;              //Variables tipo puntero para la Temperatura, Caudal y factor de calibracion
+unsigned int Temperatura, Caudal, Kadj, ITOF;           //Variables para almacenar la Temperatura, Caudal, factor de calibracion, TOF en entero sin signo
+unsigned char *chTemp, *chCaudal, *chNivel, 
+*chKadj, *chTOF, *chAltura;                             //Variables tipo puntero para la Temperatura, Caudal, Nivel, factor de calibracion, TOF
 float FDReal;                                           //Variable para almacenar la distancia real para la calibracion
 unsigned int IT2prom;
 unsigned char *chT2prom;
@@ -57,6 +79,9 @@ unsigned int aux_value = 0;
 
 //Variables para el filtrado de la señal
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
+const unsigned short O = 21;
+float XFIR[O];
+unsigned int f;
 unsigned int YY = 0;
 
 //Variables para determinar el tiempo de maximo de la funcion
@@ -68,7 +93,7 @@ unsigned int MIndexMin;
 unsigned int maxIndex;
 unsigned int i0, i1, i2, imax;
 unsigned int i1a, i1b;
-const short dix=16;                                     //Intervalo de interpolacion
+const short dix=20;                                     //Intervalo de interpolacion
 const float tx=5.0;                                     //Periodo de muestreo
 int yy0, yy1, yy2;
 float yf0, yf1, yf2;
@@ -95,7 +120,7 @@ unsigned int ME1=0, ME2=0, ME3=0;                       //Variables para almacen
 unsigned short Mb2=0, Mb3=0;                            //Banderas
 unsigned short Mc1=0, Mc2=0, Mc3=0;                     //Contadores de mediciones de distancia
 unsigned short mi=0, vi=0;                              //Subindices para el calculo de la Moda y la Distancia
-const short nd = 20;                                    //Numero de secuencias de medicion de Distancia
+const short nd = 10;                                    //Numero de secuencias de medicion de Distancia
 
 /////////////////////////////////////////////////////////////////// Funciones //////////////////////////////////////////////////////////////
 //Funcion para el calculo de la Velocidad del sonido en funcion de la temperatura registrada por el sensor DS18B20
@@ -164,13 +189,12 @@ void Pulse(){
                     }
 
                     //Filtrado
-                    x0 = (float)(value);                                 //Adquisición de una muestra de 10 bits en, x[0].
-                    y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);       //Implementación de la ecuación en diferencias
-
-                    y2 = y1;                                             //Corrimiento de los valores x(n), y y(n).
-                    y1 = y0;
-                    x2 = x1;
-                    x1 = x0;
+                    //Corrimiento continuo de la señal x[n]
+                    for( f=O-1; f!=0; f-- ) XFIR[f]=XFIR[f-1];
+                    //Adquisición de una muestra de 10 bits en, x[0]
+                    XFIR[0] = (float)(value);
+                    //Convolución continúa.
+                    y0 = 0.0; for( f=0; f<O; f++ ) y0 += h[f]*XFIR[f];
 
                     YY = (unsigned int)(y0);                             //Reconstrucción de la señal: y en 10 bits.
                     M[k] = YY;
@@ -311,7 +335,7 @@ int Distancia(){
 
 void Calcular(){
 
-     if (Ptcn[4]==0x03){
+     if (Ptcn[4]==0x04){
      
         Velocidad();
         Temperatura = (unsigned int)(DSTemp);    //Tranforma el dato de Temperatura de float a entero sin signo
@@ -324,15 +348,27 @@ void Calcular(){
        }
 
        Cdistancia = Moda(Vdistancia);           //Calcula la Moda del vector de distancias
+       
+       //Correccion de la distancia
+       if ((Cdistancia>=268)&&(Cdistancia<=283)){
+          Cdistancia = Cdistancia - 3;
+       } else {
+          Cdistancia = Cdistancia + 1;
+       }
 
-       FNivel = (Alt-Cdistancia)/1000.0;        //Calcula el Nivel de liquido en metros
+       Cdistancia = Cdistancia + (float)(Kadj); //Ajusta el valor de la Distancia calculada segun el factor de calibracion Kadj
+       Nivel = Altura - Cdistancia;             //Calcula el Nivel en mm
+       FNivel = Nivel/1000.0;                   //Calcula el Nivel de liquido en metros
        FCaudal = 4960440*pow(FNivel,2.5);       //Calcula el Caudal en litros/hora
 
        IDst = (unsigned int)(Cdistancia);       //Tranforma el dato de distancia de float a entero sin signo
        Caudal = (unsigned int)(FCaudal);        //Tranforma el dato de Caudal de float a entero sin signo
+       ITOF = (unsigned int)(TOF);              //Tranforma el dato de TOF de float a entero sin signo
 
-       chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de Dst al puntero chDst
-       chCaudal = (unsigned char *) & Caudal;   //Asocia el valor calculado de Temperatura al puntero chTemp
+       chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de IDst al puntero chDst
+       chNivel = (unsigned char *) & Nivel;     //Asocia el valor calculado de Nivel al puntero chNivel
+       chCaudal = (unsigned char *) & Caudal;   //Asocia el valor calculado de Caudal al puntero chCaudal
+       chTOF = (unsigned char *) & ITOF;        //Asocia el valor calculado de TOF al puntero chTOF
      
      }
 }
@@ -340,6 +376,54 @@ void Calcular(){
 //Funcion para Responder una peticion
 void Responder(unsigned int Reg){
 
+     switch(Reg){
+         case 1:    //Respuesta de Nivel
+                    for (ir=4;ir>=3;ir--){
+                        Rspt[ir]=(*chNivel++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato del Nivel calculado
+                    }
+                    Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
+                    break;
+                    
+         case 2:    //Respuesta de Distancia
+                    for (ir=4;ir>=3;ir--){
+                        Rspt[ir]=(*chIDst++);              //Rellena los bytes 3 y 4 de la trama de respuesta con el dato del Distancia calculada
+                    }
+                    Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
+                    break;
+                    
+         case 3:    //Respuesta de TOF
+                    for (ir=4;ir>=3;ir--){
+                        Rspt[ir]=(*chTOF++);               //Rellena los bytes 3 y 4 de la trama de respuesta con el dato del TOF calculado
+                    }
+                    Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
+                    break;
+                    
+         case 4:    //Respuesta de Temperatura
+                    for (ir=4;ir>=3;ir--){
+                        Rspt[ir]=(*chTemp++);              //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la Temperatura calculada
+                    }
+                    break;
+                    
+         case 5:    //Respuesta de Caudal
+                    for (ir=4;ir>=3;ir--){
+                        Rspt[ir]=(*chCaudal++);            //Rellena los bytes 3 y 4 de la trama de respuesta con el dato del Caudal calculado
+                    }
+                    Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
+                    break;
+                    
+         case 6:    //Respuesta de Altura de instalacion
+                    chAltura = (unsigned char *) & Altura; //Asocia el valor de la variable Altura  al puntero chDst
+                    for (ir=4;ir>=3;ir--){
+                        Rspt[ir]=(*chAltura++);            //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la Altura de instalacion
+                    }
+                    Rspt[2]=Ptcn[2];                       //Rellena el byte 2 con el tipo de funcion de la trama de peticion
+                    break;
+         
+         default:   Rspt[3]=0x00;                          //Rellena el campo de datos con el mensaje de error 0x00E2: Registro no disponible
+                    Rspt[4]=0xE2;
+                    Rspt[2]=0xEE;                          //Rellena el byre 2 con el aviso de error 0xEE
+     }
+     
      if (Reg==0x01){
         for (ir=4;ir>=3;ir--){
             Rspt[ir]=(*chIDst++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la Distancia calculada
@@ -355,8 +439,17 @@ void Responder(unsigned int Reg){
             Rspt[ir]=(*chTemp++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la Temperatura calculada
         }
      }
-
-     Rspt[2]=Ptcn[2];                         //Rellena el byte 2 con el tipo de funcion de la trama de peticion
+     if (Reg==0x03){
+        for (ir=4;ir>=3;ir--){
+            Rspt[ir]=(*chTemp++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la Temperatura calculada
+        }
+     }
+     if (Reg==0x03){
+        for (ir=4;ir>=3;ir--){
+            Rspt[ir]=(*chTemp++);             //Rellena los bytes 3 y 4 de la trama de respuesta con el dato de la Temperatura calculada
+        }
+     }
+     
 
      RB5_bit = 1;                             //Establece el Max485 en modo de escritura
      for (ir=0;ir<Rsize;ir++){
@@ -521,7 +614,9 @@ void main() {
      Id = (PORTB&0xFF00)>>8;                                  //Lee el Id de esclavo establecido por el dipswitch
      T2adj = 460.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
      //T2adj = 280.0;
-
+     Altura = 300;                                            //Fija la altura de instalacion del sensor en 300mm
+     Kadj = 0;                                                //Fija la constante de ajuste en 0
+     
      chDP = &DatoPtcn;                                        //Asocia el valor de DatoPtcn al puntero chDP
      ip=0;
 
@@ -534,9 +629,9 @@ void main() {
               /*BanP=1;
               Ptcn[0]=Hdr;
               Ptcn[1]=Id;
-              Ptcn[2]=0x02;
+              Ptcn[2]=0x01;
               Ptcn[3]=0x00;
-              Ptcn[4]=0x03;
+              Ptcn[4]=0x00;
               Ptcn[5]=End;*/
 
 
@@ -546,19 +641,39 @@ void main() {
 
                     Fcn = Ptcn[2];                            //Almacena el tipo de funcion requerida
 
-                    if (Fcn==0x01){                           //01: Lee el registro principal (Distancia)
-                       Calcular();                            //Realiza una secuencia de calculo
-                       Responder(0x01);                       //Envia la trama de repuesta con el valor del registro 0x01
-                    }
-                    
-                    if (Fcn==0x02){                           //02: Lee el registro especicfico (01:Distancia, 02:Caudal, 03:Temperatura)
-                       Calcular();                            //Realiza una secuencia de calculo
-                       *chDP = Ptcn[4];                       //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
-                       *(chDP+1) = Ptcn[3];                   //Almacena el byte 3 de la trama de peticion en el MSB de la variable DatoPtcn
-                       Responder(DatoPtcn);                   //Envia la trama de repuesta con el valor del registro requerido
+                    switch(Fcn){
+                        case 1:    //01: Lee el registro principal (05:Caudal)
+                                   Calcular();                //Realiza una secuencia de calculo
+                                   Responder(0x06);           //Envia la trama de repuesta con el valor del registro principal
+                        
+                        case 2:    //02: Lee el registro especifico (01:Nivel, 02:Distancia, 03:TOF, 04:Temperatura)
+                                   Calcular();                //Realiza una secuencia de calculo
+                                   *chDP = Ptcn[4];           //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
+                                   *(chDP+1) = Ptcn[3];       //Almacena el byte 3 de la trama de peticion en el MSB de la variable DatoPtcn
+                                   Responder(DatoPtcn);       //Envia la trama de repuesta con el valor del registro requerido
+                        
+                        case 3:    //03: Establece la altura de instalacion
+                                   *chDP = Ptcn[4];           //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
+                                   *(chDP+1) = Ptcn[3];       //Almacena el byte 3 de la trama de peticion en el MSB de la variable DatoPtcn
+                                   Altura =  DatoPtcn;        //Almacena el valor de DatoPtcn en la variable Altura
+                                   Responder(0x06);           //Envia la trama de repuesta con el valor de la Altura de instalacion
+                        
+                        case 4:    //04: Establece el factor de calibracion
+                                   *chDP = Ptcn[4];           //Almacena el byte 4 de la trama de peticion en el LSB de la variable DatoPtcn
+                                   *(chDP+1) = 0x00;          //Establece en 0 el MSB de la variable DatoPtcn
+                                   Kadj = DatoPtcn;           //Almacena el valor de DatoPtcn en la variable Kadj
+                                   if (Ptcn[3]==0x11){        //Verifica si el byte 3 es igual a 0x11, de ser asi cambia el signo de la variable Kadj
+                                      Kadj = -Kadj;
+                                   }
+                                   Calcular();                //Realiza una secuencia de calculo
+                                   Responder(0x02);           //Envia la trama de repuesta con el valor de la Distancia calculada
+                        
+                        default:   Rspt[3]=0x00;              //Rellena el campo de datos con el mensaje de error 0x00E1: Funcion no disponible
+                                   Rspt[4]=0xE1;
+                                   Rspt[2]=0xEE;              //Rellena el byte 2 con el aviso de error 0xEE
                     }
 
-                    DatoPtcn = 0;                             //Limpia la variable
+                    DatoPtcn = 0;                             //Limpia la variable DatoPtcn
                     
                     for (ipp=0;ipp<Psize;ipp++){
                         Ptcn[ipp]=0;                          //Limpia la trama de peticion

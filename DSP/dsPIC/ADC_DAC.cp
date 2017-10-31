@@ -1,9 +1,29 @@
 #line 1 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
 #line 9 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
-const float ca1 = 0.006745773600345;
-const float ca2 = 0.013491547200690;
-const float cb2 = -1.754594315763869;
-const float cb3 = 0.781577410165250;
+const float h[]=
+{
+0,
+8.655082858474001e-04,
+0.003740336116716,
+0.008801023059201,
+0.015858487391720,
+0.024356432913204,
+0.033436118860918,
+0.042058476113843,
+0.049163467317092,
+0.053839086446614,
+0.055470000000000,
+0.053839086446614,
+0.049163467317092,
+0.042058476113843,
+0.033436118860918,
+0.024356432913204,
+0.015858487391720,
+0.008801023059201,
+0.003740336116716,
+8.655082858474001e-04,
+0
+};
 
 
 
@@ -21,10 +41,12 @@ unsigned short Fcn;
 unsigned int DatoPtcn;
 unsigned short *chDP;
 unsigned short Dato;
-unsigned int Alt;
+unsigned int Altura;
+unsigned int Nivel;
 float FNivel, FCaudal;
-unsigned int Temperatura, Caudal, Kadj;
-unsigned char *chTemp, *chCaudal, *chKadj;
+unsigned int Temperatura, Caudal, Kadj, ITOF;
+unsigned char *chTemp, *chCaudal, *chNivel,
+*chKadj, *chTOF, *chAltura;
 float FDReal;
 unsigned int IT2prom;
 unsigned char *chT2prom;
@@ -51,6 +73,9 @@ unsigned int aux_value = 0;
 
 
 float x0=0, x1=0, x2=0, y0=0, y1=0, y2=0;
+const unsigned short O = 21;
+float XFIR[O];
+unsigned int f;
 unsigned int YY = 0;
 
 
@@ -62,7 +87,7 @@ unsigned int MIndexMin;
 unsigned int maxIndex;
 unsigned int i0, i1, i2, imax;
 unsigned int i1a, i1b;
-const short dix=16;
+const short dix=20;
 const float tx=5.0;
 int yy0, yy1, yy2;
 float yf0, yf1, yf2;
@@ -89,7 +114,7 @@ unsigned int ME1=0, ME2=0, ME3=0;
 unsigned short Mb2=0, Mb3=0;
 unsigned short Mc1=0, Mc2=0, Mc3=0;
 unsigned short mi=0, vi=0;
-const short nd = 20;
+const short nd = 10;
 
 
 
@@ -158,13 +183,12 @@ void Pulse(){
  }
 
 
- x0 = (float)(value);
- y0 = ((x0+x2)*ca1)+(x1*ca2)-(y1*cb2)-(y2*cb3);
 
- y2 = y1;
- y1 = y0;
- x2 = x1;
- x1 = x0;
+ for( f=O-1; f!=0; f-- ) XFIR[f]=XFIR[f-1];
+
+ XFIR[0] = (float)(value);
+
+ y0 = 0.0; for( f=0; f<O; f++ ) y0 += h[f]*XFIR[f];
 
  YY = (unsigned int)(y0);
  M[k] = YY;
@@ -305,7 +329,7 @@ int Distancia(){
 
 void Calcular(){
 
- if (Ptcn[4]==0x03){
+ if (Ptcn[4]==0x04){
 
  Velocidad();
  Temperatura = (unsigned int)(DSTemp);
@@ -319,20 +343,80 @@ void Calcular(){
 
  Cdistancia = Moda(Vdistancia);
 
- FNivel = (Alt-Cdistancia)/1000.0;
+
+ if ((Cdistancia>=268)&&(Cdistancia<=283)){
+ Cdistancia = Cdistancia - 3;
+ } else {
+ Cdistancia = Cdistancia + 1;
+ }
+
+ Cdistancia = Cdistancia + (float)(Kadj);
+ Nivel = Altura - Cdistancia;
+ FNivel = Nivel/1000.0;
  FCaudal = 4960440*pow(FNivel,2.5);
 
  IDst = (unsigned int)(Cdistancia);
  Caudal = (unsigned int)(FCaudal);
+ ITOF = (unsigned int)(TOF);
 
  chIDst = (unsigned char *) & IDst;
+ chNivel = (unsigned char *) & Nivel;
  chCaudal = (unsigned char *) & Caudal;
+ chTOF = (unsigned char *) & ITOF;
 
  }
 }
 
 
 void Responder(unsigned int Reg){
+
+ switch(Reg){
+ case 1:
+ for (ir=4;ir>=3;ir--){
+ Rspt[ir]=(*chNivel++);
+ }
+ Rspt[2]=Ptcn[2];
+ break;
+
+ case 2:
+ for (ir=4;ir>=3;ir--){
+ Rspt[ir]=(*chIDst++);
+ }
+ Rspt[2]=Ptcn[2];
+ break;
+
+ case 3:
+ for (ir=4;ir>=3;ir--){
+ Rspt[ir]=(*chTOF++);
+ }
+ Rspt[2]=Ptcn[2];
+ break;
+
+ case 4:
+ for (ir=4;ir>=3;ir--){
+ Rspt[ir]=(*chTemp++);
+ }
+ break;
+
+ case 5:
+ for (ir=4;ir>=3;ir--){
+ Rspt[ir]=(*chCaudal++);
+ }
+ Rspt[2]=Ptcn[2];
+ break;
+
+ case 6:
+ chAltura = (unsigned char *) & Altura;
+ for (ir=4;ir>=3;ir--){
+ Rspt[ir]=(*chAltura++);
+ }
+ Rspt[2]=Ptcn[2];
+ break;
+
+ default: Rspt[3]=0x00;
+ Rspt[4]=0xE2;
+ Rspt[2]=0xEE;
+ }
 
  if (Reg==0x01){
  for (ir=4;ir>=3;ir--){
@@ -349,8 +433,17 @@ void Responder(unsigned int Reg){
  Rspt[ir]=(*chTemp++);
  }
  }
+ if (Reg==0x03){
+ for (ir=4;ir>=3;ir--){
+ Rspt[ir]=(*chTemp++);
+ }
+ }
+ if (Reg==0x03){
+ for (ir=4;ir>=3;ir--){
+ Rspt[ir]=(*chTemp++);
+ }
+ }
 
- Rspt[2]=Ptcn[2];
 
  RB5_bit = 1;
  for (ir=0;ir<Rsize;ir++){
@@ -515,6 +608,8 @@ void main() {
  Id = (PORTB&0xFF00)>>8;
  T2adj = 460.0;
 
+ Altura = 300;
+ Kadj = 0;
 
  chDP = &DatoPtcn;
  ip=0;
@@ -524,23 +619,43 @@ void main() {
  Rspt[Rsize-1] = End;
 
  while(1){
-#line 543 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 638 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  if (BanP==1){
 
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
 
  Fcn = Ptcn[2];
 
- if (Fcn==0x01){
+ switch(Fcn){
+ case 1:
  Calcular();
- Responder(0x01);
- }
+ Responder(0x06);
 
- if (Fcn==0x02){
+ case 2:
  Calcular();
  *chDP = Ptcn[4];
  *(chDP+1) = Ptcn[3];
  Responder(DatoPtcn);
+
+ case 3:
+ *chDP = Ptcn[4];
+ *(chDP+1) = Ptcn[3];
+ Altura = DatoPtcn;
+ Responder(0x06);
+
+ case 4:
+ *chDP = Ptcn[4];
+ *(chDP+1) = 0x00;
+ Kadj = DatoPtcn;
+ if (Ptcn[3]==0x11){
+ Kadj = -Kadj;
+ }
+ Calcular();
+ Responder(0x02);
+
+ default: Rspt[3]=0x00;
+ Rspt[4]=0xE1;
+ Rspt[2]=0xEE;
  }
 
  DatoPtcn = 0;

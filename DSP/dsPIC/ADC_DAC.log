@@ -4,19 +4,19 @@ warning: 0	1501	Specified search path does not exist: 'D:\Git\Tesis_SensorUltras
 warning: 0	1501	Specified search path does not exist: 'D:\Git\Tesis_Test\ADC_DAC_dsPIC'	 
 diagnostics: 0	121	Loading...	 
 diagnostics: 0	122	Compilation Started	ADC_DAC.c
-warning: 326	1505	Suspicious pointer conversion	ADC_DAC.c
+warning: 350	1505	Suspicious pointer conversion	ADC_DAC.c
 hint: 0	1004	interrupt handler (UART1Interrupt at 0x002A)	ADC_DAC.c
 hint: 0	1004	interrupt handler (Timer1Interrupt at 0x001A)	ADC_DAC.c
 hint: 0	1004	interrupt handler (Timer2Interrupt at 0x0022)	ADC_DAC.c
-warning: 525	1505	Suspicious pointer conversion	ADC_DAC.c
-diagnostics: 579	123	Compiled Successfully	ADC_DAC.c
-warning: 532	1519	Logical expression is always: 'False'	ADC_DAC.c
-hint: 105	1164	Variable 'Rfrac' has been eliminated by optimizer	ADC_DAC.c
-diagnostics: 0	127	All files Compiled in 235 ms	 
+warning: 620	1505	Suspicious pointer conversion	ADC_DAC.c
+diagnostics: 694	123	Compiled Successfully	ADC_DAC.c
+warning: 627	1519	Logical expression is always: 'False'	ADC_DAC.c
+hint: 130	1164	Variable 'Rfrac' has been eliminated by optimizer	ADC_DAC.c
+diagnostics: 0	127	All files Compiled in 281 ms	 
 hint: 0	1144	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)	Used RX (bytes): 32 (100%)   Free RX (bytes): 0 (0%)
-hint: 0	1144	Static RAM (bytes): 924   Dynamic RAM (bytes): 1124	Static RAM (bytes): 924   Dynamic RAM (bytes): 1124
-hint: 0	1144	Used ROM (bytes): 6821 (30%)  Free ROM (bytes): 15707 (70%)	Used ROM (bytes): 6821 (30%)  Free ROM (bytes): 15707 (70%)
+hint: 0	1144	Static RAM (bytes): 1002   Dynamic RAM (bytes): 1046	Static RAM (bytes): 1002   Dynamic RAM (bytes): 1046
+hint: 0	1144	Used ROM (bytes): 7497 (33%)  Free ROM (bytes): 15031 (67%)	Used ROM (bytes): 7497 (33%)  Free ROM (bytes): 15031 (67%)
 diagnostics: 0	125	Project Linked Successfully	ADC_DAC.mcpds
-diagnostics: 0	128	Linked in 218 ms	 
-diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 609 ms	 
-diagnostics: 0	103	Finished successfully: 19 jul. 2017, 10:49:13	ADC_DAC.mcpds
+diagnostics: 0	128	Linked in 266 ms	 
+diagnostics: 0	129	Project 'ADC_DAC.mcpds' completed: 891 ms	 
+diagnostics: 0	103	Finished successfully: 30 oct. 2017, 22:05:57	ADC_DAC.mcpds

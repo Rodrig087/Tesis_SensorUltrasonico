@@ -96,9 +96,10 @@ main
 			_Long2Float
 			_Mul_FP
 		_Long2Float
+		_AddSub_FP
+		_Float2Longint
 		_Div_FP
 		_Mul_FP
-		_Float2Longint
 	Responder
 		UART1_Write
 		UART1_Tx_Idle

@@ -982,13 +982,13 @@ aivt_addr_altt3interrupt
 aivt_addr_altu1errinterrupt
 aivt_addr_altu1rxinterrupt
 aivt_addr_altu1txinterrupt
-alt
 altivt
 altivt
 altivt_bit
 alts
 alts
 alts_bit
+altura
 amsk_0
 amsk_0_bit
 amsk_1
@@ -1107,12 +1107,8 @@ bytetostr
 c
 c
 c_bit
-ca1
-ca2
 calcular
 caudal
-cb2
-cb3
 cdistancia
 ceid
 ceid
@@ -1180,10 +1176,12 @@ ch123sa_bit
 ch123sb
 ch123sb
 ch123sb_bit
+chaltura
 chcaudal
 chdp
 chidst
 chkadj
+chnivel
 chps
 chps_0
 chps_0_bit
@@ -1193,6 +1191,7 @@ chps0
 chps1
 cht2prom
 chtemp
+chtof
 chtt2
 cke
 cke
@@ -1810,6 +1809,7 @@ exp
 extr
 extr
 extr_bit
+f
 fabs
 faen1
 faen1
@@ -1976,6 +1976,7 @@ gcstat
 gcstat_bit
 get_fosc_khz
 get_fosc_per_cyc
+h
 hdr
 i
 i0
@@ -2701,6 +2702,7 @@ iren
 iren
 iren_bit
 it2prom
+itof
 iue
 iue
 iue
@@ -3015,6 +3017,7 @@ n
 n
 n_bit
 nd
+nivel
 nm
 nosc
 nosc_0
@@ -3064,6 +3067,7 @@ nvmop1
 nvmop2
 nvmop3
 nx
+o
 oa
 oa
 oa_bit
@@ -6653,6 +6657,7 @@ xe_8
 xe_8_bit
 xe_9
 xe_9_bit
+xfir
 xmoden
 xmoden
 xmoden_bit
