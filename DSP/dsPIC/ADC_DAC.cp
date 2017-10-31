@@ -358,7 +358,7 @@ void Calcular(){
 
  IDst = (unsigned int)(Cdistancia);
  Caudal = (unsigned int)(FCaudal);
- ITOF = (unsigned int)(TOF);
+ ITOF = (unsigned int)(TOF*1.0e6);
 
  chIDst = (unsigned char *) & IDst;
  chNivel = (unsigned char *) & Nivel;
@@ -583,7 +583,7 @@ void main() {
  Id = (PORTB&0xFF00)>>8;
  T2adj = 460.0;
 
- Altura = 300;
+ Altura = 275;
  Kadj = 0;
 
  chDP = &DatoPtcn;
@@ -631,7 +631,7 @@ void main() {
  Kadj = -Kadj;
  }
  Calcular();
- Responder(0x02);
+ Responder(0x01);
  break;
 
  default: Rspt[3]=0x00;

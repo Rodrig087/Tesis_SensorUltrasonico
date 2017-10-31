@@ -364,7 +364,7 @@ void Calcular(){
 
        IDst = (unsigned int)(Cdistancia);       //Tranforma el dato de distancia de float a entero sin signo
        Caudal = (unsigned int)(FCaudal);        //Tranforma el dato de Caudal de float a entero sin signo
-       ITOF = (unsigned int)(TOF);              //Tranforma el dato de TOF de float a entero sin signo
+       ITOF = (unsigned int)(TOF*1.0e6);        //Tranforma el dato de TOF en us de float a entero sin signo
 
        chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de IDst al puntero chDst
        chNivel = (unsigned char *) & Nivel;     //Asocia el valor calculado de Nivel al puntero chNivel
@@ -589,7 +589,7 @@ void main() {
      Id = (PORTB&0xFF00)>>8;                                  //Lee el Id de esclavo establecido por el dipswitch
      T2adj = 460.0;                                           //Factor de calibracion de T2: Con Temp=20 y Vsnd=343.2, reduce la medida 1mm por cada 3 unidades que se aumente a este factor
      //T2adj = 280.0;
-     Altura = 300;                                            //Fija la altura de instalacion del sensor en 300mm
+     Altura = 275;                                            //Fija la altura de instalacion del sensor en 275mm
      Kadj = 0;                                                //Fija la constante de ajuste en 0
      
      chDP = &DatoPtcn;                                        //Asocia el valor de DatoPtcn al puntero chDP
@@ -646,7 +646,7 @@ void main() {
                                       Kadj = -Kadj;
                                    }
                                    Calcular();                //Realiza una secuencia de calculo
-                                   Responder(0x02);           //Envia la trama de repuesta con el valor de la Distancia calculada
+                                   Responder(0x01);           //Envia la trama de repuesta con el valor del Nivel calculado
                                    break;
                         
                         default:   Rspt[3]=0x00;              //Rellena el campo de datos con el mensaje de error 0x00E1: Funcion no disponible

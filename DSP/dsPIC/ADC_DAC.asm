@@ -1059,9 +1059,12 @@ L_Calcular56:
 ;ADC_DAC.c,366 :: 		Caudal = (unsigned int)(FCaudal);        //Tranforma el dato de Caudal de float a entero sin signo
 	CALL	__Float2Longint
 	MOV	W0, _Caudal
-;ADC_DAC.c,367 :: 		ITOF = (unsigned int)(TOF);              //Tranforma el dato de TOF de float a entero sin signo
+;ADC_DAC.c,367 :: 		ITOF = (unsigned int)(TOF*1.0e6);        //Tranforma el dato de TOF en us de float a entero sin signo
 	MOV	_TOF, W0
 	MOV	_TOF+2, W1
+	MOV	#9216, W2
+	MOV	#18804, W3
+	CALL	__Mul_FP
 	CALL	__Float2Longint
 	MOV	W0, _ITOF
 ;ADC_DAC.c,369 :: 		chIDst = (unsigned char *) & IDst;       //Asocia el valor calculado de IDst al puntero chDst
@@ -1912,8 +1915,8 @@ L_main110:
 	MOV	#17382, W1
 	MOV	W0, _T2adj
 	MOV	W1, _T2adj+2
-;ADC_DAC.c,592 :: 		Altura = 300;                                            //Fija la altura de instalacion del sensor en 300mm
-	MOV	#300, W0
+;ADC_DAC.c,592 :: 		Altura = 275;                                            //Fija la altura de instalacion del sensor en 275mm
+	MOV	#275, W0
 	MOV	W0, _Altura
 ;ADC_DAC.c,593 :: 		Kadj = 0;                                                //Fija la constante de ajuste en 0
 	CLR	W0
@@ -2041,8 +2044,8 @@ L__main230:
 L_main124:
 ;ADC_DAC.c,648 :: 		Calcular();                //Realiza una secuencia de calculo
 	CALL	_Calcular
-;ADC_DAC.c,649 :: 		Responder(0x02);           //Envia la trama de repuesta con el valor de la Distancia calculada
-	MOV	#2, W10
+;ADC_DAC.c,649 :: 		Responder(0x01);           //Envia la trama de repuesta con el valor del Nivel calculado
+	MOV	#1, W10
 	CALL	_Responder
 ;ADC_DAC.c,650 :: 		break;
 	GOTO	L_main119
