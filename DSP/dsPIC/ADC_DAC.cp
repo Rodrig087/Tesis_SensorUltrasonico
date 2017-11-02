@@ -59,7 +59,8 @@ short num;
 unsigned int contp;
 
 
-float DSTemp, VSnd;
+float DSTemp, VSnd, Rfrac;
+unsigned int Temp, Rint;
 
 
 const unsigned int nm = 350;
@@ -118,35 +119,6 @@ unsigned short mi=0, vi=0;
 const short nd = 10;
 
 
-
-void Velocidad(){
- unsigned int Temp;
- unsigned int Rint;
- float Rfrac;
-
- Ow_Reset(&PORTA, 0);
- Ow_Write(&PORTA, 0, 0xCC);
- Ow_Write(&PORTA, 0, 0x44);
- Delay_us(100);
-
- Ow_Reset(&PORTA, 0);
- Ow_Write(&PORTA, 0, 0xCC);
- Ow_Write(&PORTA, 0, 0xBE);
- Delay_us(100);
-
- Temp = Ow_Read(&PORTA, 0);
- Temp = (Ow_Read(&PORTA, 0) << 8) + Temp;
-
- if (Temp & 0x8000) {
- Temp = 0;
- }
-
- Rint = Temp >> 4;
- Rfrac = ((Temp & 0x000F) * 625) / 10000.;
- DSTemp = Rint + Rfrac;
-
- VSnd = 331.45 * sqrt(1+(DsTemp/273));
-}
 
 
 void Pulse(){
@@ -292,6 +264,34 @@ int Moda(int VRpt[nd]){
 }
 
 
+void Velocidad(){
+
+ Ow_Reset(&PORTA, 0);
+ Ow_Write(&PORTA, 0, 0xCC);
+ Ow_Write(&PORTA, 0, 0x44);
+ Delay_us(100);
+
+ Ow_Reset(&PORTA, 0);
+ Ow_Write(&PORTA, 0, 0xCC);
+ Ow_Write(&PORTA, 0, 0xBE);
+ Delay_us(100);
+
+ Temp = Ow_Read(&PORTA, 0);
+ Temp = (Ow_Read(&PORTA, 0) << 8) + Temp;
+
+ if (Temp & 0x8000) {
+ Temp = 0;
+ }
+
+ Rint = Temp >> 4;
+ Rfrac = ((Temp & 0x000F) * 625) / 10000.;
+ DSTemp = Rint + Rfrac;
+
+ VSnd = 331.45 * sqrt(1+(DsTemp/273));
+}
+
+
+
 int Distancia(){
 
  conts = 0;
@@ -330,14 +330,6 @@ int Distancia(){
 
 void Calcular(){
 
- if (Ptcn[4]==0x04){
-
- Velocidad();
- Temperatura = (unsigned int)(DSTemp);
- chTemp = (unsigned char *) & Temperatura;
-
- } else {
-
  for (vi=0;vi<nd;vi++){
  Vdistancia[vi] = Distancia();
  }
@@ -359,18 +351,21 @@ void Calcular(){
  IDst = (unsigned int)(Cdistancia);
  Caudal = (unsigned int)(FCaudal);
  ITOF = (unsigned int)(TOF*1.0e6);
+ Temperatura = (unsigned int)(DSTemp);
+
+}
+
+
+void Responder(unsigned int Reg){
+
+ Velocidad();
 
  chIDst = (unsigned char *) & IDst;
  chNivel = (unsigned char *) & Nivel;
  chCaudal = (unsigned char *) & Caudal;
  chTOF = (unsigned char *) & ITOF;
  chAltura = (unsigned char *) & Altura;
-
- }
-}
-
-
-void Responder(unsigned int Reg){
+ chTemp = (unsigned char *) & Temperatura;
 
  switch(Reg){
  case 1:
@@ -382,29 +377,29 @@ void Responder(unsigned int Reg){
 
  case 2:
  for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chIDst++);
+ Rspt[ir]=(*chCaudal++);
  }
  Rspt[2]=Ptcn[2];
  break;
 
  case 3:
  for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chTOF++);
+ Rspt[ir]=(*chIDst++);
  }
  Rspt[2]=Ptcn[2];
  break;
 
  case 4:
  for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chTemp++);
+ Rspt[ir]=(*chTOF++);
  }
+ Rspt[2]=Ptcn[2];
  break;
 
  case 5:
  for (ir=4;ir>=3;ir--){
- Rspt[ir]=(*chCaudal++);
+ Rspt[ir]=(*chTemp++);
  }
- Rspt[2]=Ptcn[2];
  break;
 
  case 6:
@@ -582,7 +577,6 @@ void main() {
 
  Id = (PORTB&0xFF00)>>8;
  T2adj = 460.0;
-
  Altura = 275;
  Kadj = 0;
 
@@ -593,8 +587,10 @@ void main() {
  Rspt[1] = Id;
  Rspt[Rsize-1] = End;
 
+ Calcular();
+
  while(1){
-#line 613 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
+#line 609 "E:/Milton/Github/Tesis/SensorUltrasonico/DSP/dsPIC/ADC_DAC.c"
  if (BanP==1){
 
  if ((Ptcn[1]==Id)&&(Ptcn[Psize-1]==End)){
@@ -605,11 +601,10 @@ void main() {
  switch(Fcn){
  case 1:
  Calcular();
- Responder(0x05);
+ Responder(0x01);
  break;
 
  case 2:
- Calcular();
  *chDP = Ptcn[4];
  *(chDP+1) = Ptcn[3];
  Responder(DatoPtcn);
@@ -625,7 +620,6 @@ void main() {
 
  case 4:
  *chDP = Ptcn[4];
-
  Kadj = DatoPtcn;
  if (Ptcn[3]==0x11){
  Kadj = -Kadj;
@@ -639,8 +633,6 @@ void main() {
  Rspt[2]=0xEE;
  break;
  }
-
-
 
  for (ipp=0;ipp<Psize;ipp++){
  Ptcn[ipp]=0;

@@ -8,29 +8,6 @@ main
 		_Modulus_32x32
 		_Divide_32x32
 	Calcular
-		Velocidad
-			Ow_Reset
-				Delay_500us
-				Delay_80us
-			Ow_Write
-				Delay_80us
-				Delay_1us
-				Delay_50us
-			Ow_Read
-				Delay_1us
-				Delay_50us
-			sqrt
-				frexp
-				ldexp
-					_Compare_Le_Fp
-						_Compare_Fp
-				_Compare_Le_Fp
-				_Div_FP
-				_AddSub_FP
-			_Long2Float
-			_Div_FP
-			_AddSub_FP
-			_Mul_FP
 		Distancia
 			Pulse
 				Vector_Max
@@ -43,6 +20,28 @@ main
 				_Div_FP
 				_Float2Longint
 			Velocidad
+				Ow_Reset
+					Delay_500us
+					Delay_80us
+				Ow_Write
+					Delay_80us
+					Delay_1us
+					Delay_50us
+				Ow_Read
+					Delay_1us
+					Delay_50us
+				sqrt
+					frexp
+					ldexp
+						_Compare_Le_Fp
+							_Compare_Fp
+					_Compare_Le_Fp
+					_Div_FP
+					_AddSub_FP
+				_Long2Float
+				_Div_FP
+				_AddSub_FP
+				_Mul_FP
 			modf
 				_Compare_Ge_Fp
 					_Compare_Fp
@@ -101,6 +100,7 @@ main
 		_Div_FP
 		_Mul_FP
 	Responder
+		Velocidad
 		UART1_Write
 		UART1_Tx_Idle
 UART1Interrupt

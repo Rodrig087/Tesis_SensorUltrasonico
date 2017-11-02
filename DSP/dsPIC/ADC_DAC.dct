@@ -4492,9 +4492,11 @@ rcount_8_bit
 rcount_9
 rcount_9_bit
 responder
+rfrac
 ridle
 ridle
 ridle_bit
+rint
 rnd
 rnd_
 rnd_bit
@@ -5442,6 +5444,7 @@ tcs_bit
 tcs_t1con_bit
 tcs_t2con_bit
 tcs_t3con_bit
+temp
 temperatura
 tgate
 tgate
